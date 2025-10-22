@@ -1,0 +1,33 @@
+@model ShopOnlineCore.Models.Product
+
+<h2>Sửa sản phẩm</h2>
+
+<form asp-action="Create" method="post" enctype="multipart/form-data">
+    <div class="form-group mb-3">
+        <label for="Name">Tên</label>
+        <input asp-for="Name" class="form-control" />
+    </div>
+
+    <div class="form-group mb-3">
+        <label for="Category">Danh mục</label>
+        <input asp-for="Category" class="form-control" />
+    </div>
+
+    <div class="form-group mb-3">
+        <label for="Price">Giá</label>
+        <input asp-for="Price" class="form-control" />
+    </div>
+
+    <div class="form-group mb-3">
+        <label for="Description">Mô tả</label>
+        <textarea asp-for="Description" class="form-control"></textarea>
+    </div>
+
+    <div class="form-group mb-3">
+        <label for="files">Ảnh sản phẩm (chọn nhiều)</label>
+        <input type="file" name="files" id="files" multiple class="form-control" accept="image/*" />
+    </div>
+
+    <button type="submit" class="btn btn-success">Lưu sản phẩm</button>
+    <a asp-action="Index" class="btn btn-secondary">Hủy</a>
+</form>

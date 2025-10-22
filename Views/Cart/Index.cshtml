@@ -1,0 +1,58 @@
+@model List<ShopOnlineCore.Models.CartItem>
+
+<h2>🛒 Giỏ hàng</h2>
+
+@if (!Model.Any())
+{
+    <p>Giỏ hàng của bạn đang trống.</p>
+}
+else
+{
+    <table class="table table-bordered align-middle text-center">
+        <thead class="table-light">
+            <tr>
+                <th>Ảnh</th>
+                <th>Tên sản phẩm</th>
+                <th>Giá</th>
+                <th>Số lượng</th>
+                <th>Thành tiền</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td><img src="@item.ImageUrl" width="80" class="rounded" /></td>
+                <td>@item.Name</td>
+                <td>@item.Price.ToString("N0") đ</td>
+                <td>
+                    <div class="d-flex justify-content-center align-items-center">
+                        <a asp-action="Decrease" asp-route-id="@item.Id" class="btn btn-sm btn-outline-secondary">-</a>
+
+                        <form asp-action="Update" method="post" class="mx-1">
+                            <input type="hidden" name="id" value="@item.Id" />
+                            <input type="number" name="quantity" value="@item.Quantity" min="1"
+                                   class="form-control form-control-sm text-center" style="width:60px; display:inline-block;" />
+                        </form>
+
+                        <a asp-action="Increase" asp-route-id="@item.Id" class="btn btn-sm btn-outline-secondary">+</a>
+                    </div>
+                </td>
+                <td>@item.Total.ToString("N0") đ</td>
+                <td><a asp-action="Remove" asp-route-id="@item.Id" class="text-danger">❌</a></td>
+            </tr>
+        }
+        </tbody>
+    </table>
+
+    <div class="text-end">
+        <h4>Tổng cộng: <b class="text-danger">@Model.Sum(x => x.Total).ToString("N0") đ</b></h4>
+    </div>
+
+    <div class="mt-3">
+        <a class="btn btn-secondary" asp-controller="Product" asp-action="Index">⬅️ Tiếp tục mua</a>
+        <a class="btn btn-danger" asp-action="Clear">🗑 Xóa tất cả</a>
+        <a class="btn btn-success" asp-controller="Checkout" asp-action="Index">💳 Thanh toán</a>
+    </div>
+}

@@ -1,0 +1,48 @@
+@model IEnumerable<ShopOnlineCore.Models.Product>
+
+<h2>Danh sách sản phẩm</h2>
+
+@if (User.IsInRole("Admin"))
+{
+    <p>
+        <a class="btn btn-primary" asp-action="Create">➕ Thêm sản phẩm</a>
+    </p>
+}
+
+<div class="row">
+@foreach (var p in Model)
+{
+    <div class="col-md-4 mb-4">
+        <div class="card shadow-sm h-100">
+            <img src="@p.ImageUrl" class="card-img-top" alt="@p.Name" style="height:220px;object-fit:cover;">
+            <div class="card-body text-center">
+                <h5 class="card-title">@p.Name</h5>
+                <p class="text-muted">@p.Category</p>
+                <p class="text-danger fw-bold">@p.Price.ToString("N0") đ</p>
+
+                <div class="mt-2">
+                    <a asp-controller="Cart" asp-action="Add" asp-route-id="@p.Id" class="btn btn-success btn-sm me-2">
+                        🛒 Thêm vào giỏ
+                    </a>
+
+                    <a asp-action="Details" asp-route-id="@p.Id" class="btn btn-outline-primary btn-sm me-2">
+                        👁️ Xem
+                    </a>
+
+                    @* Chỉ hiện nếu là admin *@
+                    @if (User.IsInRole("Admin"))
+                    {
+                        <a asp-action="Edit" asp-route-id="@p.Id" class="btn btn-warning btn-sm me-2">
+                            ✏️ Sửa
+                        </a>
+
+                        <a asp-action="Delete" asp-route-id="@p.Id" class="btn btn-danger btn-sm">
+                            🗑️ Xóa
+                        </a>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+}
+</div>

@@ -1,0 +1,27 @@
+@model IEnumerable<ShopOnlineCore.Models.Order>
+
+<h2>Danh sách đơn hàng</h2>
+
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Mã đơn</th>
+            <th>Khách hàng</th>
+            <th>Email</th>
+            <th>Ngày tạo</th>
+            <th>Tổng tiền</th>
+        </tr>
+    </thead>
+    <tbody>
+    @foreach (var o in Model)
+    {
+        <tr>
+            <td>@o.Id</td>
+            <td>@o.CustomerName</td>
+            <td>@o.Email</td>
+            <td>@o.CreatedDate.ToString("dd/MM/yyyy HH:mm")</td>
+            <td>@o.Total.ToString("N0") đ</td>
+        </tr>
+    }
+    </tbody>
+</table>

@@ -1,0 +1,63 @@
+@model ShopOnlineCore.Models.Product
+
+<h2>Thêm sản phẩm mới</h2>
+
+<form asp-action="Create" method="post" enctype="multipart/form-data">
+    <div class="form-group mb-3">
+        <label for="Name">Tên</label>
+        <input asp-for="Name" class="form-control" />
+    </div>
+
+    <div class="form-group mb-3">
+        <label for="Category">Danh mục</label>
+        <input asp-for="Category" class="form-control" />
+    </div>
+
+    <div class="form-group mb-3">
+        <label for="Price">Giá</label>
+        <input asp-for="Price" class="form-control" />
+    </div>
+
+    <div class="form-group mb-3">
+        <label for="Description">Mô tả</label>
+        <textarea asp-for="Description" class="form-control"></textarea>
+    </div>
+
+    <!-- Upload nhiều ảnh -->
+    <div class="form-group mb-3">
+        <label for="files">Ảnh sản phẩm (chọn nhiều ảnh)</label>
+        <input type="file" id="files" name="files" multiple accept="image/*" class="form-control" />
+    </div>
+
+    <!-- Preview ảnh trước khi lưu -->
+    <div id="preview" class="d-flex overflow-auto gap-2 mb-3"></div>
+
+    <button type="submit" class="btn btn-success">💾 Lưu</button>
+    <a asp-action="Index" class="btn btn-secondary">Hủy</a>
+</form>
+
+@section Scripts {
+    <script>
+        // Hiển thị preview ảnh khi chọn
+        document.getElementById('files').addEventListener('change', function (event) {
+            const preview = document.getElementById('preview');
+            preview.innerHTML = ''; // reset ảnh cũ
+            const files = event.target.files;
+
+            if (files.length > 0) {
+                for (const file of files) {
+                    const reader = new FileReader();
+                    reader.onload = function (e) {
+                        const img = document.createElement('img');
+                        img.src = e.target.result;
+                        img.style.height = '150px';
+                        img.style.objectFit = 'cover';
+                        img.classList.add('rounded');
+                        preview.appendChild(img);
+                    };
+                    reader.readAsDataURL(file);
+                }
+            }
+        });
+    </script>
+}

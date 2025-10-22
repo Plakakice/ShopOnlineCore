@@ -1,0 +1,88 @@
+﻿@{
+    ViewData["Title"] = "Trang chủ";
+}
+@model IEnumerable<ShopOnlineCore.Models.Product>
+
+<h2 class="text-center mb-4 fw-bold">Sản phẩm nổi bật</h2>
+
+@if (Model != null && Model.Any())
+{
+    <div id="featuredCarousel" class="carousel slide" data-bs-ride="carousel" data-bs-interval="4000">
+        <div class="carousel-inner">
+
+            @{
+                int itemsPerSlide = 4;
+                int total = Model.Count();
+                int slideCount = (int)Math.Ceiling((double)total / itemsPerSlide);
+            }
+
+            @for (int s = 0; s < slideCount; s++)
+            {
+                <div class="carousel-item @(s == 0 ? "active" : "")">
+                    <div class="row justify-content-center">
+                        @for (int i = s * itemsPerSlide; i < Math.Min((s + 1) * itemsPerSlide, total); i++)
+                        {
+                            var p = Model.ElementAt(i);
+                            <div class="col-md-3 col-sm-6 mb-3">
+                                <div class="card shadow-sm h-100 text-center border-0">
+                                    <img src="@p.ImageUrl" class="card-img-top rounded-top" alt="@p.Name" style="height:180px;object-fit:cover;">
+                                    <div class="card-body">
+                                        <h6 class="card-title fw-bold">@p.Name</h6>
+                                        <p class="text-danger fw-semibold">@p.Price.ToString("N0") đ</p>
+                                        <a asp-controller="Product" asp-action="Details" asp-route-id="@p.Id" class="btn btn-outline-primary btn-sm">
+                                            Xem chi tiết
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            }
+        </div>
+
+        <!-- Điều hướng -->
+        <button class="carousel-control-prev" type="button" data-bs-target="#featuredCarousel" data-bs-slide="prev">
+            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Trước</span>
+        </button>
+        <button class="carousel-control-next" type="button" data-bs-target="#featuredCarousel" data-bs-slide="next">
+            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Sau</span>
+        </button>
+    </div>
+}
+else
+{
+    <p class="text-center text-muted">Chưa có sản phẩm nào.</p>
+}
+
+
+
+<div class="text-center mt-5">
+    <h1 class="display-4 mb-3">Chào mừng đến với <span class="text-primary">ShopOnlineCore</span></h1>
+    <p class="lead">Nơi bạn có thể tìm thấy mọi sản phẩm công nghệ mới nhất.</p>
+
+    <div class="mt-4">
+        <a class="btn btn-primary btn-lg" asp-controller="Product" asp-action="Index">
+            🛒 Xem danh sách sản phẩm
+        </a>
+    </div>
+</div>
+
+<hr class="my-5" />
+
+<div class="row text-center">
+    <div class="col-md-4">
+        <h4>⚡ Giao hàng nhanh</h4>
+        <p>Miễn phí toàn quốc cho đơn từ 500k</p>
+    </div>
+    <div class="col-md-4">
+        <h4>💳 Thanh toán tiện lợi</h4>
+        <p>Hỗ trợ thẻ, ví điện tử, và COD</p>
+    </div>
+    <div class="col-md-4">
+        <h4>🎧 Hỗ trợ 24/7</h4>
+        <p>Đội ngũ tư vấn nhiệt tình, thân thiện</p>
+    </div>
+</div>

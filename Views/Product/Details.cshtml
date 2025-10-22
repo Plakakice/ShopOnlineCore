@@ -1,0 +1,57 @@
+@model ShopOnlineCore.Models.Product
+
+<h2>@Model.Name</h2>
+
+<div class="row">
+    <div class="col-md-6">
+        @if (Model.ImageGallery != null && Model.ImageGallery.Any())
+        {
+            <!-- Bootstrap Carousel -->
+            <div id="productCarousel" class="carousel slide shadow-sm" data-bs-ride="carousel" data-bs-interval="3000">
+                <div class="carousel-inner rounded">
+                    @for (int i = 0; i < Model.ImageGallery.Count; i++)
+                    {
+                        <div class="carousel-item @(i == 0 ? "active" : "")">
+                            <img src="@Model.ImageGallery[i]" class="d-block w-100"
+                                 alt="Ảnh sản phẩm @i"
+                                 style="height: 400px; object-fit: cover;">
+                        </div>
+                    }
+                </div>
+
+                <!-- Nút điều hướng -->
+                <button class="carousel-control-prev" type="button" data-bs-target="#productCarousel" data-bs-slide="prev">
+                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                    <span class="visually-hidden">Trước</span>
+                </button>
+                <button class="carousel-control-next" type="button" data-bs-target="#productCarousel" data-bs-slide="next">
+                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                    <span class="visually-hidden">Sau</span>
+                </button>
+
+                <!-- Nút chọn ảnh nhỏ -->
+                <div class="carousel-indicators">
+                    @for (int i = 0; i < Model.ImageGallery.Count; i++)
+                    {
+                        <button type="button" data-bs-target="#productCarousel" data-bs-slide-to="@i"
+                                class="@(i == 0 ? "active" : "")" aria-current="true" aria-label="Ảnh @(i + 1)">
+                        </button>
+                    }
+                </div>
+            </div>
+        }
+        else
+        {
+            <img src="@Model.ImageUrl" alt="@Model.Name" class="img-fluid rounded shadow-sm" style="height: 400px; object-fit: cover;">
+        }
+    </div>
+
+    <div class="col-md-6">
+        <h3 class="text-danger">@Model.Price.ToString("N0") đ</h3>
+        <p><strong>Danh mục:</strong> @Model.Category</p>
+        <p>@Model.Description</p>
+
+        <a asp-controller="Cart" asp-action="Add" asp-route-id="@Model.Id" class="btn btn-success me-2">🛒 Thêm vào giỏ</a>
+        <a asp-action="Index" class="btn btn-secondary">⬅️ Quay lại</a>
+    </div>
+</div>
