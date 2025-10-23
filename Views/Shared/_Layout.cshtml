@@ -1,4 +1,8 @@
-﻿<!DOCTYPE html>
+﻿@using Microsoft.AspNetCore.Identity
+@using ShopOnlineCore.Models.Identity
+@inject SignInManager<ApplicationUser> SignInManager
+@inject UserManager<ApplicationUser> UserManager
+<!DOCTYPE html>
 <html lang="vi">
 <head>
     <meta charset="utf-8" />
@@ -29,10 +33,28 @@
 <div class="header" id="home">
 	<div class="container">
 		<ul>
-		    <li> <a href="#" data-toggle="modal" data-target="#myModal"><i class="fa fa-unlock-alt" aria-hidden="true"></i> Sign In </a></li>
-			<li> <a href="#" data-toggle="modal" data-target="#myModal2"><i class="fa fa-pencil-square-o" aria-hidden="true"></i> Sign Up </a></li>
-			<li><i class="fa fa-phone" aria-hidden="true"></i> Call : 01234567898</li>
-			<li><i class="fa fa-envelope-o" aria-hidden="true"></i> <a href="mailto:info@example.com">info@example.com</a></li>
+			@if (SignInManager.IsSignedIn(User))
+			{
+				<li>
+					<a class="header-account-link" asp-area="Identity" asp-page="/Account/Manage/Index">
+						<i class="fa fa-user-circle" aria-hidden="true"></i> @UserManager.GetUserName(User)
+					</a>
+				</li>
+				<li>
+					<form class="header-logout-form" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl='@Url.Action("Index", "Home", new { area = "" })' method="post">
+						<button type="submit" class="header-logout-button">
+							<i class="fa fa-sign-out" aria-hidden="true"></i> Đăng xuất
+						</button>
+					</form>
+				</li>
+			}
+			else
+			{
+				<li> <a asp-area="Identity" asp-page="/Account/Login"><i class="fa fa-unlock-alt" aria-hidden="true"></i> Đăng nhập </a></li>
+				<li> <a asp-area="Identity" asp-page="/Account/Register"><i class="fa fa-pencil-square-o" aria-hidden="true"></i> Đăng ký </a></li>
+			}
+			<li><i class="fa fa-phone" aria-hidden="true"></i> Call : 0703406744</li>
+			<li><i class="fa fa-envelope-o" aria-hidden="true"></i> <a href="mailto:info@example.com">loboplaka123@gmail.com</a></li>
 		</ul>
 	</div>
 </div>
