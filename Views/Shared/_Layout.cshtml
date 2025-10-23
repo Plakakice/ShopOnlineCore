@@ -1,88 +1,227 @@
 ﻿<!DOCTYPE html>
-<html lang="en">
+<html lang="vi">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - ShopOnlineCore</title>
-    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/ShopOnlineCore.styles.css" asp-append-version="true" />
     <link href="~/css/bootstrap.css" rel="stylesheet" />
     <link href="~/css/style.css" rel="stylesheet" />
     <link href="~/css/font-awesome.css" rel="stylesheet" />
     <link href="~/css/easy-responsive-tabs.css" rel="stylesheet" />
+    <link href="~/css/animate.min.css" rel="stylesheet" />
 </head>
 <body>
-    <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container-fluid">
-                <a class="navbar-brand fw-bold" asp-area="" asp-controller="Home" asp-action="Index">ShopOnlineCore</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
+    @{
+        var currentController = ViewContext.RouteData.Values["controller"]?.ToString() ?? string.Empty;
+        var currentAction = ViewContext.RouteData.Values["action"]?.ToString() ?? string.Empty;
 
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-controller="Home" asp-action="Index">Trang chủ</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-controller="Product" asp-action="Index">Sản phẩm</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-controller="Home" asp-action="Contact">Liên hệ</a>
-                        </li>
-                        <li class="nav-item">
-                            @await Component.InvokeAsync("CartSummary")
-                        </li>
-                    </ul>
+        string NavState(string controller, string action = "")
+        {
+            var matchesController = string.Equals(currentController, controller, System.StringComparison.OrdinalIgnoreCase);
+            var matchesAction = string.IsNullOrEmpty(action) || string.Equals(currentAction, action, System.StringComparison.OrdinalIgnoreCase);
+            return matchesController && matchesAction ? "active menu__item--current" : string.Empty;
+        }
+    }
 
-                    <!-- 👇 Thêm phần này để hiển thị đăng nhập / đăng ký / đăng xuất -->
-                    <ul class="navbar-nav ms-auto align-items-center">
-                        @if (User.Identity != null && User.Identity.IsAuthenticated)
-                        {
-                            <li class="nav-item me-2">
-                                <span class="nav-link text-dark fw-semibold">
-                                    👋 Xin chào, <b>@User.Identity.Name</b>
-                                </span>
-                            </li>
-                            <li class="nav-item">
-                                <form asp-area="Identity" asp-page="/Account/Logout" method="post" class="d-inline">
-                                    <button type="submit" class="btn btn-outline-danger btn-sm">🚪 Đăng xuất</button>
-                                </form>
-                            </li>
-                        }
-                        else
-                        {
-                            <li class="nav-item me-2">
-                                <a class="btn btn-outline-primary btn-sm" asp-area="Identity" asp-page="/Account/Login">🔐 Đăng nhập</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="btn btn-primary btn-sm" asp-area="Identity" asp-page="/Account/Register">📝 Đăng ký</a>
-                            </li>
-                        }
-                    </ul>
-                    <!-- 👆 Kết thúc phần đăng nhập -->
+<!-- header -->
+<div class="header" id="home">
+	<div class="container">
+		<ul>
+		    <li> <a href="#" data-toggle="modal" data-target="#myModal"><i class="fa fa-unlock-alt" aria-hidden="true"></i> Sign In </a></li>
+			<li> <a href="#" data-toggle="modal" data-target="#myModal2"><i class="fa fa-pencil-square-o" aria-hidden="true"></i> Sign Up </a></li>
+			<li><i class="fa fa-phone" aria-hidden="true"></i> Call : 01234567898</li>
+			<li><i class="fa fa-envelope-o" aria-hidden="true"></i> <a href="mailto:info@example.com">info@example.com</a></li>
+		</ul>
+	</div>
+</div>
+<!-- //header -->
+<!-- header-bot -->
+<div class="header-bot">
+	<div class="header-bot_inner_wthreeinfo_header_mid">
+		<div class="col-md-4 header-middle">
+			<form action="#" method="post">
+					<input type="search" name="search" placeholder="Search here..." required="">
+					<input type="submit" value=" ">
+				<div class="clearfix"></div>
+			</form>
+		</div>
+		<!-- header-bot -->
+			<div class="col-md-4 logo_agile">
+				<h1><a asp-controller="Home" asp-action="Index"><span>S</span>hop Online Core 
+                <i aria-hidden="true"></i></a>
+                </h1>
+			</div>
+        <!-- header-bot -->
+		<div class="col-md-4 agileits-social top_content">
+						<ul class="social-nav model-3d-0 footer-social w3_agile_social">
+						                                   <li class="share">Share On : </li>
+															<li><a href="#" class="facebook">
+																  <div class="front"><i class="fa fa-facebook" aria-hidden="true"></i></div>
+																  <div class="back"><i class="fa fa-facebook" aria-hidden="true"></i></div></a></li>
+															<li><a href="#" class="twitter"> 
+																  <div class="front"><i class="fa fa-twitter" aria-hidden="true"></i></div>
+																  <div class="back"><i class="fa fa-twitter" aria-hidden="true"></i></div></a></li>
+															<li><a href="#" class="instagram">
+																  <div class="front"><i class="fa fa-instagram" aria-hidden="true"></i></div>
+																  <div class="back"><i class="fa fa-instagram" aria-hidden="true"></i></div></a></li>
+															<li><a href="#" class="pinterest">
+																  <div class="front"><i class="fa fa-linkedin" aria-hidden="true"></i></div>
+																  <div class="back"><i class="fa fa-linkedin" aria-hidden="true"></i></div></a></li>
+														</ul>
+
+
+
+		</div>
+		<div class="clearfix"></div>
+	</div>
+</div>
+<!-- //header-bot -->
+
+    <div class="ban-top">
+        <div class="container">
+            <div class="top_nav_left">
+                <nav class="navbar navbar-default">
+                    <div class="container-fluid">
+                        <div class="navbar-header">
+                            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#shop-navbar" aria-expanded="false">
+                                <span class="sr-only">Toggle navigation</span>
+                                <span class="icon-bar"></span>
+                                <span class="icon-bar"></span>
+                                <span class="icon-bar"></span>
+                            </button>
+                        </div>
+                        <div class="collapse navbar-collapse menu--shylock" id="shop-navbar">
+                            <ul class="nav navbar-nav menu__list">
+                                <li class="menu__item @NavState("Home", "Index")">
+                                    <a class="menu__link" asp-controller="Home" asp-action="Index">Trang chủ</a>
+                                </li>
+                                <li class="menu__item @NavState("Product", "Index")">
+                                    <a class="menu__link" asp-controller="Product" asp-action="Index">Sản phẩm</a>
+                                </li>
+                                <li class="menu__item @NavState("Home", "Contact")">
+                                    <a class="menu__link" asp-controller="Home" asp-action="Contact">Liên hệ</a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </nav>
+            </div>
+            <div class="top_nav_right">
+                <div class="wthreecartaits wthreecartaits2 cart cart box_1 cart-summary-container">
+                    @await Component.InvokeAsync("CartSummary")
                 </div>
             </div>
-        </nav>
-    </header>
-
-    <div class="container">
-        <main role="main" class="pb-3">
-            @RenderBody()
-        </main>
+            <div class="clearfix"></div>
+        </div>
     </div>
 
-    <footer class="border-top footer text-muted">
+    <div class="content-wrapper">
         <div class="container">
-            &copy; 2025 - ShopOnlineCore - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+            <main role="main" class="py-4">
+                @RenderBody()
+            </main>
         </div>
-    </footer>
+        <div class="clearfix"></div>
+    </div>
+
+<!-- footer -->
+<div class="footer">
+	<div class="footer_agile_inner_info_w3l">
+		<div class="col-md-3 footer-left">
+			<h2><a asp-controller="Home"><span>S</span>hop Online Core</a></h2>
+            <p>
+                ShopOnlineCore mang đến trải nghiệm mua sắm<br>
+                trực tuyến hiện đại với sản phẩm đa dạng<br>
+                và dịch vụ tận tâm.
+            </p>
+			<ul class="social-nav model-3d-0 footer-social w3_agile_social two">
+															<li><a href="#" class="facebook">
+																  <div class="front"><i class="fa fa-facebook" aria-hidden="true"></i></div>
+																  <div class="back"><i class="fa fa-facebook" aria-hidden="true"></i></div></a></li>
+															<li><a href="#" class="twitter"> 
+																  <div class="front"><i class="fa fa-twitter" aria-hidden="true"></i></div>
+																  <div class="back"><i class="fa fa-twitter" aria-hidden="true"></i></div></a></li>
+															<li><a href="#" class="instagram">
+																  <div class="front"><i class="fa fa-instagram" aria-hidden="true"></i></div>
+																  <div class="back"><i class="fa fa-instagram" aria-hidden="true"></i></div></a></li>
+															<li><a href="#" class="pinterest">
+																  <div class="front"><i class="fa fa-linkedin" aria-hidden="true"></i></div>
+																  <div class="back"><i class="fa fa-linkedin" aria-hidden="true"></i></div></a></li>
+														</ul>
+		</div>
+		<div class="col-md-9 footer-right">
+			<div class="sign-grds">
+				<div class="col-md-4 sign-gd">
+					<h4>Our <span>Information</span> </h4>
+					<ul>
+					<li><a asp-controller='Home' asp-action='Index'>Trang chủ</a></li>
+					<li><a asp-controller='Product' asp-action='Index'>Sản phẩm</a></li>
+					<li><a asp-controller='Home' asp-action='Contact'>Liên hệ</a></li>
+					</ul>
+				</div>
+				
+				<div class="col-md-5 sign-gd-two">
+					<h4>Store <span>Information</span></h4>
+					<div class="w3-address">
+						<div class="w3-address-grid">
+							<div class="w3-address-left">
+								<i class="fa fa-phone" aria-hidden="true"></i>
+							</div>
+							<div class="w3-address-right">
+								<h6>Phone Number</h6>
+								<p>+84 703406744</p>
+							</div>
+							<div class="clearfix"> </div>
+						</div>
+						<div class="w3-address-grid">
+							<div class="w3-address-left">
+								<i class="fa fa-envelope" aria-hidden="true"></i>
+							</div>
+							<div class="w3-address-right">
+								<h6>Email Address</h6>
+								<p>Email :<a href="mailto:loboplaka123@gmail.com"> loboplaka123@gmail.com</a></p>
+							</div>
+							<div class="clearfix"> </div>
+						</div>
+						<div class="w3-address-grid">
+							<div class="w3-address-left">
+								<i class="fa fa-map-marker" aria-hidden="true"></i>
+							</div>
+							<div class="w3-address-right">
+								<h6>Location</h6>
+								<p>123 Hóc Môn, Tp HCM, Việt Nam. 
+								
+								</p>
+							</div>
+							<div class="clearfix"> </div>
+						</div>
+					</div>
+				</div>
+				<div class="clearfix"></div>
+			</div>
+		</div>
+		<div class="clearfix"></div>
+			<div class="agile_newsletter_footer">
+					<div class="col-sm-6 newsleft">
+				<h3>SIGN UP FOR NEWSLETTER !</h3>
+			</div>
+			<div class="col-sm-6 newsright">
+				<form action="#" method="post">
+					<input type="email" placeholder="Enter your email..." name="email" required="">
+					<input type="submit" value="Submit">
+				</form>
+			</div>
+
+		<div class="clearfix"></div>
+	</div>
+		<p class="copy-right">&copy 2025 ShopOnlineCore. All rights reserved | Design by <a href="https://github.com/Plakakice">me</a></p>
+	</div>
+</div>
+<!-- //footer -->
 
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
-    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
     <script src="~/js/jquery-2.1.4.min.js"></script>
     <script src="~/js/bootstrap.js"></script>
@@ -93,6 +232,13 @@
     <script src="~/js/jquery.waypoints.min.js"></script>
     <script src="~/js/minicart.min.js"></script>
     <script src="~/js/modernizr.custom.js"></script>
+    <script src="~/js/wow.min.js"></script>
+    <script>
+        new WOW().init();
+    </script>
+
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>
+
+

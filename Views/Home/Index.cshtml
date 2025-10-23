@@ -1,88 +1,267 @@
-﻿@{
-    ViewData["Title"] = "Trang chủ";
-}
 @model IEnumerable<ShopOnlineCore.Models.Product>
+@{
+    ViewData["Title"] = "Trang chủ";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
 
-<h2 class="text-center mb-4 fw-bold">Sản phẩm nổi bật</h2>
+<!-- Carousel banner -->
 
-@if (Model != null && Model.Any())
-{
-    <div id="featuredCarousel" class="carousel slide" data-bs-ride="carousel" data-bs-interval="4000">
-        <div class="carousel-inner">
+<div id="myCarousel" class="carousel slide" data-ride="carousel">
+    <ol class="carousel-indicators">
+        <li data-target="#myCarousel" data-slide-to="0" class="active"></li>
+        <li data-target="#myCarousel" data-slide-to="1"></li>
+        <li data-target="#myCarousel" data-slide-to="2"></li>
+    </ol>
+    <div class="carousel-inner" role="listbox">
+        <div class="item active">
+            <div class="container">
+                <div class="carousel-caption">
+                    <h3>Khuyến mãi <span>Đặc biệt</span></h3>
+                    <p>Sản phẩm hot giảm giá cực sâu</p>
+                    <a class="hvr-outline-out button2" href="#">Xem ngay</a>
+                </div>
+            </div>
+        </div>
+        <div class="item item2">
+            <div class="container">
+                <div class="carousel-caption">
+                    <h3>Bộ sưu tập <span>Mới</span></h3>
+                    <p>Phong cách hiện đại, năng động</p>
+                    <a class="hvr-outline-out button2" href="#">Khám phá</a>
+                </div>
+            </div>
+        </div>
+        <div class="item item3">
+            <div class="container">
+                <div class="carousel-caption">
+                    <h3>Giảm đến <span>50%</span></h3>
+                    <p>Chỉ trong tuần này</p>
+                    <a class="hvr-outline-out button2" href="#">Mua ngay</a>
+                </div>
+            </div>
+        </div>
+    </div>
 
-            @{
-                int itemsPerSlide = 4;
-                int total = Model.Count();
-                int slideCount = (int)Math.Ceiling((double)total / itemsPerSlide);
-            }
+    <a class="left carousel-control" href="#myCarousel" data-slide="prev">
+        <span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>
+    </a>
+    <a class="right carousel-control" href="#myCarousel" data-slide="next">
+        <span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span>
+    </a>
+</div>
 
-            @for (int s = 0; s < slideCount; s++)
-            {
-                <div class="carousel-item @(s == 0 ? "active" : "")">
-                    <div class="row justify-content-center">
-                        @for (int i = s * itemsPerSlide; i < Math.Min((s + 1) * itemsPerSlide, total); i++)
+<!-- Tabs sản phẩm -->
+<div class="new_arrivals_agile_w3ls_info">
+    <div class="container">
+        <h3 class="wthree_text_info wow fadeInDown" data-wow-delay="0.1">Sản phẩm <span>mới nhất</span></h3>
+
+        <div id="horizontalTab">
+            <ul class="resp-tabs-list">
+                <li>Men's</li>
+                <li>Women's</li>
+                <li>Bags</li>
+                <li>Footwear</li>
+            </ul>
+            <div class="resp-tabs-container">
+
+                <!-- Men's -->
+                <div class="tab1">
+                    <div class="row">
+                        @foreach (var product in Model.Where(p => p.Category.ToLower().Contains("men")))
                         {
-                            var p = Model.ElementAt(i);
-                            <div class="col-md-3 col-sm-6 mb-3">
-                                <div class="card shadow-sm h-100 text-center border-0">
-                                    <img src="@p.ImageUrl" class="card-img-top rounded-top" alt="@p.Name" style="height:180px;object-fit:cover;">
-                                    <div class="card-body">
-                                        <h6 class="card-title fw-bold">@p.Name</h6>
-                                        <p class="text-danger fw-semibold">@p.Price.ToString("N0") đ</p>
-                                        <a asp-controller="Product" asp-action="Details" asp-route-id="@p.Id" class="btn btn-outline-primary btn-sm">
-                                            Xem chi tiết
+                            <div class="col-md-3 product-men wow fadeInUp" data-wow-delay="0.2s">
+                                <div class="men-pro-item simpleCart_shelfItem">
+                                    <div id="carousel-@product.Id" class="carousel slide" data-ride="carousel">
+                                        <div class="carousel-inner">
+                                            @if (product.ImageGallery != null && product.ImageGallery.Any())
+                                            {
+                                                var first = true;
+                                                foreach (var img in product.ImageGallery)
+                                                {
+                                                    <div class="item @(first ? "active" : "")">
+                                                        <img src="@Url.Content(img)" alt="@product.Name" class="img-responsive" />
+                                                    </div>
+                                                    first = false;
+                                                }
+                                            }
+                                            else
+                                            {
+                                                <div class="item active">
+                                                    <img src="@Url.Content(product.ImageUrl)" alt="@product.Name" class="img-responsive" />
+                                                </div>
+                                            }
+                                        </div>
+                                        <a class="left carousel-control" href="#carousel-@product.Id" data-slide="prev">
+                                            <span class="glyphicon glyphicon-chevron-left"></span>
                                         </a>
+                                        <a class="right carousel-control" href="#carousel-@product.Id" data-slide="next">
+                                            <span class="glyphicon glyphicon-chevron-right"></span>
+                                        </a>
+                                    </div>
+
+                                    <div class="item-info-product text-center">
+                                        <h4>@product.Name</h4>
+                                        <div class="info-product-price">
+                                            <span class="item_price">@product.Price.ToString("N0") ₫</span>
+                                        </div>
+                                        <a href="@Url.Action("Details", "Product", new { id = product.Id })" class="btn btn-primary hvr-outline-out mt-2">Chi tiết</a>
                                     </div>
                                 </div>
                             </div>
                         }
                     </div>
                 </div>
-            }
+
+                <!-- Women's -->
+                <div class="tab2">
+                    <div class="row">
+                        @foreach (var product in Model.Where(p => p.Category.ToLower().Contains("women")))
+                        {
+                            <div class="col-md-3 product-men wow fadeInUp" data-wow-delay="0.2s">
+                                <div class="men-pro-item simpleCart_shelfItem">
+                                    <div class="men-thumb-item">
+                                        <img src="@Url.Content(product.ImageUrl)" class="pro-image-front" />
+                                        <img src="@Url.Content(product.ImageUrl)" class="pro-image-back" />
+                                    </div>
+                                    <div class="item-info-product text-center">
+                                        <h4>@product.Name</h4>
+                                        <div class="info-product-price">
+                                            <span class="item_price">@product.Price.ToString("N0") ₫</span>
+                                        </div>
+                                        <a href="@Url.Action("Details", "Product", new { id = product.Id })" class="btn btn-primary hvr-outline-out mt-2">Chi tiết</a>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+
+                <!-- Bags -->
+                <div class="tab3">
+                    <div class="row">
+                        @foreach (var product in Model.Where(p => p.Category.ToLower().Contains("bag")))
+                        {
+                            <div class="col-md-3 product-men wow fadeInUp" data-wow-delay="0.2s">
+                                <div class="men-pro-item simpleCart_shelfItem">
+                                    <div class="men-thumb-item">
+                                        <img src="@Url.Content(product.ImageUrl)" class="pro-image-front" />
+                                        <img src="@Url.Content(product.ImageUrl)" class="pro-image-back" />
+                                    </div>
+                                    <div class="item-info-product text-center">
+                                        <h4>@product.Name</h4>
+                                        <div class="info-product-price">
+                                            <span class="item_price">@product.Price.ToString("N0") ₫</span>
+                                        </div>
+                                        <a href="@Url.Action("Details", "Product", new { id = product.Id })" class="btn btn-primary hvr-outline-out mt-2">Chi tiết</a>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+
+                <!-- Footwear -->
+                <div class="tab4">
+                    <div class="row">
+                        @foreach (var product in Model.Where(p => p.Category.ToLower().Contains("shoe") || p.Category.ToLower().Contains("footwear")))
+                        {
+                            <div class="col-md-3 product-men wow fadeInUp" data-wow-delay="0.2s">
+                                <div class="men-pro-item simpleCart_shelfItem">
+                                    <div class="men-thumb-item">
+                                        <img src="@Url.Content(product.ImageUrl)" class="pro-image-front" />
+                                        <img src="@Url.Content(product.ImageUrl)" class="pro-image-back" />
+                                    </div>
+                                    <div class="item-info-product text-center">
+                                        <h4>@product.Name</h4>
+                                        <div class="info-product-price">
+                                            <span class="item_price">@product.Price.ToString("N0") ₫</span>
+                                        </div>
+                                        <a href="@Url.Action("Details", "Product", new { id = product.Id })" class="btn btn-primary hvr-outline-out mt-2">Chi tiết</a>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+
+            </div>
         </div>
-
-        <!-- Điều hướng -->
-        <button class="carousel-control-prev" type="button" data-bs-target="#featuredCarousel" data-bs-slide="prev">
-            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-            <span class="visually-hidden">Trước</span>
-        </button>
-        <button class="carousel-control-next" type="button" data-bs-target="#featuredCarousel" data-bs-slide="next">
-            <span class="carousel-control-next-icon" aria-hidden="true"></span>
-            <span class="visually-hidden">Sau</span>
-        </button>
-    </div>
-}
-else
-{
-    <p class="text-center text-muted">Chưa có sản phẩm nào.</p>
-}
-
-
-
-<div class="text-center mt-5">
-    <h1 class="display-4 mb-3">Chào mừng đến với <span class="text-primary">ShopOnlineCore</span></h1>
-    <p class="lead">Nơi bạn có thể tìm thấy mọi sản phẩm công nghệ mới nhất.</p>
-
-    <div class="mt-4">
-        <a class="btn btn-primary btn-lg" asp-controller="Product" asp-action="Index">
-            🛒 Xem danh sách sản phẩm
-        </a>
     </div>
 </div>
 
-<hr class="my-5" />
-
-<div class="row text-center">
-    <div class="col-md-4">
-        <h4>⚡ Giao hàng nhanh</h4>
-        <p>Miễn phí toàn quốc cho đơn từ 500k</p>
-    </div>
-    <div class="col-md-4">
-        <h4>💳 Thanh toán tiện lợi</h4>
-        <p>Hỗ trợ thẻ, ví điện tử, và COD</p>
-    </div>
-    <div class="col-md-4">
-        <h4>🎧 Hỗ trợ 24/7</h4>
-        <p>Đội ngũ tư vấn nhiệt tình, thân thiện</p>
+<!-- Sale banner -->
+<div class="sale-w3ls">
+    <div class="container">
+        <h6>Giảm giá <span>40%</span> cho tất cả sản phẩm!</h6>
+        <a class="hvr-outline-out button2" href="#">Mua ngay</a>
     </div>
 </div>
+<!-- Counters -->
+<div class="schedule-bottom">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-6 agileinfo_schedule_bottom_left">
+                <img src="~/images/mid.jpg" alt="Banner" class="img-responsive" />
+            </div>
+
+            <div class="col-md-6 agileits_schedule_bottom_right">
+                <div class="w3ls_schedule_bottom_right_grid">
+                    <h3>Chúng tôi đã phục vụ hơn <span>5000+</span> khách hàng</h3>
+                    <p>Cam kết mang lại sản phẩm chất lượng, giá hợp lý và dịch vụ tận tâm.</p>
+
+                    <div class="row text-center mt-4">
+                        <div class="col-md-4 w3l_schedule_bottom_right_grid1 wow fadeInUp" data-wow-delay="0.3s">
+                            <i class="fa fa-users" aria-hidden="true"></i>
+                            <h4>Khách hàng</h4>
+                            <h5 class="counter">5231</h5>
+                        </div>
+
+                        <div class="col-md-4 w3l_schedule_bottom_right_grid1 wow fadeInUp" data-wow-delay="0.3s">
+                            <i class="fa fa-cubes" aria-hidden="true"></i>
+                            <h4>Sản phẩm</h4>
+                            <h5 class="counter">@Model.Count()</h5>
+                        </div>
+
+                        <div class="col-md-4 w3l_schedule_bottom_right_grid1 wow fadeInUp" data-wow-delay="0.3s">
+                            <i class="fa fa-trophy" aria-hidden="true"></i>
+                            <h4>Giải thưởng</h4>
+                            <h5 class="counter">27</h5>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- //Counters -->
+
+
+
+
+@section Scripts {
+    <script src="~/js/jquery.countup.js"></script>
+    <script src="~/js/jquery.waypoints.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            // Tabs
+            $('#horizontalTab').easyResponsiveTabs({
+                type: 'default',
+                width: 'auto',
+                fit: true
+            });
+
+            // Counters
+            $('.counter').countUp();
+
+            // Scroll-to-top
+            $().UItoTop({ easingType: 'easeOutQuart' });
+
+            // Auto-slide main carousel
+            $('#myCarousel').carousel({
+                interval: 4000,
+                pause: "hover"
+            });
+        });
+    </script>
+}
+

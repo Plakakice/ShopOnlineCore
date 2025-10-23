@@ -20,10 +20,27 @@ namespace ShopOnlineCore.Controllers
         // =============================
         // Danh sách sản phẩm
         // =============================
-        public IActionResult Index()
+        public IActionResult Index(string? category, string? search)
         {
-            var products = _context.Products.ToList();
-            return View(products);
+            var products = _context.Products.AsQueryable();
+            if (!string.IsNullOrEmpty(category))
+            {
+                category = category.Trim().ToLower();
+                products = products.Where(p => p.Category.ToLower().Contains(category));
+                ViewData["CategoryFilter"] = char.ToUpper(category[0]) + category.Substring(1);
+
+            }
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                var searchValue = search.Trim().ToLower();
+                products = products.Where(p =>
+                    (!string.IsNullOrEmpty(p.Name) && p.Name.ToLower().Contains(searchValue)) ||
+                    (!string.IsNullOrEmpty(p.Category) && p.Category.ToLower().Contains(searchValue)) ||
+                    (!string.IsNullOrEmpty(p.Description) && p.Description.ToLower().Contains(searchValue)));
+                ViewData["SearchTerm"] = search.Trim();
+            }
+            var productList = products.OrderByDescending(p => p.Id).ToList();
+            return View(productList);
         }
 
         // =============================

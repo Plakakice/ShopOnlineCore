@@ -1,48 +1,150 @@
 @model IEnumerable<ShopOnlineCore.Models.Product>
-
-<h2>Danh sách sản phẩm</h2>
-
-@if (User.IsInRole("Admin"))
-{
-    <p>
-        <a class="btn btn-primary" asp-action="Create">➕ Thêm sản phẩm</a>
-    </p>
+@{
+    ViewData["Title"] = "Danh sách sản phẩm";
+    Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<div class="row">
-@foreach (var p in Model)
-{
-    <div class="col-md-4 mb-4">
-        <div class="card shadow-sm h-100">
-            <img src="@p.ImageUrl" class="card-img-top" alt="@p.Name" style="height:220px;object-fit:cover;">
-            <div class="card-body text-center">
-                <h5 class="card-title">@p.Name</h5>
-                <p class="text-muted">@p.Category</p>
-                <p class="text-danger fw-bold">@p.Price.ToString("N0") đ</p>
+<div class="page-head_agile_info_w3l wow fadeInDown" data-wow-delay="0.1s">
+    <div class="container">
+        <h3>Sản phẩm <span>Shop</span></h3>
+        <div class="services-breadcrumb">
+            <div class="agile_inner_breadcrumb">
+                <ul class="w3_short">
+                    <li><a href="@Url.Action("Index", "Home")">Trang chủ</a><i>|</i></li>
+                    <li>Sản phẩm</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
 
-                <div class="mt-2">
-                    <a asp-controller="Cart" asp-action="Add" asp-route-id="@p.Id" class="btn btn-success btn-sm me-2">
-                        🛒 Thêm vào giỏ
+<!-- Bộ lọc và danh mục -->
+<div class="banner-bootom-w3-agileits">
+    <div class="container">
+        <div class="row">
+            <!-- Cột trái -->
+            <div class="col-md-3 products-left wow fadeInLeft" data-wow-delay="0.2s">
+                <div class="filter-price">
+                    <h3>Lọc theo <span>giá</span></h3>
+                    <ul class="dropdown-menu6">
+                        <li>
+                            <div id="slider-range"></div>
+                            <input type="text" id="amount" readonly style="border:0; color:#ffffff; font-weight:normal;" />
+                        </li>
+                    </ul>
+                </div>
+                <div class="css-treeview">
+                    <h4>Danh mục</h4>
+                    <ul class="tree-list-pad">
+                        <li><a href="@Url.Action("Index", new { category = "Men" })"><i class="fa fa-angle-right"></i> Men's</a></li>
+                        <li><a href="@Url.Action("Index", new { category = "Women" })"><i class="fa fa-angle-right"></i> Women's</a></li>
+                        <li><a href="@Url.Action("Index", new { category = "Bags" })"><i class="fa fa-angle-right"></i> Bags</a></li>
+                        <li><a href="@Url.Action("Index", new { category = "Footwear" })"><i class="fa fa-angle-right"></i> Footwear</a></li>
+                    </ul>
+                </div>
+
+                <div class="community-poll">
+                    <h4>Thăm dò</h4>
+                    <form>
+                        <div class="radio"><label><input type="radio" name="r" checked>Giao hàng nhanh</label></div>
+                        <div class="radio"><label><input type="radio" name="r">Giá thấp</label></div>
+                        <div class="radio"><label><input type="radio" name="r">Bảo hành dài</label></div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Cột phải -->
+            <div class="col-md-9 products-right wow fadeInUp" data-wow-delay="0.3s">
+                <div class="men-wear-top">
+                    <div id="top" class="callbacks_container">
+                        <ul class="rslides" id="slider3">
+                            <li><img class="img-responsive" src="~/images/banner4.jpg" alt=""/></li>
+                            <li><img class="img-responsive" src="~/images/banner3.jpg" alt=""/></li>
+                            <li><img class="img-responsive" src="~/images/banner1.jpg" alt=""/></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="clearfix"></div>
+
+                <!-- Thanh thao tác admin -->
+                <div class="mb-3 text-right">
+                    <a href="@Url.Action("Create", "Product")" class="btn btn-success">
+                        <i class="fa fa-plus"></i> Thêm sản phẩm mới
                     </a>
+                </div>
 
-                    <a asp-action="Details" asp-route-id="@p.Id" class="btn btn-outline-primary btn-sm me-2">
-                        👁️ Xem
-                    </a>
-
-                    @* Chỉ hiện nếu là admin *@
-                    @if (User.IsInRole("Admin"))
+                <!-- Danh sách sản phẩm -->
+                <div class="row">
+                    @foreach (var product in Model)
                     {
-                        <a asp-action="Edit" asp-route-id="@p.Id" class="btn btn-warning btn-sm me-2">
-                            ✏️ Sửa
-                        </a>
+                        <div class="col-md-4 product-men wow zoomIn" data-wow-delay="0.2s">
+                            <div class="men-pro-item simpleCart_shelfItem">
+                                <div class="men-thumb-item">
+                                    <img src="@Url.Content(product.ImageUrl)" alt="@product.Name" class="pro-image-front img-responsive" />
+                                    <img src="@Url.Content(product.ImageUrl)" alt="@product.Name" class="pro-image-back img-responsive" />
+                                    <div class="men-cart-pro">
+                                        <div class="inner-men-cart-pro">
+                                            <a href="@Url.Action("Details", "Product", new { id = product.Id })" class="link-product-add-cart">Xem chi tiết</a>
+                                        </div>
+                                    </div>
+                                    <span class="product-new-top">New</span>
+                                </div>
 
-                        <a asp-action="Delete" asp-route-id="@p.Id" class="btn btn-danger btn-sm">
-                            🗑️ Xóa
-                        </a>
+                                <div class="item-info-product text-center">
+                                    <h4>@product.Name</h4>
+                                    <div class="info-product-price">
+                                        <span class="item_price">@product.Price.ToString("N0") ₫</span>
+                                    </div>
+
+                                    <!-- Nút chức năng -->
+                                    <div class="mt-2">
+                                        <a href="@Url.Action("Edit", "Product", new { id = product.Id })" class="btn btn-warning btn-sm"><i class="fa fa-edit"></i></a>
+                                        <a href="@Url.Action("Delete", "Product", new { id = product.Id })" class="btn btn-danger btn-sm" onclick="return confirm('Xóa sản phẩm này?');"><i class="fa fa-trash"></i></a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     }
                 </div>
             </div>
         </div>
     </div>
-}
 </div>
+
+@section Scripts {
+    <script src="~/js/responsiveslides.min.js"></script>
+    <script src="~/js/jquery.countup.js"></script>
+    <script src="~/js/jquery.waypoints.min.js"></script>
+    <script src="~/js/wow.min.js"></script>
+    <script src="~/js/jquery-ui.js"></script>
+    <script>
+        new WOW().init();
+
+        $(document).ready(function () {
+            // Slider banner nhỏ
+            $("#slider3").responsiveSlides({
+                auto: true,
+                pager: true,
+                nav: false,
+                speed: 500,
+                namespace: "callbacks"
+            });
+
+            // Bộ lọc giá
+            $("#slider-range").slider({
+                range: true,
+                min: 0,
+                max: 10000000,
+                values: [100000, 8000000],
+                slide: function (event, ui) {
+                    $("#amount").val(ui.values[0].toLocaleString() + "₫ - " + ui.values[1].toLocaleString() + "₫");
+                }
+            });
+            $("#amount").val($("#slider-range").slider("values", 0) + "₫ - " + $("#slider-range").slider("values", 1) + "₫");
+
+            // Counter hiệu ứng đếm
+            $('.counter').countUp();
+        });
+    </script>
+}

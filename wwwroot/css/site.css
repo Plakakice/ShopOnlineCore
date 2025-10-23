@@ -33,3 +33,210 @@ body {
     border-radius: 50%;
 }
 
+.header-auth-form {
+  display: inline;
+}
+
+.header-action-btn {
+  background: transparent;
+  border: 0;
+  color: #fff;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  padding: 0;
+}
+
+.header-action-btn:hover,
+.header-action-btn:focus {
+  color: #2fdab8;
+  outline: none;
+}
+
+.cart-summary-link {
+  position: relative;
+  display: inline-block;
+  padding-right: 24px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.cart-summary-link i {
+  margin-right: 6px;
+}
+
+.cart-summary-link .cart-count {
+  position: absolute;
+  top: -8px;
+  right: 0;
+  background: #fc636b;
+  color: #fff;
+  font-size: 11px;
+  line-height: 1;
+  border-radius: 12px;
+  padding: 2px 6px;
+}
+
+.account-page {
+  background: #f7f9fb;
+}
+
+.account-card {
+  background: #ffffff;
+  padding: 2.5rem;
+  border-radius: 6px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+  height: 100%;
+}
+
+.account-card-alt {
+  background: #181919;
+  color: #ffffff;
+  box-shadow: 0 16px 32px rgba(24, 25, 25, 0.35);
+}
+
+.account-title {
+  font-size: 1.65rem;
+  font-weight: 700;
+  margin-bottom: 1.5rem;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.account-card-alt .account-title {
+  color: #2fdab8;
+}
+
+.account-card .form-label {
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  font-size: 0.85rem;
+}
+
+.account-card .form-control {
+  border-radius: 0;
+  padding: 0.75rem 1rem;
+  border-color: #e6e6e6;
+}
+
+.account-card .form-control:focus {
+  border-color: #2fdab8;
+  box-shadow: 0 0 0 0.2rem rgba(47, 218, 184, 0.25);
+}
+
+.account-card .btn-primary {
+  background: #2fdab8;
+  border: none;
+  padding: 0.85rem 1.2rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-weight: 600;
+}
+
+.account-card .btn-primary:hover {
+  background: #26b79b;
+}
+
+.account-links {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  margin-top: 1.5rem;
+}
+
+.account-links a {
+  color: #2fdab8;
+  font-weight: 600;
+  letter-spacing: 0.4px;
+}
+
+.account-links a:hover {
+  color: #24a991;
+}
+
+.account-note {
+  margin: 1rem 0 0;
+  opacity: 0.85;
+}
+
+@media (max-width: 768px) {
+  .account-card {
+    padding: 2rem;
+  }
+}
+
+
+.account-card-alt .btn-outline-light {
+  border-width: 2px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-weight: 600;
+}
+
+.account-card-alt .btn-outline-light:hover {
+  color: #181919;
+  background: #ffffff;
+}
+
+
+.account-card,
+.account-card-alt {
+  position: relative;
+  z-index: 1;
+}
+
+.account-card {
+  color: #212121;
+  border: 1px solid rgba(0,0,0,0.07);
+}
+
+.account-card-alt {
+  color: #ffffff;
+}
+
+.account-card-alt .btn-outline-light {
+  border-radius: 30px;
+  border-width: 2px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-weight: 600;
+}
+
+.account-card-alt .btn-outline-light:hover {
+  color: #181919;
+  background: #ffffff;
+}
+
+
+.content-wrapper::after {
+  content: "";
+  display: block;
+  clear: both;
+}
+
+.header .header-auth li,
+.header .header-auth li a {
+  color: #ffffff;
+}
+
+.header .header-auth form {
+  display: inline;
+}
+
+.header .header-auth form button {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #ffffff;
+  text-decoration: underline;
+}
+
+.cart-summary-wrapper {
+  display: inline-flex;
+  align-items: center;
+}
+
+.cart-summary-wrapper .cart-count {
+  margin-left: 4px;
+}
+
