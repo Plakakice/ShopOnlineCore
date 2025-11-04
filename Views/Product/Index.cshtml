@@ -1,17 +1,57 @@
 @model IEnumerable<ShopOnlineCore.Models.Product>
+@using System.Globalization
 @{
-    ViewData["Title"] = "Danh sách sản phẩm";
+        ViewData["Title"] = "Danh sách sản phẩm";
     Layout = "~/Views/Shared/_Layout.cshtml";
+
+    var culture = CultureInfo.GetCultureInfo("vi-VN");
+    decimal sliderMinBound = (decimal?)ViewData["SliderMin"] ?? 0m;
+    decimal sliderMaxBound = (decimal?)ViewData["SliderMax"] ?? sliderMinBound;
+    decimal filterMinValue = (decimal?)ViewData["FilterMin"] ?? sliderMinBound;
+    decimal filterMaxValue = (decimal?)ViewData["FilterMax"] ?? sliderMaxBound;
+
+    if (sliderMaxBound < sliderMinBound)
+    {
+        sliderMaxBound = sliderMinBound;
+    }
+
+    if (filterMinValue < sliderMinBound)
+    {
+        filterMinValue = sliderMinBound;
+    }
+
+    if (filterMaxValue > sliderMaxBound)
+    {
+        filterMaxValue = sliderMaxBound;
+    }
+
+    if (filterMinValue > filterMaxValue)
+    {
+        var temp = filterMinValue;
+        filterMinValue = filterMaxValue;
+        filterMaxValue = temp;
+    }
+
+    string sliderMinJs = sliderMinBound.ToString(CultureInfo.InvariantCulture);
+    string sliderMaxJs = sliderMaxBound.ToString(CultureInfo.InvariantCulture);
+    string filterMinJs = filterMinValue.ToString(CultureInfo.InvariantCulture);
+    string filterMaxJs = filterMaxValue.ToString(CultureInfo.InvariantCulture);
+
+    string formattedFilterMin = string.Format(culture, "{0:N0}\u20AB", filterMinValue);
+    string formattedFilterMax = string.Format(culture, "{0:N0}\u20AB", filterMaxValue);
+
+    var selectedCategoryQuery = ViewData["SelectedCategoryQuery"]?.ToString() ?? string.Empty;
+    var selectedSearchQuery = ViewData["SelectedSearchQuery"]?.ToString() ?? string.Empty;
 }
 
 <div class="page-head_agile_info_w3l wow fadeInDown" data-wow-delay="0.1s">
     <div class="container">
-        <h3>Sản phẩm <span>Shop</span></h3>
+        <h3>Sản Phẩm</h3>
         <div class="services-breadcrumb">
             <div class="agile_inner_breadcrumb">
                 <ul class="w3_short">
                     <li><a href="@Url.Action("Index", "Home")">Trang chủ</a><i>|</i></li>
-                    <li>Sản phẩm</li>
+                    <li>Sản Phẩm</li>
                 </ul>
             </div>
         </div>
@@ -25,30 +65,86 @@
             <!-- Cột trái -->
             <div class="col-md-3 products-left wow fadeInLeft" data-wow-delay="0.2s">
                 <div class="filter-price">
-                    <h3>Lọc theo <span>giá</span></h3>
-                    <ul class="dropdown-menu6">
-                        <li>
-                            <div id="slider-range"></div>
-                            <input type="text" id="amount" readonly style="border:0; color:#ffffff; font-weight:normal;" />
-                        </li>
-                    </ul>
+                    <h3><span>Lọc Theo Giá</span></h3>
+                    <form method="get" class="price-slider__form" id="price-filter-form">
+                        @if (!string.IsNullOrEmpty(selectedCategoryQuery))
+                        {
+                            <input type="hidden" name="category" value="@selectedCategoryQuery" />
+                        }
+                        @if (!string.IsNullOrEmpty(selectedSearchQuery))
+                        {
+                            <input type="hidden" name="search" value="@selectedSearchQuery" />
+                        }
+                        <input type="hidden" name="minPrice" id="min-price-input" value="@filterMinJs" />
+                        <input type="hidden" name="maxPrice" id="max-price-input" value="@filterMaxJs" />
+
+                        <div class="price-slider">
+                            <div class="price-slider__track" id="price-slider-track">
+                                <input type="range"
+                                       id="price-slider-min"
+                                       min="@sliderMinJs"
+                                       max="@sliderMaxJs"
+                                       value="@filterMinJs" />
+                                <input type="range"
+                                       id="price-slider-max"
+                                       min="@sliderMinJs"
+                                       max="@sliderMaxJs"
+                                       value="@filterMaxJs" />
+                            </div>
+                            <div class="price-slider__values">
+                                <span id="price-min">@formattedFilterMin</span>
+                                <span class="price-slider__dash">-</span>
+                                <span id="price-max">@formattedFilterMax</span>
+                            </div>
+                            <button type="submit" class="price-slider__submit">L&#x1ECD;c</button>
+                        </div>
+                    </form>
                 </div>
+
                 <div class="css-treeview">
                     <h4>Danh mục</h4>
                     <ul class="tree-list-pad">
+                        <li><a href="@Url.Action("Index")" style="font-weight: 600;"><i class="fa fa-th"></i> Tất cả</a></li>
                         <li><a href="@Url.Action("Index", new { category = "Men" })"><i class="fa fa-angle-right"></i> Men's</a></li>
-                        <li><a href="@Url.Action("Index", new { category = "Women" })"><i class="fa fa-angle-right"></i> Women's</a></li>
+                        <li><a href="@Url.Action("Index", new { category = "Laptop" })"><i class="fa fa-angle-right"></i> Laptop</a></li>
                         <li><a href="@Url.Action("Index", new { category = "Bags" })"><i class="fa fa-angle-right"></i> Bags</a></li>
                         <li><a href="@Url.Action("Index", new { category = "Footwear" })"><i class="fa fa-angle-right"></i> Footwear</a></li>
                     </ul>
                 </div>
 
                 <div class="community-poll">
-                    <h4>Thăm dò</h4>
+                    <h4>Community Poll</h4>
                     <form>
-                        <div class="radio"><label><input type="radio" name="r" checked>Giao hàng nhanh</label></div>
-                        <div class="radio"><label><input type="radio" name="r">Giá thấp</label></div>
-                        <div class="radio"><label><input type="radio" name="r">Bảo hành dài</label></div>
+                        <ul class="tree-list-pad poll-options">
+                            <li>
+                                <label class="radio">
+                                    <input type="radio" name="poll" value="fast-shipping" checked />
+                                    <i></i>
+                                    Giao hàng nhanh
+                                </label>
+                            </li>
+                            <li>
+                                <label class="radio">
+                                    <input type="radio" name="poll" value="low-price" />
+                                    <i></i>
+                                    Giá thấp
+                                </label>
+                            </li>
+                            <li>
+                                <label class="radio">
+                                    <input type="radio" name="poll" value="high-price" />
+                                    <i></i>
+                                    Giá cao
+                                </label>
+                            </li>
+                            <li>
+                                <label class="radio">
+                                    <input type="radio" name="poll" value="long-warranty" />
+                                    <i></i>
+                                    Bảo hành dài
+                                </label>
+                            </li>
+                        </ul>
                     </form>
                 </div>
             </div>
@@ -68,21 +164,24 @@
                 <div class="clearfix"></div>
 
                 <!-- Thanh thao tác admin -->
-                <div class="mb-3 text-right">
-                    <a href="@Url.Action("Create", "Product")" class="btn btn-success">
-                        <i class="fa fa-plus"></i> Thêm sản phẩm mới
-                    </a>
-                </div>
+                @if (User.IsInRole("Admin"))
+                {
+                    <div class="mb-3 text-right">
+                        <a href="@Url.Action("Create", "Product")" class="btn btn-success">
+                            <i class="fa fa-plus"></i> Thêm sản phẩm mới
+                        </a>
+                    </div>
+                }
 
                 <!-- Danh sách sản phẩm -->
                 <div class="row">
                     @foreach (var product in Model)
                     {
-                        <div class="col-md-4 product-men wow zoomIn" data-wow-delay="0.2s">
-                            <div class="men-pro-item simpleCart_shelfItem">
-                                <div class="men-thumb-item">
-                                    <img src="@Url.Content(product.ImageUrl)" alt="@product.Name" class="pro-image-front img-responsive" />
-                                    <img src="@Url.Content(product.ImageUrl)" alt="@product.Name" class="pro-image-back img-responsive" />
+                        <div class="col-md-4 col-sm-6 product-men wow zoomIn" data-wow-delay="0.2s" style="margin-bottom: 30px;">
+                            <div class="men-pro-item simpleCart_shelfItem" style="border: 1px solid #e8e8e8; border-radius: 8px; overflow: hidden; height: 100%; display: flex; flex-direction: column;">
+                                <div class="men-thumb-item" style="position: relative; overflow: hidden; background: #f8f8f8;">
+                                    <img src="@Url.Content(product.ImageUrl)" alt="@product.Name" class="pro-image-front img-responsive" style="width: 100%; height: 250px; object-fit: cover;" />
+                                    <img src="@Url.Content(product.ImageUrl)" alt="@product.Name" class="pro-image-back img-responsive" style="width: 100%; height: 250px; object-fit: cover;" />
                                     <div class="men-cart-pro">
                                         <div class="inner-men-cart-pro">
                                             <a href="@Url.Action("Details", "Product", new { id = product.Id })" class="link-product-add-cart">Xem chi tiết</a>
@@ -91,17 +190,22 @@
                                     <span class="product-new-top">New</span>
                                 </div>
 
-                                <div class="item-info-product text-center">
-                                    <h4>@product.Name</h4>
-                                    <div class="info-product-price">
-                                        <span class="item_price">@product.Price.ToString("N0") ₫</span>
+                                <div class="item-info-product text-center" style="padding: 20px 15px; flex: 1; display: flex; flex-direction: column; justify-content: space-between;">
+                                    <div>
+                                        <h4 style="font-size: 1.1em; margin-bottom: 10px; min-height: 50px; display: flex; align-items: center; justify-content: center;">@product.Name</h4>
+                                        <div class="info-product-price" style="margin-bottom: 15px;">
+                                            <span class="item_price" style="font-size: 1.3em; font-weight: 700; color: #e74c3c;">@product.Price.ToString("N0") ₫</span>
+                                        </div>
                                     </div>
 
-                                    <!-- Nút chức năng -->
-                                    <div class="mt-2">
-                                        <a href="@Url.Action("Edit", "Product", new { id = product.Id })" class="btn btn-warning btn-sm"><i class="fa fa-edit"></i></a>
-                                        <a href="@Url.Action("Delete", "Product", new { id = product.Id })" class="btn btn-danger btn-sm" onclick="return confirm('Xóa sản phẩm này?');"><i class="fa fa-trash"></i></a>
-                                    </div>
+                                    <!-- Nút chức năng (chỉ hiển thị cho Admin) -->
+                                    @if (User.IsInRole("Admin"))
+                                    {
+                                        <div class="mt-2" style="display: flex; gap: 8px; justify-content: center;">
+                                            <a href="@Url.Action("Edit", "Product", new { id = product.Id })" class="btn btn-warning btn-sm" style="flex: 1; max-width: 100px;"><i class="fa fa-edit"></i></a>
+                                            <a href="@Url.Action("Delete", "Product", new { id = product.Id })" class="btn btn-danger btn-sm" onclick="return confirm('Xóa sản phẩm này?');" style="flex: 1; max-width: 100px;"><i class="fa fa-trash"></i></a>
+                                        </div>
+                                    }
                                 </div>
                             </div>
                         </div>
@@ -122,7 +226,7 @@
         new WOW().init();
 
         $(document).ready(function () {
-            // Slider banner nhỏ
+            // Slider banner
             $("#slider3").responsiveSlides({
                 auto: true,
                 pager: true,
@@ -131,20 +235,93 @@
                 namespace: "callbacks"
             });
 
-            // Bộ lọc giá
-            $("#slider-range").slider({
-                range: true,
-                min: 0,
-                max: 10000000,
-                values: [100000, 8000000],
-                slide: function (event, ui) {
-                    $("#amount").val(ui.values[0].toLocaleString() + "₫ - " + ui.values[1].toLocaleString() + "₫");
-                }
-            });
-            $("#amount").val($("#slider-range").slider("values", 0) + "₫ - " + $("#slider-range").slider("values", 1) + "₫");
+            const priceForm = document.getElementById("price-filter-form");
+            const sliderTrack = document.getElementById("price-slider-track");
+            const minRange = document.getElementById("price-slider-min");
+            const maxRange = document.getElementById("price-slider-max");
+            const minDisplay = document.getElementById("price-min");
+            const maxDisplay = document.getElementById("price-max");
+            const minHidden = document.getElementById("min-price-input");
+            const maxHidden = document.getElementById("max-price-input");
 
-            // Counter hiệu ứng đếm
+            if (priceForm && sliderTrack && minRange && maxRange && minDisplay && maxDisplay && minHidden && maxHidden) {
+                const boundMin = parseFloat(minRange.min);
+                const boundMax = parseFloat(minRange.max);
+                const difference = boundMax - boundMin;
+
+                let sliderStep = Math.round(difference / 100);
+                if (!Number.isFinite(sliderStep) || sliderStep <= 0) {
+                    sliderStep = 1;
+                }
+                if (sliderStep > 1000) {
+                    sliderStep = Math.round(sliderStep / 1000) * 1000;
+                }
+                if (difference > 0 && sliderStep > difference) {
+                    sliderStep = Math.max(1, Math.round(difference / 10));
+                }
+
+                minRange.step = sliderStep;
+                maxRange.step = sliderStep;
+
+                const formatter = new Intl.NumberFormat("vi-VN");
+
+                function setTrack(minValue, maxValue) {
+                    if (difference > 0) {
+                        const percentMin = ((minValue - boundMin) / difference) * 100;
+                        const percentMax = ((maxValue - boundMin) / difference) * 100;
+                        sliderTrack.style.background =
+                            `linear-gradient(to right, #dcdcdc ${percentMin}%, #2fdab8 ${percentMin}%, #2fdab8 ${percentMax}%, #dcdcdc ${percentMax}%)`;
+                    } else {
+                        sliderTrack.style.background = "#dcdcdc";
+                    }
+                }
+
+                function updateOutputs(minValue, maxValue) {
+                    minDisplay.textContent = formatter.format(Math.round(minValue)) + "\u20AB";
+                    maxDisplay.textContent = formatter.format(Math.round(maxValue)) + "\u20AB";
+                    minHidden.value = Math.round(minValue);
+                    maxHidden.value = Math.round(maxValue);
+                    setTrack(minValue, maxValue);
+                }
+
+                function syncFromInputs(changed) {
+                    let minValue = parseFloat(minRange.value);
+                    let maxValue = parseFloat(maxRange.value);
+
+                    if (difference > 0) {
+                        if (changed === "min" && minValue > maxValue - sliderStep) {
+                            minValue = Math.max(boundMin, maxValue - sliderStep);
+                            minRange.value = minValue;
+                        }
+                        if (changed === "max" && maxValue < minValue + sliderStep) {
+                            maxValue = Math.min(boundMax, minValue + sliderStep);
+                            maxRange.value = maxValue;
+                        }
+                        minValue = Math.max(minValue, boundMin);
+                        maxValue = Math.min(maxValue, boundMax);
+                    } else {
+                        minValue = boundMin;
+                        maxValue = boundMax;
+                        minRange.value = minValue;
+                        maxRange.value = maxValue;
+                    }
+
+                    updateOutputs(minValue, maxValue);
+                }
+
+                minRange.addEventListener("input", function () { syncFromInputs("min"); });
+                maxRange.addEventListener("input", function () { syncFromInputs("max"); });
+
+                syncFromInputs();
+
+                priceForm.addEventListener("submit", function () {
+                    syncFromInputs();
+                });
+            }
+
             $('.counter').countUp();
         });
     </script>
 }
+
+

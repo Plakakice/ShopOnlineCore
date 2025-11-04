@@ -14,9 +14,9 @@ namespace ShopOnlineCore.Controllers
 
         public IActionResult Index()
         {
-            // Lấy 5 sản phẩm đầu tiên trong database để hiển thị ở trang chủ
-            var topProducts = _context.Products.Take(5).ToList();
-            return View(topProducts);
+            // Lấy tất cả sản phẩm để hiển thị theo các tab category
+            var products = _context.Products.ToList();
+            return View(products);
         }
 
         public IActionResult Contact() => View();

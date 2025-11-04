@@ -1,0 +1,25 @@
+# Build folders
+bin/
+obj/
+.vs/
+Debug/
+Release/
+
+# Database files
+*.db
+*.db-shm
+*.db-wal
+
+# User-specific files
+*.user
+*.suo
+*.cache
+*.log
+
+# IDE configs
+.vscode/
+*.swp
+
+# System files
+Thumbs.db
+desktop.ini

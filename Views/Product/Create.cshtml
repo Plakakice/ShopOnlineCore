@@ -1,42 +1,76 @@
 @model ShopOnlineCore.Models.Product
 
-<h2>Thêm sản phẩm mới</h2>
-
-<form asp-action="Create" method="post" enctype="multipart/form-data">
-    <div class="form-group mb-3">
-        <label for="Name">Tên</label>
-        <input asp-for="Name" class="form-control" />
+<div class="page-head_agile_info_w3l">
+    <div class="container">
+        <h3>Thêm sản phẩm mới</h3>
     </div>
+</div>
 
-    <div class="form-group mb-3">
-        <label for="Category">Danh mục</label>
-        <input asp-for="Category" class="form-control" />
+<div class="container mt-4 mb-5">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <div class="card">
+                <div class="card-body">
+                    <form asp-action="Create" method="post" enctype="multipart/form-data">
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+                        
+                        <div class="form-group mb-3">
+                            <label for="Name">Tên sản phẩm <span class="text-danger">*</span></label>
+                            <input asp-for="Name" class="form-control" required />
+                            <span asp-validation-for="Name" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label for="Category">Danh mục <span class="text-danger">*</span></label>
+                            <select asp-for="Category" class="form-control" required>
+                                <option value="">-- Chọn danh mục --</option>
+                                <option value="Laptop">Laptop</option>
+                                <option value="Men">Men's</option>
+                                <option value="Bags">Bags</option>
+                                <option value="Footwear">Footwear</option>
+                            </select>
+                            <span asp-validation-for="Category" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label for="Price">Giá (VND) <span class="text-danger">*</span></label>
+                            <input asp-for="Price" type="number" step="1000" min="0" class="form-control" required />
+                            <span asp-validation-for="Price" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label for="Description">Mô tả</label>
+                            <textarea asp-for="Description" class="form-control" rows="4"></textarea>
+                            <span asp-validation-for="Description" class="text-danger"></span>
+                        </div>
+
+                        <!-- Upload nhiều ảnh -->
+                        <div class="form-group mb-3">
+                            <label for="files">Ảnh sản phẩm (chọn nhiều ảnh) <span class="text-danger">*</span></label>
+                            <input type="file" id="files" name="files" multiple accept="image/*" class="form-control" required />
+                            <small class="form-text text-muted">Ảnh đầu tiên sẽ là ảnh đại diện</small>
+                        </div>
+
+                        <!-- Preview ảnh trước khi lưu -->
+                        <div id="preview" class="d-flex flex-wrap gap-2 mb-3"></div>
+
+                        <div class="form-group">
+                            <button type="submit" class="btn btn-success">
+                                <i class="fa fa-save"></i> Lưu sản phẩm
+                            </button>
+                            <a asp-action="Index" class="btn btn-secondary">
+                                <i class="fa fa-times"></i> Hủy
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
     </div>
-
-    <div class="form-group mb-3">
-        <label for="Price">Giá</label>
-        <input asp-for="Price" class="form-control" />
-    </div>
-
-    <div class="form-group mb-3">
-        <label for="Description">Mô tả</label>
-        <textarea asp-for="Description" class="form-control"></textarea>
-    </div>
-
-    <!-- Upload nhiều ảnh -->
-    <div class="form-group mb-3">
-        <label for="files">Ảnh sản phẩm (chọn nhiều ảnh)</label>
-        <input type="file" id="files" name="files" multiple accept="image/*" class="form-control" />
-    </div>
-
-    <!-- Preview ảnh trước khi lưu -->
-    <div id="preview" class="d-flex overflow-auto gap-2 mb-3"></div>
-
-    <button type="submit" class="btn btn-success">💾 Lưu</button>
-    <a asp-action="Index" class="btn btn-secondary">Hủy</a>
-</form>
+</div>
 
 @section Scripts {
+    <partial name="_ValidationScriptsPartial" />
     <script>
         // Hiển thị preview ảnh khi chọn
         document.getElementById('files').addEventListener('change', function (event) {
@@ -45,15 +79,32 @@
             const files = event.target.files;
 
             if (files.length > 0) {
-                for (const file of files) {
+                for (let i = 0; i < files.length; i++) {
+                    const file = files[i];
                     const reader = new FileReader();
                     reader.onload = function (e) {
+                        const wrapper = document.createElement('div');
+                        wrapper.style.position = 'relative';
+                        
                         const img = document.createElement('img');
                         img.src = e.target.result;
                         img.style.height = '150px';
+                        img.style.width = '150px';
                         img.style.objectFit = 'cover';
-                        img.classList.add('rounded');
-                        preview.appendChild(img);
+                        img.classList.add('rounded', 'border');
+                        
+                        if (i === 0) {
+                            const badge = document.createElement('span');
+                            badge.className = 'badge bg-primary';
+                            badge.style.position = 'absolute';
+                            badge.style.top = '5px';
+                            badge.style.left = '5px';
+                            badge.textContent = 'Ảnh chính';
+                            wrapper.appendChild(badge);
+                        }
+                        
+                        wrapper.appendChild(img);
+                        preview.appendChild(wrapper);
                     };
                     reader.readAsDataURL(file);
                 }

@@ -1,4 +1,4 @@
-html, body { margin:0;
+﻿html, body { margin:0;
 	font-size: 100%;
 	background: #fff;
 	font-family: 'Open Sans', sans-serif; } body a { text-decoration:none;
@@ -1192,12 +1192,14 @@ font-size:16px; } input#amount,input#amount1 { font-size: 18px;
     width: 100%;
     border: 1px solid #D2D2D2 !important;
     padding: 4px 0; } ul.dropdown-menu6 li a { text-decoration: none; } .range,.range-two { padding: 15px 0 22px 0;
-border-bottom: 1px solid #e5e3db; } .filter-price h3 { color: #0c0c0c;
+border-bottom: 1px solid #e5e3db; } 
+    .filter-price h3 { color: #0c0c0c;
     text-align: center;
     text-transform: uppercase;
     font-size: 1.5em;
     font-weight: 700;
-    letter-spacing: 1px; } .filter-price h3 span { font-weight:300; } .css-treeview label { padding: 5px;
+    letter-spacing: 1px; } 
+    .filter-price h3 span { font-weight:300; } .css-treeview label { padding: 5px;
     margin: 2px;
     font-size: 0.9em;
     color: #545454;
@@ -1852,3 +1854,75 @@ border-bottom: 1px solid #e5e3db; } .filter-price h3 { color: #0c0c0c;
 		font-size: 1em;
 		letter-spacing: 4px; } #PPMiniCart form { width: 290px !important;
 		padding: 10px 10px 20px !important; } #PPMiniCart { left: 68% !important; }  } 
+
+        .price-filter {
+    text-align: center;
+    padding: 20px 10px;
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
+    background-color: #fff;
+    margin-bottom: 20px;
+}
+
+.price-filter h3 {
+    font-weight: 600;
+    font-size: 18px;
+    letter-spacing: 1px;
+    margin-bottom: 15px;
+}
+
+.price-filter h3 span {
+    font-weight: 400;
+    color: #555;
+}
+
+.slider-container {
+    position: relative;
+    width: 80%;
+    margin: 0 auto;
+    height: 6px;
+    background: linear-gradient(to right, #ccc 0%, #1abc9c 0%, #1abc9c 100%, #ccc 100%);
+    border-radius: 3px;
+}
+
+.slider-container input[type="range"] {
+    position: absolute;
+    width: 100%;
+    top: 0;
+    height: 6px;
+    background: none;
+    pointer-events: none;
+    -webkit-appearance: none;
+}
+
+.slider-container input[type="range"]::-webkit-slider-thumb {
+    pointer-events: all;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: #ff5a5a;
+    border: 2px solid #fff;
+    cursor: pointer;
+    margin-top: 30px;
+    -webkit-appearance: none;
+}
+
+.slider-container::before {
+    content: "";
+    position: absolute;
+    height: 5px;
+    background: #000;
+    border-radius: 3px;
+    top: 0;
+    z-index: 1;
+}
+
+.price-values {
+    margin-top: 15px;
+    font-weight: 500;
+    font-size: 16px;
+}
+
+.price-values span {
+    margin: 0 4px;
+}

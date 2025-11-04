@@ -159,6 +159,203 @@ body {
   opacity: 0.85;
 }
 
+.community-poll .poll-options {
+  list-style: none;
+  margin: 0;
+}
+
+.community-poll .radio {
+  display: block;
+  margin: 0 0 12px;
+  padding-left: 28px;
+  color: #545454;
+  font-size: 0.95em;
+}
+
+.community-poll .radio:last-child {
+  margin-bottom: 0;
+}
+
+.products-left .filter-price {
+  padding: 32px 24px;
+  border: 1px solid #d2d2d2;
+  background: #ffffff;
+  text-align: center;
+}
+
+.products-left .filter-price h3 {
+  margin: 0;
+  font-size: 1.2rem;
+  font-weight: 400;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: #111;
+}
+
+.products-left .filter-price h3 span {
+  display: inline-block;
+  margin-right: 6px;
+  font-weight: 700;
+  color: #111;
+}
+
+.price-slider {
+  margin-top: 24px;
+}
+
+.price-slider__form {
+  margin: 0;
+}
+
+.price-slider__track {
+  position: relative;
+  height: 4px;
+  width: 100%;
+  margin-bottom: 22px;
+  background: #dcdcdc;
+  border-radius: 2px;
+}
+
+.price-slider__track input[type="range"] {
+  position: absolute;
+  top: -1px;
+  left: 0;
+  width: 100%;
+  height: 4px;
+  background: transparent;
+  pointer-events: none;
+  -webkit-appearance: none;
+}
+
+.price-slider__track input[type="range"]:focus {
+  outline: none;
+}
+
+.price-slider__track input[type="range"]::-webkit-slider-thumb {
+  pointer-events: all;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 3px solid #ffffff;
+  background: #ff6b81;
+  box-shadow: 0 0 0 1px #ff6b81;
+  cursor: pointer;
+  -webkit-appearance: none;
+}
+
+.price-slider__track input[type="range"]::-webkit-slider-runnable-track {
+  background: transparent;
+}
+
+.price-slider__track input[type="range"]::-moz-range-thumb {
+  pointer-events: all;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 3px solid #ffffff;
+  background: #ff6b81;
+  box-shadow: 0 0 0 1px #ff6b81;
+  cursor: pointer;
+}
+
+.price-slider__track input[type="range"]::-moz-range-track {
+  background: transparent;
+  border: none;
+}
+
+.price-slider__track input[type="range"]::-moz-focus-outer {
+  border: 0;
+}
+
+.price-slider__track input[type="range"]::-moz-range-progress {
+  background: transparent;
+}
+
+.price-slider__track input[type="range"]::-ms-track {
+  background: transparent;
+  border-color: transparent;
+  color: transparent;
+}
+
+.price-slider__track input[type="range"]::-ms-thumb {
+  pointer-events: all;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 3px solid #ffffff;
+  background: #ff6b81;
+  box-shadow: 0 0 0 1px #ff6b81;
+  cursor: pointer;
+}
+
+.price-slider__track input[type="range"]::-ms-fill-lower,
+.price-slider__track input[type="range"]::-ms-fill-upper {
+  background: transparent;
+}
+
+.price-slider__values {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  width: 100%;
+  box-sizing: border-box;
+  border: 1px solid #d2d2d2;
+  padding: 12px 12px;
+  background: #ffffff;
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0;
+  color: #111;
+  border-radius: 4px;
+}
+
+.price-slider__values span {
+  flex: 1;
+  min-width: 0;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.price-slider__dash {
+  flex: 0;
+  color: #777;
+  font-weight: 400;
+  padding: 0 4px;
+}
+
+.price-slider__submit {
+  display: inline-block;
+  width: 100%;
+  margin-top: 18px;
+  padding: 10px 0;
+  border: none;
+  border-radius: 24px;
+  background: #2fdab8;
+  color: #ffffff;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.3s ease, box-shadow 0.3s ease;
+}
+
+.price-slider__submit:hover,
+.price-slider__submit:focus {
+  background: #24a991;
+  box-shadow: 0 8px 20px rgba(36, 169, 145, 0.25);
+  outline: none;
+}
+
+.price-slider__submit:disabled {
+  background: #9ddfd1;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
 @media (max-width: 768px) {
   .account-card {
     padding: 2rem;
@@ -270,4 +467,112 @@ body {
 
 .header-logout-button:focus {
     outline: none;
+}
+
+/* Product Details - Thumbnail Slider */
+.single-right-left .grid.images_3_of_2 {
+    max-width: 400px !important;
+}
+
+.single-right-left .flexslider {
+    margin: 0;
+    background: #fff;
+    border: 2px solid #e0e0e0;
+    border-radius: 4px;
+    position: relative;
+}
+
+.single-right-left .flexslider .slides {
+    list-style: none !important;
+    padding: 0;
+    margin: 0;
+}
+
+.single-right-left .flex-viewport {
+    max-height: 400px !important;
+}
+
+.single-right-left .flexslider .slides img {
+    width: 100%;
+    max-height: 400px !important;
+    object-fit: contain;
+}
+
+.single-right-left .flex-control-nav,
+.single-right-left .flex-control-paging {
+    display: none !important;
+}
+
+.single-right-left ol.flex-control-nav,
+.single-right-left ol.flex-control-paging {
+    display: none !important;
+}
+
+/* Custom Direction Navigation Arrows */
+.single-right-left .flex-direction-nav {
+    position: absolute;
+    width: 100%;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 10;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.single-right-left .flex-direction-nav li {
+    list-style: none;
+}
+
+.single-right-left .flex-direction-nav a {
+    display: block;
+    width: 50px;
+    height: 50px;
+    position: absolute;
+    top: 0;
+    background-color: rgba(128, 128, 128, 0.6);
+    color: #fff;
+    text-decoration: none;
+    border-radius: 50%;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    text-indent: -9999px;
+    overflow: hidden;
+}
+
+.single-right-left .flex-direction-nav a:before {
+    font-family: "FontAwesome";
+    font-size: 20px;
+    color: #fff;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-indent: 0;
+    display: block;
+}
+
+.single-right-left .flex-direction-nav .flex-prev {
+    left: 10px;
+}
+
+.single-right-left .flex-direction-nav .flex-prev:before {
+    content: "\f053";
+}
+
+.single-right-left .flex-direction-nav .flex-next {
+    right: 10px;
+}
+
+.single-right-left .flex-direction-nav .flex-next:before {
+    content: "\f054";
+}
+
+.single-right-left .flex-direction-nav a:hover {
+    background-color: rgba(128, 128, 128, 0.9);
+}
+
+.single-right-left .flex-direction-nav .flex-disabled {
+    opacity: 0.3;
+    cursor: default;
 }

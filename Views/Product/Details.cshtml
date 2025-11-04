@@ -1,57 +1,183 @@
 @model ShopOnlineCore.Models.Product
+@{
+    ViewData["Title"] = Model.Name;
+}
 
-<h2>@Model.Name</h2>
-
-<div class="row">
-    <div class="col-md-6">
-        @if (Model.ImageGallery != null && Model.ImageGallery.Any())
-        {
-            <!-- Bootstrap Carousel -->
-            <div id="productCarousel" class="carousel slide shadow-sm" data-bs-ride="carousel" data-bs-interval="3000">
-                <div class="carousel-inner rounded">
-                    @for (int i = 0; i < Model.ImageGallery.Count; i++)
-                    {
-                        <div class="carousel-item @(i == 0 ? "active" : "")">
-                            <img src="@Model.ImageGallery[i]" class="d-block w-100"
-                                 alt="Ảnh sản phẩm @i"
-                                 style="height: 400px; object-fit: cover;">
-                        </div>
-                    }
-                </div>
-
-                <!-- Nút điều hướng -->
-                <button class="carousel-control-prev" type="button" data-bs-target="#productCarousel" data-bs-slide="prev">
-                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                    <span class="visually-hidden">Trước</span>
-                </button>
-                <button class="carousel-control-next" type="button" data-bs-target="#productCarousel" data-bs-slide="next">
-                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                    <span class="visually-hidden">Sau</span>
-                </button>
-
-                <!-- Nút chọn ảnh nhỏ -->
-                <div class="carousel-indicators">
-                    @for (int i = 0; i < Model.ImageGallery.Count; i++)
-                    {
-                        <button type="button" data-bs-target="#productCarousel" data-bs-slide-to="@i"
-                                class="@(i == 0 ? "active" : "")" aria-current="true" aria-label="Ảnh @(i + 1)">
-                        </button>
-                    }
-                </div>
+<!-- Page Header -->
+<div class="page-head_agile_info_w3l">
+    <div class="container">
+        <h3>Chi tiết <span>Sản phẩm</span></h3>
+        <div class="services-breadcrumb">
+            <div class="agile_inner_breadcrumb">
+                <ul class="w3_short">
+                    <li><a asp-controller="Home" asp-action="Index">Trang chủ</a><i>|</i></li>
+                    <li><a asp-action="Index">Sản phẩm</a><i>|</i></li>
+                    <li>@Model.Name</li>
+                </ul>
             </div>
-        }
-        else
-        {
-            <img src="@Model.ImageUrl" alt="@Model.Name" class="img-fluid rounded shadow-sm" style="height: 400px; object-fit: cover;">
-        }
-    </div>
-
-    <div class="col-md-6">
-        <h3 class="text-danger">@Model.Price.ToString("N0") đ</h3>
-        <p><strong>Danh mục:</strong> @Model.Category</p>
-        <p>@Model.Description</p>
-
-        <a asp-controller="Cart" asp-action="Add" asp-route-id="@Model.Id" class="btn btn-success me-2">🛒 Thêm vào giỏ</a>
-        <a asp-action="Index" class="btn btn-secondary">⬅️ Quay lại</a>
+        </div>
     </div>
 </div>
+
+<!-- Single Product Page -->
+<div class="banner-bootom-w3-agileits">
+    <div class="container">
+        <div class="col-md-5 single-right-left">
+            <div class="grid images_3_of_2">
+                <div class="flexslider">
+                    <ul class="slides">
+                        @if (Model.ImageGallery != null && Model.ImageGallery.Any())
+                        {
+                            @foreach (var img in Model.ImageGallery)
+                            {
+                                <li data-thumb="@Url.Content(img)">
+                                    <div class="thumb-image">
+                                        <img src="@Url.Content(img)" class="img-responsive" alt="@Model.Name">
+                                    </div>
+                                </li>
+                            }
+                        }
+                        else
+                        {
+                            <li data-thumb="@Url.Content(Model.ImageUrl)">
+                                <div class="thumb-image">
+                                    <img src="@Url.Content(Model.ImageUrl)" class="img-responsive" alt="@Model.Name">
+                                </div>
+                            </li>
+                        }
+                    </ul>
+                    <div class="clearfix"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-7 single-right-left simpleCart_shelfItem">
+            <h3>@Model.Name</h3>
+            <p><span class="item_price">@Model.Price.ToString("N0") ₫</span></p>
+            
+            <div class="rating1">
+                <span class="starRating">
+                    <input id="rating5" type="radio" name="rating" value="5">
+                    <label for="rating5">5</label>
+                    <input id="rating4" type="radio" name="rating" value="4">
+                    <label for="rating4">4</label>
+                    <input id="rating3" type="radio" name="rating" value="3" checked="">
+                    <label for="rating3">3</label>
+                    <input id="rating2" type="radio" name="rating" value="2">
+                    <label for="rating2">2</label>
+                    <input id="rating1" type="radio" name="rating" value="1">
+                    <label for="rating1">1</label>
+                </span>
+            </div>
+
+            <div class="color-quality">
+                <div class="color-quality-right">
+                    <h5>Danh mục :</h5>
+                    <span class="badge bg-primary" style="font-size: 1em; padding: 8px 15px;">@Model.Category</span>
+                </div>
+            </div>
+
+            <div class="occasion-cart">
+                <div class="snipcart-details top_brand_home_details item_add single-item hvr-outline-out button2">
+                    <form asp-controller="Cart" asp-action="Add" asp-route-id="@Model.Id" method="post">
+                        <fieldset>
+                            <input type="submit" name="submit" value="Thêm vào giỏ" class="button">
+                        </fieldset>
+                    </form>
+                </div>
+            </div>
+
+            <ul class="social-nav model-3d-0 footer-social w3_agile_social single_page_w3ls">
+                <li class="share">Chia sẻ : </li>
+                <li><a href="#" class="facebook">
+                    <div class="front"><i class="fa fa-facebook" aria-hidden="true"></i></div>
+                    <div class="back"><i class="fa fa-facebook" aria-hidden="true"></i></div>
+                </a></li>
+                <li><a href="#" class="twitter">
+                    <div class="front"><i class="fa fa-twitter" aria-hidden="true"></i></div>
+                    <div class="back"><i class="fa fa-twitter" aria-hidden="true"></i></div>
+                </a></li>
+                <li><a href="#" class="instagram">
+                    <div class="front"><i class="fa fa-instagram" aria-hidden="true"></i></div>
+                    <div class="back"><i class="fa fa-instagram" aria-hidden="true"></i></div>
+                </a></li>
+                <li><a href="#" class="pinterest">
+                    <div class="front"><i class="fa fa-linkedin" aria-hidden="true"></i></div>
+                    <div class="back"><i class="fa fa-linkedin" aria-hidden="true"></i></div>
+                </a></li>
+            </ul>
+        </div>
+        
+        <div class="clearfix"></div>
+
+        <!-- Product Tabs -->
+        <div class="responsive_tabs_agileits">
+            <div id="horizontalTab">
+                <ul class="resp-tabs-list">
+                    <li>Mô tả</li>
+                    <li>Thông tin</li>
+                </ul>
+                <div class="resp-tabs-container">
+                    <!-- Tab 1: Description -->
+                    <div class="tab1">
+                        <div class="single_page_agile_its_w3ls">
+                            <h6>@Model.Name</h6>
+                            <p>@Model.Description</p>
+                            @if (!string.IsNullOrEmpty(Model.Description))
+                            {
+                                <p class="w3ls_para">Sản phẩm chất lượng cao, được kiểm định kỹ lưỡng trước khi giao đến tay khách hàng. Đảm bảo giá tốt nhất thị trường.</p>
+                            }
+                        </div>
+                    </div>
+
+                    <!-- Tab 2: Information -->
+                    <div class="tab2">
+                        <div class="single_page_agile_its_w3ls">
+                            <h6>Thông tin sản phẩm</h6>
+                            <ul style="list-style: disc; padding-left: 20px;">
+                                <li>Tên sản phẩm: <strong>@Model.Name</strong></li>
+                                <li>Danh mục: <strong>@Model.Category</strong></li>
+                                <li>Giá: <strong>@Model.Price.ToString("N0") ₫</strong></li>
+                                <li>Bảo hành: 12 tháng</li>
+                                <li>Giao hàng: Toàn quốc</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/imagezoom.js"></script>
+    <script src="~/js/jquery.flexslider.js"></script>
+    <script src="~/js/easy-responsive-tabs.js"></script>
+    <script>
+        $(document).ready(function () {
+            // FlexSlider for product images
+            $(window).load(function() {
+                $('.flexslider').flexslider({
+                    animation: "slide",
+                    controlNav: false,  // Tắt pagination dots
+                    directionNav: true  // Bật nút Previous/Next
+                });
+            });
+
+            // Responsive Tabs
+            $('#horizontalTab').easyResponsiveTabs({
+                type: 'default',
+                width: 'auto',
+                fit: true,
+                closed: 'accordion',
+                activate: function(event) {
+                    var $tab = $(this);
+                    var $info = $('#tabInfo');
+                    var $name = $('span', $info);
+                    $name.text($tab.text());
+                    $info.show();
+                }
+            });
+        });
+    </script>
+}

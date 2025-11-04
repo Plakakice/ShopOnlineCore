@@ -1,33 +1,113 @@
 @model ShopOnlineCore.Models.Product
 
-<h2>Sửa sản phẩm</h2>
-
-<form asp-action="Create" method="post" enctype="multipart/form-data">
-    <div class="form-group mb-3">
-        <label for="Name">Tên</label>
-        <input asp-for="Name" class="form-control" />
+<div class="page-head_agile_info_w3l">
+    <div class="container">
+        <h3>Sửa sản phẩm</h3>
     </div>
+</div>
 
-    <div class="form-group mb-3">
-        <label for="Category">Danh mục</label>
-        <input asp-for="Category" class="form-control" />
+<div class="container mt-4 mb-5">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <div class="card">
+                <div class="card-body">
+                    <form asp-action="Edit" method="post" enctype="multipart/form-data">
+                        <input type="hidden" asp-for="Id" />
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+                        
+                        <div class="form-group mb-3">
+                            <label for="Name">Tên sản phẩm <span class="text-danger">*</span></label>
+                            <input asp-for="Name" class="form-control" required />
+                            <span asp-validation-for="Name" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label for="Category">Danh mục <span class="text-danger">*</span></label>
+                            <select asp-for="Category" class="form-control" required>
+                                <option value="">-- Chọn danh mục --</option>
+                                <option value="Laptop">Laptop</option>
+                                <option value="Men">Men's</option>
+                                <option value="Bags">Bags</option>
+                                <option value="Footwear">Footwear</option>
+                            </select>
+                            <span asp-validation-for="Category" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label for="Price">Giá (VND) <span class="text-danger">*</span></label>
+                            <input asp-for="Price" type="number" step="1000" min="0" class="form-control" required />
+                            <span asp-validation-for="Price" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label for="Description">Mô tả</label>
+                            <textarea asp-for="Description" class="form-control" rows="4"></textarea>
+                            <span asp-validation-for="Description" class="text-danger"></span>
+                        </div>
+
+                        <!-- Hiển thị ảnh hiện tại -->
+                        @if (Model.ImageGallery != null && Model.ImageGallery.Any())
+                        {
+                            <div class="form-group mb-3">
+                                <label>Ảnh hiện tại:</label>
+                                <div class="d-flex flex-wrap gap-2">
+                                    @foreach (var img in Model.ImageGallery)
+                                    {
+                                        <img src="@Url.Content(img)" alt="Product" style="height: 100px; width: 100px; object-fit: cover;" class="rounded border" />
+                                    }
+                                </div>
+                            </div>
+                        }
+
+                        <div class="form-group mb-3">
+                            <label for="files">Thêm ảnh mới (nếu muốn)</label>
+                            <input type="file" name="files" id="files" multiple class="form-control" accept="image/*" />
+                            <small class="form-text text-muted">Để trống nếu không muốn thay đổi ảnh</small>
+                        </div>
+
+                        <!-- Preview ảnh mới -->
+                        <div id="preview" class="d-flex flex-wrap gap-2 mb-3"></div>
+
+                        <div class="form-group">
+                            <button type="submit" class="btn btn-success">
+                                <i class="fa fa-save"></i> Lưu thay đổi
+                            </button>
+                            <a asp-action="Index" class="btn btn-secondary">
+                                <i class="fa fa-times"></i> Hủy
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
     </div>
+</div>
 
-    <div class="form-group mb-3">
-        <label for="Price">Giá</label>
-        <input asp-for="Price" class="form-control" />
-    </div>
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        // Preview ảnh mới
+        document.getElementById('files').addEventListener('change', function (event) {
+            const preview = document.getElementById('preview');
+            preview.innerHTML = '';
+            const files = event.target.files;
 
-    <div class="form-group mb-3">
-        <label for="Description">Mô tả</label>
-        <textarea asp-for="Description" class="form-control"></textarea>
-    </div>
-
-    <div class="form-group mb-3">
-        <label for="files">Ảnh sản phẩm (chọn nhiều)</label>
-        <input type="file" name="files" id="files" multiple class="form-control" accept="image/*" />
-    </div>
-
-    <button type="submit" class="btn btn-success">Lưu sản phẩm</button>
-    <a asp-action="Index" class="btn btn-secondary">Hủy</a>
-</form>
+            if (files.length > 0) {
+                for (let i = 0; i < files.length; i++) {
+                    const file = files[i];
+                    const reader = new FileReader();
+                    reader.onload = function (e) {
+                        const img = document.createElement('img');
+                        img.src = e.target.result;
+                        img.style.height = '100px';
+                        img.style.width = '100px';
+                        img.style.objectFit = 'cover';
+                        img.classList.add('rounded', 'border');
+                        preview.appendChild(img);
+                    };
+                    reader.readAsDataURL(file);
+                }
+            }
+        });
+    </script>
+}

@@ -20,26 +20,58 @@ namespace ShopOnlineCore.Controllers
         // =============================
         // Danh sách sản phẩm
         // =============================
-        public IActionResult Index(string? category, string? search)
+        public IActionResult Index(string? category, string? search, decimal? minPrice, decimal? maxPrice)
         {
             var products = _context.Products.AsQueryable();
-            if (!string.IsNullOrEmpty(category))
-            {
-                category = category.Trim().ToLower();
-                products = products.Where(p => p.Category.ToLower().Contains(category));
-                ViewData["CategoryFilter"] = char.ToUpper(category[0]) + category.Substring(1);
 
-            }
-            if (!string.IsNullOrWhiteSpace(search))
+            var categoryQueryValue = category?.Trim() ?? string.Empty;
+            if (!string.IsNullOrEmpty(categoryQueryValue))
             {
-                var searchValue = search.Trim().ToLower();
+                var normalizedCategory = categoryQueryValue.ToLower();
+                products = products.Where(p => p.Category.ToLower().Contains(normalizedCategory));
+                ViewData["CategoryFilter"] = char.ToUpper(normalizedCategory[0]) + normalizedCategory.Substring(1);
+            }
+
+            var searchQueryValue = search?.Trim() ?? string.Empty;
+            if (!string.IsNullOrWhiteSpace(searchQueryValue))
+            {
+                var searchValue = searchQueryValue.ToLower();
                 products = products.Where(p =>
                     (!string.IsNullOrEmpty(p.Name) && p.Name.ToLower().Contains(searchValue)) ||
                     (!string.IsNullOrEmpty(p.Category) && p.Category.ToLower().Contains(searchValue)) ||
                     (!string.IsNullOrEmpty(p.Description) && p.Description.ToLower().Contains(searchValue)));
-                ViewData["SearchTerm"] = search.Trim();
+                ViewData["SearchTerm"] = searchQueryValue;
             }
+
+            var priceQuery = _context.Products.Select(p => p.Price);
+            var hasProducts = priceQuery.Any();
+            decimal sliderMin = hasProducts ? priceQuery.Min() : 0m;
+            decimal sliderMax = hasProducts ? priceQuery.Max() : 0m;
+
+            if (minPrice.HasValue && maxPrice.HasValue && minPrice > maxPrice)
+            {
+                (minPrice, maxPrice) = (maxPrice, minPrice);
+            }
+
+            if (minPrice.HasValue)
+            {
+                products = products.Where(p => p.Price >= minPrice.Value);
+            }
+
+            if (maxPrice.HasValue)
+            {
+                products = products.Where(p => p.Price <= maxPrice.Value);
+            }
+
             var productList = products.OrderByDescending(p => p.Id).ToList();
+
+            ViewData["SliderMin"] = sliderMin;
+            ViewData["SliderMax"] = sliderMax;
+            ViewData["FilterMin"] = minPrice ?? sliderMin;
+            ViewData["FilterMax"] = maxPrice ?? sliderMax;
+            ViewData["SelectedCategoryQuery"] = categoryQueryValue;
+            ViewData["SelectedSearchQuery"] = searchQueryValue;
+
             return View(productList);
         }
 

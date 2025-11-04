@@ -4,6 +4,127 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
+<style>
+    /* Carousel full-width */
+    #myCarousel {
+        width: 100vw !important;
+        position: relative;
+        left: 50%;
+        right: 50%;
+        margin-left: -50vw;
+        margin-right: -50vw;
+        margin-bottom: 0 !important;
+    }
+    
+    #myCarousel .carousel-inner {
+        width: 100vw;
+    }
+    
+    #myCarousel .item {
+        width: 100vw;
+        height: 500px;
+        background-size: cover !important;
+    }
+    
+    #myCarousel .carousel-caption {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        text-align: center;
+        width: 80%;
+        max-width: 800px;
+    }
+    
+    #myCarousel .carousel-caption h3 {
+        font-size: 3.5em;
+        font-weight: 700;
+        color: white;
+        text-shadow: 2px 2px 8px rgba(0,0,0,0.7);
+        margin-bottom: 20px;
+    }
+    
+    #myCarousel .carousel-caption h3 span {
+        color: #2fdab8;
+    }
+    
+    #myCarousel .carousel-caption p {
+        font-size: 1.5em;
+        color: #f9d806;
+        text-shadow: 1px 1px 4px rgba(0,0,0,0.7);
+        margin-bottom: 30px;
+    }
+    
+    .sale-w3ls {
+        width: 100vw !important;
+        position: relative;
+        left: 50%;
+        right: 50%;
+        margin-left: -50vw;
+        margin-right: -50vw;
+    }
+    
+    .schedule-bottom {
+        width: 100vw !important;
+        position: relative;
+        left: 50%;
+        right: 50%;
+        margin-left: -50vw;
+        margin-right: -50vw;
+        background: #2fdab8 !important;
+        padding: 60px 0 !important;
+    }
+    
+    .schedule-bottom .container {
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+    
+    .agileinfo_schedule_bottom_left {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .agileits_schedule_bottom_right {
+        background: white;
+        padding: 40px;
+        border-radius: 8px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+    
+    .w3ls_schedule_bottom_right_grid h3 {
+        color: #333;
+        font-size: 1.8em;
+        margin-bottom: 20px;
+        font-weight: 700;
+    }
+    
+    .w3ls_schedule_bottom_right_grid h3 span {
+        color: #e74c3c;
+    }
+    
+    .w3l_schedule_bottom_right_grid1 i {
+        font-size: 3em;
+        color: #2fdab8;
+        margin-bottom: 15px;
+    }
+    
+    .w3l_schedule_bottom_right_grid1 h4 {
+        font-size: 0.9em;
+        text-transform: uppercase;
+        color: #666;
+        margin: 10px 0;
+        font-weight: 600;
+    }
+    
+    .w3l_schedule_bottom_right_grid1 h5 {
+        font-size: 2.5em;
+        font-weight: 700;
+        color: #333;
+    }
+</style>
+
 <!-- Carousel banner -->
 
 <div id="myCarousel" class="carousel slide" data-ride="carousel">
@@ -14,30 +135,24 @@
     </ol>
     <div class="carousel-inner" role="listbox">
         <div class="item active">
-            <div class="container">
-                <div class="carousel-caption">
-                    <h3>Khuyến mãi <span>Đặc biệt</span></h3>
-                    <p>Sản phẩm hot giảm giá cực sâu</p>
-                    <a class="hvr-outline-out button2" href="#">Xem ngay</a>
-                </div>
+            <div class="carousel-caption">
+                <h3>Khuyến mãi <span>Đặc biệt</span></h3>
+                <p>Sản phẩm hot giảm giá cực sâu</p>
+                <a class="hvr-outline-out button2" href="#">Xem ngay</a>
             </div>
         </div>
         <div class="item item2">
-            <div class="container">
-                <div class="carousel-caption">
-                    <h3>Bộ sưu tập <span>Mới</span></h3>
-                    <p>Phong cách hiện đại, năng động</p>
-                    <a class="hvr-outline-out button2" href="#">Khám phá</a>
-                </div>
+            <div class="carousel-caption">
+                <h3>Bộ sưu tập <span>Mới</span></h3>
+                <p>Phong cách hiện đại, năng động</p>
+                <a class="hvr-outline-out button2" href="#">Khám phá</a>
             </div>
         </div>
         <div class="item item3">
-            <div class="container">
-                <div class="carousel-caption">
-                    <h3>Giảm đến <span>50%</span></h3>
-                    <p>Chỉ trong tuần này</p>
-                    <a class="hvr-outline-out button2" href="#">Mua ngay</a>
-                </div>
+            <div class="carousel-caption">
+                <h3>Giảm đến <span>50%</span></h3>
+                <p>Chỉ trong tuần này</p>
+                <a class="hvr-outline-out button2" href="#">Mua ngay</a>
             </div>
         </div>
     </div>
@@ -58,47 +173,38 @@
         <div id="horizontalTab">
             <ul class="resp-tabs-list">
                 <li>Men's</li>
-                <li>Women's</li>
+                <li>Laptop</li>
                 <li>Bags</li>
                 <li>Footwear</li>
             </ul>
             <div class="resp-tabs-container">
 
-                <!-- Men's -->
+                <!-- Men's Tab -->
                 <div class="tab1">
                     <div class="row">
-                        @foreach (var product in Model.Where(p => p.Category.ToLower().Contains("men")))
+                        @{
+                            var menProducts = Model.Where(p => !string.IsNullOrEmpty(p.Category) && p.Category.ToLower().Contains("men")).Take(8).ToList();
+                            if (!menProducts.Any())
+                            {
+                                <div class="col-md-12 text-center" style="padding: 50px 0;">
+                                    <p style="font-size: 1.2em; color: #999;">Chưa có sản phẩm trong danh mục này</p>
+                                </div>
+                            }
+                        }
+                        @foreach (var product in menProducts)
                         {
                             <div class="col-md-3 product-men wow fadeInUp" data-wow-delay="0.2s">
                                 <div class="men-pro-item simpleCart_shelfItem">
-                                    <div id="carousel-@product.Id" class="carousel slide" data-ride="carousel">
-                                        <div class="carousel-inner">
-                                            @if (product.ImageGallery != null && product.ImageGallery.Any())
-                                            {
-                                                var first = true;
-                                                foreach (var img in product.ImageGallery)
-                                                {
-                                                    <div class="item @(first ? "active" : "")">
-                                                        <img src="@Url.Content(img)" alt="@product.Name" class="img-responsive" />
-                                                    </div>
-                                                    first = false;
-                                                }
-                                            }
-                                            else
-                                            {
-                                                <div class="item active">
-                                                    <img src="@Url.Content(product.ImageUrl)" alt="@product.Name" class="img-responsive" />
-                                                </div>
-                                            }
+                                    <div class="men-thumb-item">
+                                        <img src="@Url.Content(product.ImageUrl)" class="pro-image-front img-responsive" alt="@product.Name" />
+                                        <img src="@Url.Content(product.ImageUrl)" class="pro-image-back img-responsive" alt="@product.Name" />
+                                        <div class="men-cart-pro">
+                                            <div class="inner-men-cart-pro">
+                                                <a href="@Url.Action("Details", "Product", new { id = product.Id })" class="link-product-add-cart">Xem chi tiết</a>
+                                            </div>
                                         </div>
-                                        <a class="left carousel-control" href="#carousel-@product.Id" data-slide="prev">
-                                            <span class="glyphicon glyphicon-chevron-left"></span>
-                                        </a>
-                                        <a class="right carousel-control" href="#carousel-@product.Id" data-slide="next">
-                                            <span class="glyphicon glyphicon-chevron-right"></span>
-                                        </a>
+                                        <span class="product-new-top">New</span>
                                     </div>
-
                                     <div class="item-info-product text-center">
                                         <h4>@product.Name</h4>
                                         <div class="info-product-price">
@@ -112,16 +218,31 @@
                     </div>
                 </div>
 
-                <!-- Women's -->
+                <!-- Laptop Tab -->
                 <div class="tab2">
                     <div class="row">
-                        @foreach (var product in Model.Where(p => p.Category.ToLower().Contains("women")))
+                        @{
+                            var laptopProducts = Model.Where(p => !string.IsNullOrEmpty(p.Category) && p.Category.ToLower().Contains("laptop")).Take(8).ToList();
+                            if (!laptopProducts.Any())
+                            {
+                                <div class="col-md-12 text-center" style="padding: 50px 0;">
+                                    <p style="font-size: 1.2em; color: #999;">Chưa có sản phẩm trong danh mục này</p>
+                                </div>
+                            }
+                        }
+                        @foreach (var product in laptopProducts)
                         {
                             <div class="col-md-3 product-men wow fadeInUp" data-wow-delay="0.2s">
                                 <div class="men-pro-item simpleCart_shelfItem">
                                     <div class="men-thumb-item">
-                                        <img src="@Url.Content(product.ImageUrl)" class="pro-image-front" />
-                                        <img src="@Url.Content(product.ImageUrl)" class="pro-image-back" />
+                                        <img src="@Url.Content(product.ImageUrl)" class="pro-image-front img-responsive" alt="@product.Name" />
+                                        <img src="@Url.Content(product.ImageUrl)" class="pro-image-back img-responsive" alt="@product.Name" />
+                                        <div class="men-cart-pro">
+                                            <div class="inner-men-cart-pro">
+                                                <a href="@Url.Action("Details", "Product", new { id = product.Id })" class="link-product-add-cart">Xem chi tiết</a>
+                                            </div>
+                                        </div>
+                                        <span class="product-new-top">New</span>
                                     </div>
                                     <div class="item-info-product text-center">
                                         <h4>@product.Name</h4>
@@ -136,16 +257,31 @@
                     </div>
                 </div>
 
-                <!-- Bags -->
+                <!-- Bags Tab -->
                 <div class="tab3">
                     <div class="row">
-                        @foreach (var product in Model.Where(p => p.Category.ToLower().Contains("bag")))
+                        @{
+                            var bagProducts = Model.Where(p => !string.IsNullOrEmpty(p.Category) && p.Category.ToLower().Contains("bag")).Take(8).ToList();
+                            if (!bagProducts.Any())
+                            {
+                                <div class="col-md-12 text-center" style="padding: 50px 0;">
+                                    <p style="font-size: 1.2em; color: #999;">Chưa có sản phẩm trong danh mục này</p>
+                                </div>
+                            }
+                        }
+                        @foreach (var product in bagProducts)
                         {
                             <div class="col-md-3 product-men wow fadeInUp" data-wow-delay="0.2s">
                                 <div class="men-pro-item simpleCart_shelfItem">
                                     <div class="men-thumb-item">
-                                        <img src="@Url.Content(product.ImageUrl)" class="pro-image-front" />
-                                        <img src="@Url.Content(product.ImageUrl)" class="pro-image-back" />
+                                        <img src="@Url.Content(product.ImageUrl)" class="pro-image-front img-responsive" alt="@product.Name" />
+                                        <img src="@Url.Content(product.ImageUrl)" class="pro-image-back img-responsive" alt="@product.Name" />
+                                        <div class="men-cart-pro">
+                                            <div class="inner-men-cart-pro">
+                                                <a href="@Url.Action("Details", "Product", new { id = product.Id })" class="link-product-add-cart">Xem chi tiết</a>
+                                            </div>
+                                        </div>
+                                        <span class="product-new-top">New</span>
                                     </div>
                                     <div class="item-info-product text-center">
                                         <h4>@product.Name</h4>
@@ -160,16 +296,31 @@
                     </div>
                 </div>
 
-                <!-- Footwear -->
+                <!-- Footwear Tab -->
                 <div class="tab4">
                     <div class="row">
-                        @foreach (var product in Model.Where(p => p.Category.ToLower().Contains("shoe") || p.Category.ToLower().Contains("footwear")))
+                        @{
+                            var footwearProducts = Model.Where(p => !string.IsNullOrEmpty(p.Category) && (p.Category.ToLower().Contains("shoe") || p.Category.ToLower().Contains("footwear"))).Take(8).ToList();
+                            if (!footwearProducts.Any())
+                            {
+                                <div class="col-md-12 text-center" style="padding: 50px 0;">
+                                    <p style="font-size: 1.2em; color: #999;">Chưa có sản phẩm trong danh mục này</p>
+                                </div>
+                            }
+                        }
+                        @foreach (var product in footwearProducts)
                         {
                             <div class="col-md-3 product-men wow fadeInUp" data-wow-delay="0.2s">
                                 <div class="men-pro-item simpleCart_shelfItem">
                                     <div class="men-thumb-item">
-                                        <img src="@Url.Content(product.ImageUrl)" class="pro-image-front" />
-                                        <img src="@Url.Content(product.ImageUrl)" class="pro-image-back" />
+                                        <img src="@Url.Content(product.ImageUrl)" class="pro-image-front img-responsive" alt="@product.Name" />
+                                        <img src="@Url.Content(product.ImageUrl)" class="pro-image-back img-responsive" alt="@product.Name" />
+                                        <div class="men-cart-pro">
+                                            <div class="inner-men-cart-pro">
+                                                <a href="@Url.Action("Details", "Product", new { id = product.Id })" class="link-product-add-cart">Xem chi tiết</a>
+                                            </div>
+                                        </div>
+                                        <span class="product-new-top">New</span>
                                     </div>
                                     <div class="item-info-product text-center">
                                         <h4>@product.Name</h4>
