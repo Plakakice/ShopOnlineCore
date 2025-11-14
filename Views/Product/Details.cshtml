@@ -3,6 +3,63 @@
     ViewData["Title"] = Model.Name;
 }
 
+<style>
+    /* Style cho khung hình ảnh sản phẩm */
+    .flexslider .thumb-image {
+        width: 100%;
+        height: 450px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+        background-color: #f8f9fa;
+    }
+
+    .flexslider .thumb-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain; /* Giữ tỷ lệ ảnh và fit vào khung */
+        object-position: center;
+    }
+
+    /* Style cho thumbnail nhỏ bên dưới */
+    .flexslider .flex-control-nav {
+        margin-top: 10px;
+    }
+
+    .flexslider .flex-control-nav li img {
+        width: 80px;
+        height: 80px;
+        object-fit: cover;
+        border: 2px solid #ddd;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .flexslider .flex-control-nav li img:hover,
+    .flexslider .flex-control-nav li.flex-active img {
+        border-color: #ff4081;
+        transform: scale(1.05);
+    }
+
+    /* Đảm bảo container không bị lỗi layout */
+    .flexslider {
+        margin: 0;
+        background: #fff;
+        border: none;
+    }
+
+    .flexslider .slides > li {
+        display: none;
+        -webkit-backface-visibility: hidden;
+    }
+
+    .flexslider .slides img {
+        width: 100%;
+        display: block;
+    }
+</style>
+
 <!-- Page Header -->
 <div class="page-head_agile_info_w3l">
     <div class="container">
