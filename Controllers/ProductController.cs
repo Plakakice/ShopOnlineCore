@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using ShopOnlineCore.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace ShopOnlineCore.Controllers
 {
@@ -20,16 +21,19 @@ namespace ShopOnlineCore.Controllers
         // =============================
         // Danh sách sản phẩm
         // =============================
-        public IActionResult Index(string? category, string? search, decimal? minPrice, decimal? maxPrice)
+        public async Task<IActionResult> Index(string? category, string? search, decimal? minPrice, decimal? maxPrice, int page = 1, int pageSize = 9)
         {
             var products = _context.Products.AsQueryable();
 
             var categoryQueryValue = category?.Trim() ?? string.Empty;
-            if (!string.IsNullOrEmpty(categoryQueryValue))
+            if (!string.IsNullOrWhiteSpace(categoryQueryValue))
             {
-                var normalizedCategory = categoryQueryValue.ToLower();
-                products = products.Where(p => p.Category.ToLower().Contains(normalizedCategory));
-                ViewData["CategoryFilter"] = char.ToUpper(normalizedCategory[0]) + normalizedCategory.Substring(1);
+                // Tránh dùng ToLower/ToUpper trên DB SQLite (không xử lý Unicode đầy đủ)
+                // So khớp theo nguyên bản; mỗi danh mục tách biệt, không alias
+                products = products.Where(p => p.Category != null &&
+                                               (p.Category == categoryQueryValue ||
+                                                p.Category.Contains(categoryQueryValue)));
+                ViewData["CategoryFilter"] = categoryQueryValue;
             }
 
             var searchQueryValue = search?.Trim() ?? string.Empty;
@@ -63,7 +67,12 @@ namespace ShopOnlineCore.Controllers
                 products = products.Where(p => p.Price <= maxPrice.Value);
             }
 
-            var productList = products.OrderByDescending(p => p.Id).ToList();
+            var totalCount = await products.CountAsync();
+            var productList = await products
+                .OrderByDescending(p => p.Id)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
 
             ViewData["SliderMin"] = sliderMin;
             ViewData["SliderMax"] = sliderMax;
@@ -71,6 +80,9 @@ namespace ShopOnlineCore.Controllers
             ViewData["FilterMax"] = maxPrice ?? sliderMax;
             ViewData["SelectedCategoryQuery"] = categoryQueryValue;
             ViewData["SelectedSearchQuery"] = searchQueryValue;
+            ViewData["Page"] = page;
+            ViewData["PageSize"] = pageSize;
+            ViewData["TotalCount"] = totalCount;
 
             return View(productList);
         }
@@ -78,9 +90,9 @@ namespace ShopOnlineCore.Controllers
         // =============================
         // Chi tiết sản phẩm
         // =============================
-        public IActionResult Details(int id)
+        public async Task<IActionResult> Details(int id)
         {
-            var product = _context.Products.FirstOrDefault(p => p.Id == id);
+            var product = await _context.Products.FirstOrDefaultAsync(p => p.Id == id);
             if (product == null) return NotFound();
             return View(product);
         }
@@ -130,20 +142,33 @@ namespace ShopOnlineCore.Controllers
         // SỬA (Admin)
         // =============================
         [Authorize(Roles = "Admin")]
-        public IActionResult Edit(int id)
+        [HttpGet]
+        public async Task<IActionResult> Edit(int id)
         {
-            var product = _context.Products.FirstOrDefault(p => p.Id == id);
+            var product = await _context.Products.FirstOrDefaultAsync(p => p.Id == id);
             if (product == null) return NotFound();
             return View(product);
         }
 
         [Authorize(Roles = "Admin")]
         [HttpPost]
-        public IActionResult Edit(Product product, List<IFormFile> files)
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(int id, Product product, List<IFormFile>? files, List<string>? existingImages)
         {
-            var old = _context.Products.FirstOrDefault(p => p.Id == product.Id);
+            var old = await _context.Products.FirstOrDefaultAsync(p => p.Id == product.Id);
             if (old == null) return NotFound();
 
+            // Cập nhật danh sách ảnh: giữ lại các ảnh được chọn (existingImages)
+            if (existingImages != null && existingImages.Any())
+            {
+                old.ImageGallery = existingImages.ToList();
+            }
+            else
+            {
+                old.ImageGallery = new List<string>();
+            }
+
+            // Thêm ảnh mới nếu có upload
             if (files != null && files.Count > 0)
             {
                 old.ImageGallery ??= new List<string>();
@@ -159,9 +184,12 @@ namespace ShopOnlineCore.Controllers
                     var relativePath = "/images/products/" + fileName;
                     old.ImageGallery.Add(relativePath);
                 }
+            }
 
-                if (string.IsNullOrEmpty(old.ImageUrl))
-                    old.ImageUrl = old.ImageGallery.First();
+            // Đảm bảo ImageUrl luôn có giá trị
+            if (old.ImageGallery.Any())
+            {
+                old.ImageUrl = old.ImageGallery.First();
             }
 
             old.Name = product.Name;
@@ -169,8 +197,8 @@ namespace ShopOnlineCore.Controllers
             old.Price = product.Price;
             old.Description = product.Description;
 
-            _context.SaveChanges();
-            TempData["Message"] = "Cập nhật thành công!";
+            await _context.SaveChangesAsync();
+            TempData["Success"] = "Cập nhật sản phẩm thành công!";
             return RedirectToAction("Index");
         }
 
@@ -178,13 +206,13 @@ namespace ShopOnlineCore.Controllers
         // XÓA (Admin)
         // =============================
         [Authorize(Roles = "Admin")]
-        public IActionResult Delete(int id)
+        public async Task<IActionResult> Delete(int id)
         {
-            var product = _context.Products.FirstOrDefault(p => p.Id == id);
+            var product = await _context.Products.FirstOrDefaultAsync(p => p.Id == id);
             if (product != null)
             {
                 _context.Products.Remove(product);
-                _context.SaveChanges();
+                await _context.SaveChangesAsync();
             }
             return RedirectToAction("Index");
         }

@@ -126,6 +126,12 @@
                                 <li class="menu__item @NavState("Home", "Contact")">
                                     <a class="menu__link" asp-controller="Home" asp-action="Contact">Liên hệ</a>
                                 </li>
+								@if (User.IsInRole("Admin"))
+								{
+									<li class="menu__item @NavState("Orders", "Index")">
+										<a class="menu__link" asp-area="Admin" asp-controller="Orders" asp-action="Index">Quản trị đơn hàng</a>
+									</li>
+								}
                             </ul>
                         </div>
                     </div>
@@ -260,7 +266,8 @@
         new WOW().init();
     </script>
 
-    @await RenderSectionAsync("Scripts", required: false)
+	@await Html.PartialAsync("_Toasts")
+	@await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>
 

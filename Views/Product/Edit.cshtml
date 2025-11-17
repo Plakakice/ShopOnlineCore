@@ -12,6 +12,7 @@
             <div class="card">
                 <div class="card-body">
                     <form asp-action="Edit" method="post" enctype="multipart/form-data">
+                        @Html.AntiForgeryToken()
                         <input type="hidden" asp-for="Id" />
                         <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
                         
@@ -26,9 +27,10 @@
                             <select asp-for="Category" class="form-control" required>
                                 <option value="">-- Chọn danh mục --</option>
                                 <option value="Laptop">Laptop</option>
-                                <option value="Men">Men's</option>
+                                <option value="Chuột">Chuột</option>
+                                <option value="Bàn phím">Bàn phím</option>
                                 <option value="Bags">Bags</option>
-                                <option value="Footwear">Footwear</option>
+                                <option value="Âm thanh">Âm thanh</option>
                             </select>
                             <span asp-validation-for="Category" class="text-danger"></span>
                         </div>
@@ -50,10 +52,19 @@
                         {
                             <div class="form-group mb-3">
                                 <label>Ảnh hiện tại:</label>
-                                <div class="d-flex flex-wrap gap-2">
-                                    @foreach (var img in Model.ImageGallery)
+                                <div class="d-flex flex-wrap gap-2" id="existing-images-container">
+                                    @for (int i = 0; i < Model.ImageGallery.Count; i++)
                                     {
-                                        <img src="@Url.Content(img)" alt="Product" style="height: 100px; width: 100px; object-fit: cover;" class="rounded border" />
+                                        var img = Model.ImageGallery[i];
+                                        <div class="position-relative" data-image-url="@img">
+                                            <img src="@Url.Content(img)" alt="Product" style="height: 100px; width: 100px; object-fit: cover;" class="rounded border" />
+                                            <button type="button" class="btn btn-danger btn-sm position-absolute" 
+                                                    style="top: -5px; right: -5px; width: 25px; height: 25px; padding: 0; border-radius: 50%; line-height: 1;"
+                                                    onclick="removeExistingImage(this, '@img')">
+                                                <i class="fa fa-times"></i>
+                                            </button>
+                                            <input type="hidden" name="existingImages" value="@img" class="existing-image-input" />
+                                        </div>
                                     }
                                 </div>
                             </div>
@@ -86,6 +97,18 @@
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
     <script>
+        // Xóa ảnh hiện có
+        function removeExistingImage(button, imageUrl) {
+            const wrapper = button.parentElement;
+            wrapper.style.opacity = '0.5';
+            wrapper.querySelector('.existing-image-input').disabled = true;
+            button.disabled = true;
+            
+            setTimeout(() => {
+                wrapper.remove();
+            }, 200);
+        }
+
         // Preview ảnh mới
         document.getElementById('files').addEventListener('change', function (event) {
             const preview = document.getElementById('preview');

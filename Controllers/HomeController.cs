@@ -22,5 +22,7 @@ namespace ShopOnlineCore.Controllers
         public IActionResult Contact() => View();
 
         public IActionResult Privacy() => View();
+
+        public IActionResult DebugCategories() => View();
     }
 }

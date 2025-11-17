@@ -123,6 +123,21 @@
         font-weight: 700;
         color: #333;
     }
+
+    /* Ensure 5 tabs stay on one row */
+    #horizontalTab .resp-tabs-list {
+        display: flex !important;
+        flex-wrap: nowrap !important;
+        margin: 0;
+        padding: 0;
+    }
+    #horizontalTab .resp-tabs-list li {
+        float: none !important;
+        width: 20% !important; /* 5 equal tabs */
+        text-align: center;
+        box-sizing: border-box;
+        white-space: nowrap;
+    }
 </style>
 
 <!-- Carousel banner -->
@@ -172,18 +187,19 @@
 
         <div id="horizontalTab">
             <ul class="resp-tabs-list">
-                <li>Men's</li>
+                <li>Chuột</li>
                 <li>Laptop</li>
+                <li>Bàn phím</li>
+                <li>Âm thanh</li>
                 <li>Bags</li>
-                <li>Footwear</li>
             </ul>
             <div class="resp-tabs-container">
 
-                <!-- Men's Tab -->
+                <!-- Chuột Tab -->
                 <div class="tab1">
                     <div class="row">
                         @{
-                            var menProducts = Model.Where(p => !string.IsNullOrEmpty(p.Category) && p.Category.ToLower().Contains("men")).Take(8).ToList();
+                            var menProducts = Model.Where(p => !string.IsNullOrEmpty(p.Category) && p.Category.ToLower().Contains("chuột")).Take(8).ToList();
                             if (!menProducts.Any())
                             {
                                 <div class="col-md-12 text-center" style="padding: 50px 0;">
@@ -257,11 +273,11 @@
                     </div>
                 </div>
 
-                <!-- Bags Tab -->
+                <!-- Bàn phím Tab -->
                 <div class="tab3">
                     <div class="row">
                         @{
-                            var bagProducts = Model.Where(p => !string.IsNullOrEmpty(p.Category) && p.Category.ToLower().Contains("bag")).Take(8).ToList();
+                            var bagProducts = Model.Where(p => !string.IsNullOrEmpty(p.Category) && (p.Category.ToLower().Contains("bàn phím") || p.Category.ToLower().Contains("ban phim"))).Take(8).ToList();
                             if (!bagProducts.Any())
                             {
                                 <div class="col-md-12 text-center" style="padding: 50px 0;">
@@ -296,11 +312,11 @@
                     </div>
                 </div>
 
-                <!-- Footwear Tab -->
+                <!-- Âm thanh Tab -->
                 <div class="tab4">
                     <div class="row">
                         @{
-                            var footwearProducts = Model.Where(p => !string.IsNullOrEmpty(p.Category) && (p.Category.ToLower().Contains("shoe") || p.Category.ToLower().Contains("footwear"))).Take(8).ToList();
+                            var footwearProducts = Model.Where(p => !string.IsNullOrEmpty(p.Category) && (p.Category.ToLower().Contains("âm thanh") || p.Category.ToLower().Contains("am thanh"))).Take(8).ToList();
                             if (!footwearProducts.Any())
                             {
                                 <div class="col-md-12 text-center" style="padding: 50px 0;">
@@ -309,6 +325,45 @@
                             }
                         }
                         @foreach (var product in footwearProducts)
+                        {
+                            <div class="col-md-3 product-men wow fadeInUp" data-wow-delay="0.2s">
+                                <div class="men-pro-item simpleCart_shelfItem">
+                                    <div class="men-thumb-item">
+                                        <img src="@Url.Content(product.ImageUrl)" class="pro-image-front img-responsive" alt="@product.Name" />
+                                        <img src="@Url.Content(product.ImageUrl)" class="pro-image-back img-responsive" alt="@product.Name" />
+                                        <div class="men-cart-pro">
+                                            <div class="inner-men-cart-pro">
+                                                <a href="@Url.Action("Details", "Product", new { id = product.Id })" class="link-product-add-cart">Xem chi tiết</a>
+                                            </div>
+                                        </div>
+                                        <span class="product-new-top">New</span>
+                                    </div>
+                                    <div class="item-info-product text-center">
+                                        <h4>@product.Name</h4>
+                                        <div class="info-product-price">
+                                            <span class="item_price">@product.Price.ToString("N0") ₫</span>
+                                        </div>
+                                        <a href="@Url.Action("Details", "Product", new { id = product.Id })" class="btn btn-primary hvr-outline-out mt-2">Chi tiết</a>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+
+                <!-- Bags Tab -->
+                <div class="tab5">
+                    <div class="row">
+                        @{
+                            var bagsProducts = Model.Where(p => !string.IsNullOrEmpty(p.Category) && p.Category.ToLower().Contains("bags")).Take(8).ToList();
+                            if (!bagsProducts.Any())
+                            {
+                                <div class="col-md-12 text-center" style="padding: 50px 0;">
+                                    <p style="font-size: 1.2em; color: #999;">Chưa có sản phẩm trong danh mục này</p>
+                                </div>
+                            }
+                        }
+                        @foreach (var product in bagsProducts)
                         {
                             <div class="col-md-3 product-men wow fadeInUp" data-wow-delay="0.2s">
                                 <div class="men-pro-item simpleCart_shelfItem">

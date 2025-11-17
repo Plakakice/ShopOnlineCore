@@ -1,0 +1,47 @@
+@{
+    var messages = new List<(string Type, string Text)>();
+    if (TempData["Success"] is string s1) messages.Add(("success", s1));
+    if (TempData["Error"] is string s2) messages.Add(("error", s2));
+    if (TempData["Warning"] is string s3) messages.Add(("warning", s3));
+    if (TempData["Info"] is string s4) messages.Add(("info", s4));
+    if (TempData["Message"] is string s5) messages.Add(("info", s5));
+}
+
+<style>
+    .toast-stack { position: fixed; top: 16px; right: 16px; z-index: 1080; display: flex; flex-direction: column; gap: 10px; }
+    .toast-item { min-width: 280px; max-width: 360px; color: #fff; border-radius: 6px; padding: 10px 14px; box-shadow: 0 8px 24px rgba(0,0,0,.15); opacity: 0; transform: translateY(-8px); transition: opacity .25s ease, transform .25s ease; }
+    .toast-item.show { opacity: 1; transform: translateY(0); }
+    .toast-item .close { background: transparent; border: none; color: inherit; font-size: 18px; line-height: 1; cursor: pointer; opacity: .8; }
+    .toast-item .close:hover { opacity: 1; }
+    .toast-success { background: #28a745; }
+    .toast-error { background: #dc3545; }
+    .toast-warning { background: #ffc107; color: #212529; }
+    .toast-info { background: #17a2b8; }
+    .toast-row { display: flex; align-items: center; gap: 10px; }
+    .toast-body { flex: 1; }
+}</style>
+
+<div class="toast-stack" id="app-toast-stack">
+    @foreach (var m in messages)
+    {
+        var css = m.Type switch { "success" => "toast-success", "error" => "toast-error", "warning" => "toast-warning", _ => "toast-info" };
+        <div class="toast-item @css">
+            <div class="toast-row">
+                <div class="toast-body">@m.Text</div>
+                <button class="close" aria-label="Close" onclick="this.closest('.toast-item').remove()">×</button>
+            </div>
+        </div>
+    }
+    
+</div>
+
+<script>
+    (function(){
+        const items = document.querySelectorAll('#app-toast-stack .toast-item');
+        items.forEach((el, idx) => {
+            setTimeout(() => el.classList.add('show'), 50 + idx*60);
+            const timeout = el.classList.contains('toast-error') || el.classList.contains('toast-warning') ? 6000 : 3500;
+            setTimeout(() => { el.classList.remove('show'); setTimeout(()=>el.remove(), 250); }, timeout + idx*100);
+        });
+    })();
+</script>

@@ -22,13 +22,23 @@
 
                         <div class="mb-3">
                             <label asp-for="Input.Password" class="form-label">M&#7853;t kh&#7849;u</label>
-                            <input asp-for="Input.Password" class="form-control" autocomplete="new-password" aria-required="true" />
+                            <div style="position: relative; display: flex; align-items: center;">
+                                <input asp-for="Input.Password" class="form-control" autocomplete="new-password" aria-required="true" id="registerPassword" style="padding-right: 45px; width: 100%;" />
+                                <span style="position: absolute; right: 12px; cursor: pointer; color: #6c757d; font-size: 18px; user-select: none;" onclick="togglePassword('registerPassword', this)">
+                                    <i class="fa fa-eye"></i>
+                                </span>
+                            </div>
                             <span asp-validation-for="Input.Password" class="text-danger"></span>
                         </div>
 
                         <div class="mb-4">
                             <label asp-for="Input.ConfirmPassword" class="form-label">X&aacute;c nh&#7853;n m&#7853;t kh&#7849;u</label>
-                            <input asp-for="Input.ConfirmPassword" class="form-control" autocomplete="new-password" aria-required="true" />
+                            <div style="position: relative; display: flex; align-items: center;">
+                                <input asp-for="Input.ConfirmPassword" class="form-control" autocomplete="new-password" aria-required="true" id="confirmPassword" style="padding-right: 45px; width: 100%;" />
+                                <span style="position: absolute; right: 12px; cursor: pointer; color: #6c757d; font-size: 18px; user-select: none;" onclick="togglePassword('confirmPassword', this)">
+                                    <i class="fa fa-eye"></i>
+                                </span>
+                            </div>
                             <span asp-validation-for="Input.ConfirmPassword" class="text-danger"></span>
                         </div>
 
@@ -66,4 +76,18 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+    <script>
+        function togglePassword(inputId, iconElement) {
+            const input = document.getElementById(inputId);
+            const icon = iconElement.querySelector('i');
+            
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.className = 'fa fa-eye-slash';
+            } else {
+                input.type = 'password';
+                icon.className = 'fa fa-eye';
+            }
+        }
+    </script>
 }

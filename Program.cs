@@ -24,6 +24,9 @@ builder.Services.AddSession();
 // 📨 Giả lập EmailSender để tránh lỗi khi đăng ký user
 builder.Services.AddTransient<IEmailSender, EmailSender>();
 
+// 🛒 Register OrderRepository for Dependency Injection
+builder.Services.AddScoped<OrderRepository>();
+
 var app = builder.Build();
 
 // ==================== PIPELINE ====================

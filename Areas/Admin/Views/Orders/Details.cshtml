@@ -1,0 +1,124 @@
+@model ShopOnlineCore.Models.Order
+@{
+    ViewData["Title"] = $"Đơn hàng #{Model.Id}";
+    var allowedStatuses = (string[])ViewData["AllowedStatuses"]!;
+}
+
+<!-- Page Header -->
+<div class="page-head_agile_info_w3l">
+    <div class="container">
+        <h3>Chi tiết <span>Đơn hàng</span></h3>
+        <div class="services-breadcrumb">
+            <div class="agile_inner_breadcrumb">
+                <ul class="w3_short">
+                    <li><a asp-controller="Home" asp-action="Index">Trang chủ</a><i>|</i></li>
+                    <li><a asp-area="Admin" asp-controller="Orders" asp-action="Index">Đơn hàng</a><i>|</i></li>
+                    <li>#@Model.Id</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Content Wrapper theo style trang Single -->
+<div class="banner-bootom-w3-agileits">
+    <div class="container">
+        <div class="row g-3">
+            <div class="col-md-6">
+                <div class="card" style="border:1px solid #eee; box-shadow:0 2px 5px rgba(0,0,0,.1);">
+                    <div class="card-header" style="background:#f8f9fa; border-bottom:2px solid #dee2e6; font-weight:bold;">
+                        <i class="fa fa-user"></i> Thông tin khách hàng
+                    </div>
+                    <div class="card-body">
+                        <p class="mb-2"><strong>Tên:</strong> @Model.CustomerName</p>
+                        <p class="mb-2"><strong>Email:</strong> @Model.Email</p>
+                        <p class="mb-2"><strong>Điện thoại:</strong> @Model.PhoneNumber</p>
+                        <p class="mb-2"><strong>Địa chỉ:</strong> @Model.Address</p>
+                        <p class="mb-0"><strong>Ngày tạo:</strong> @Model.CreatedDate.ToString("yyyy-MM-dd HH:mm")</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card" style="border:1px solid #eee; box-shadow:0 2px 5px rgba(0,0,0,.1);">
+                    <div class="card-header" style="background:#f8f9fa; border-bottom:2px solid #dee2e6; font-weight:bold;">
+                        <i class="fa fa-truck"></i> Trạng thái
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            @{
+                                var badgeClass = Model.Status switch
+                                {
+                                    "Pending" => "badge bg-warning text-dark",
+                                    "Processing" => "badge bg-info text-white",
+                                    "Shipped" => "badge bg-primary",
+                                    "Delivered" => "badge bg-success",
+                                    "Cancelled" => "badge bg-danger",
+                                    _ => "badge bg-secondary"
+                                };
+                            }
+                            <strong>Trạng thái hiện tại:</strong> <span class="@badgeClass" style="font-size:1em; padding:5px 10px;">@Model.Status</span>
+                        </div>
+                        <form asp-area="Admin" asp-controller="Orders" asp-action="UpdateStatus" method="post" class="row g-2">
+                            <input type="hidden" name="id" value="@Model.Id" />
+                            <input type="hidden" name="returnUrl" value="@Url.Action("Details", new { id = Model.Id })" />
+                            <div class="col-8">
+                                <select class="form-control" name="status">
+                                    @foreach (var s in allowedStatuses)
+                                    {
+                                        <option value="@s" selected="@(s == Model.Status)">@s</option>
+                                    }
+                                </select>
+                            </div>
+                            <div class="col-4 text-end">
+                                <button type="submit" class="btn btn-primary w-100">Cập nhật</button>
+                            </div>
+                            @Html.AntiForgeryToken()
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mt-3" style="border:1px solid #eee; box-shadow:0 2px 5px rgba(0,0,0,.1);">
+            <div class="card-header" style="background:#f8f9fa; border-bottom:2px solid #dee2e6; font-weight:bold;">
+                <i class="fa fa-shopping-cart"></i> Sản phẩm
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-bordered mb-0" style="background:#fff;">
+                        <thead style="background:#f8f9fa;">
+                            <tr>
+                                <th>Mã SP</th>
+                                <th>Tên</th>
+                                <th class="text-end">Giá</th>
+                                <th class="text-end">SL</th>
+                                <th class="text-end">Thành tiền</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var i in Model.OrderItems)
+                            {
+                                <tr>
+                                    <td>@i.ProductId</td>
+                                    <td>@i.ProductName</td>
+                                    <td class="text-end">@i.Price.ToString("N0") ₫</td>
+                                    <td class="text-end">@i.Quantity</td>
+                                    <td class="text-end">@(i.Quantity * i.Price).ToString("N0") ₫</td>
+                                </tr>
+                            }
+                        </tbody>
+                        <tfoot style="background:#f8f9fa;">
+                            <tr>
+                                <th colspan="4" class="text-end" style="font-size:1.1em;">Tổng cộng</th>
+                                <th class="text-end" style="font-size:1.2em; color:#28a745;">@Model.Total.ToString("N0") ₫</th>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="mt-3">
+            <a class="btn btn-outline-secondary" asp-area="Admin" asp-controller="Orders" asp-action="Index">← Quay lại danh sách</a>
+        </div>
+    </div>
+</div>
