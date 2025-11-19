@@ -49,6 +49,19 @@
     int totalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
 }
 
+<style>
+/* Sticky sidebar chỉ áp dụng trong trang Product */
+@@media (min-width: 992px) {
+    .product-sticky-sidebar { position: sticky; top: 300px; align-self: flex-start; }
+    .product-sidebar-inner { max-height: calc(100vh - 215px); overflow-y: auto; padding-right: 4px; }
+    .product-sidebar-inner::-webkit-scrollbar { width: 8px; }
+    .product-sidebar-inner::-webkit-scrollbar-track { background: #f5f5f5; }
+    .product-sidebar-inner::-webkit-scrollbar-thumb { background: #d0d0d0; border-radius: 4px; }
+    .product-sidebar-inner::-webkit-scrollbar-thumb:hover { background: #b5b5b5; }
+}
+@@media (max-width: 991.98px) { .product-sticky-sidebar { position: static; } }
+</style>
+
 <div class="page-head_agile_info_w3l wow fadeInDown" data-wow-delay="0.1s">
     <div class="container">
         <h3>Sản Phẩm</h3>
@@ -67,8 +80,9 @@
 <div class="banner-bootom-w3-agileits">
     <div class="container">
         <div class="row">
-            <!-- Cột trái -->
-            <div class="col-md-3 products-left wow fadeInLeft" data-wow-delay="0.2s">
+            <!-- Cột trái (sidebar lọc) -->
+            <div class="col-md-3 products-left wow fadeInLeft product-sticky-sidebar" data-wow-delay="0.2s">
+                <div class="product-sidebar-inner">
                 <div class="filter-price">
                     <h3><span>Lọc Theo Giá</span></h3>
                     <form method="get" class="price-slider__form" id="price-filter-form">
@@ -117,42 +131,7 @@
                         <li><a href="@Url.Action("Index", new { category = "Âm thanh" })"><i class="fa fa-angle-right"></i> Âm thanh</a></li>
                     </ul>
                 </div>
-
-                <div class="community-poll">
-                    <h4>Community Poll</h4>
-                    <form>
-                        <ul class="tree-list-pad poll-options">
-                            <li>
-                                <label class="radio">
-                                    <input type="radio" name="poll" value="fast-shipping" checked />
-                                    <i></i>
-                                    Giao hàng nhanh
-                                </label>
-                            </li>
-                            <li>
-                                <label class="radio">
-                                    <input type="radio" name="poll" value="low-price" />
-                                    <i></i>
-                                    Giá thấp
-                                </label>
-                            </li>
-                            <li>
-                                <label class="radio">
-                                    <input type="radio" name="poll" value="high-price" />
-                                    <i></i>
-                                    Giá cao
-                                </label>
-                            </li>
-                            <li>
-                                <label class="radio">
-                                    <input type="radio" name="poll" value="long-warranty" />
-                                    <i></i>
-                                    Bảo hành dài
-                                </label>
-                            </li>
-                        </ul>
-                    </form>
-                </div>
+                </div><!-- /.product-sidebar-inner -->
             </div>
 
             <!-- Cột phải -->

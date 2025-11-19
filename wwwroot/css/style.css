@@ -14,7 +14,31 @@
 font-family: 'Open Sans', sans-serif; } p { margin:0;
 	letter-spacing:1px;
 	font-size: 0.9em; } ul { margin:0;
-	padding:0; } label { margin:0; } .header { background: #000; } .header ul li { display: inline-block;
+	padding:0; } label { margin:0; } 
+
+/* Unified sticky header wrapper */
+.site-header {
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    background: #000; /* base color behind sections while they overlap */
+}
+
+.header {
+    background:#000;
+    box-shadow:0 1px 2px rgba(0,0,0,.15);
+}
+
+.header-bot {
+    background:#fff;
+    box-shadow:0 1px 2px rgba(0,0,0,.08);
+}
+
+.ban-top {
+    background:#000;
+}
+
+.header ul li { display: inline-block;
     width: 24.5%;
     text-align: center;
     color: #fff;
@@ -100,7 +124,9 @@ font-family: 'Open Sans', sans-serif; } p { margin:0;
     font-size: 17px;
     top: 66px;
     right: 14px;
-    color: #2fdab8; } .header-left img { width: 73%; } .header-bot { padding: 25px 0; } .header-middle form input[type="search"] { outline: none;
+    color: #2fdab8; } .header-left img { width: 73%; } .header-bot { padding: 25px 0; 
+    transition: all 0.3s ease;
+} .header-middle form input[type="search"] { outline: none;
     border: none;
     width: 87%;
     padding: 12px 10px;
@@ -912,11 +938,9 @@ figure.effect-roxy:hover p,.agileinfo_banner_bottom_grid_three_left:hover figcap
     margin: 0px 0 50px; } .contact-w3-agile1 iframe { width: 100%;
     height:350px;
     outline: none;
-    border: none; } .map { -webkit-filter: grayscale(100%);
-    -moz-filter: grayscale(100%);
-    -ms-filter: grayscale(100%);
-    -o-filter: grayscale(100%);
-    filter: grayscale(100%); } .contact-grid-agile-w3 i { color: #fff;
+    border: none; } .map { 
+    /* Grayscale filter removed to show full color map */
+} .contact-grid-agile-w3 i { color: #fff;
     font-size: 33px; } .contact-grid-agile-w3 { background: #171616;
     text-align: center;
     width: 32%;
@@ -1862,10 +1886,17 @@ border-bottom: 1px solid #e5e3db; }
     border-radius: 6px;
     background-color: #fff;
     margin-bottom: 20px;
+
+.ban-top { 
+    background:#000;
+    padding: 0px 0;
+    position: sticky;
+    top: 88px; /* Height of .header (43px) + .header-bot (~45px) */
+    z-index: 9997;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    transition: all 0.3s ease;
 }
 
-.price-filter h3 {
-    font-weight: 600;
     font-size: 18px;
     letter-spacing: 1px;
     margin-bottom: 15px;
