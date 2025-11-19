@@ -79,11 +79,26 @@ public CartController(ApplicationDbContext context)
         var product = _context.Products.FirstOrDefault(p => p.Id == id);
         if (product == null) return NotFound();
 
+        // Kiểm tra tồn kho
+        if (product.Stock <= 0)
+        {
+            TempData["Error"] = $"{product.Name} hiện đã hết hàng.";
+            return RedirectToAction("Details", "Product", new { id });
+        }
+
         if (IsAuthenticated && CurrentUserId != null)
         {
             var line = _context.CartLines.FirstOrDefault(x => x.UserId == CurrentUserId && x.ProductId == id);
             if (line != null)
+            {
+                // Kiểm tra không vượt quá tồn kho
+                if (line.Quantity >= product.Stock)
+                {
+                    TempData["Error"] = $"{product.Name} chỉ còn {product.Stock} sản phẩm trong kho.";
+                    return RedirectToAction("Index");
+                }
                 line.Quantity++;
+            }
             else
                 _context.CartLines.Add(new CartLine
                 {
@@ -101,7 +116,15 @@ public CartController(ApplicationDbContext context)
             var cart = GetCart();
             var item = cart.FirstOrDefault(p => p.Id == id);
             if (item != null)
+            {
+                // Kiểm tra không vượt quá tồn kho
+                if (item.Quantity >= product.Stock)
+                {
+                    TempData["Error"] = $"{product.Name} chỉ còn {product.Stock} sản phẩm trong kho.";
+                    return RedirectToAction("Index");
+                }
                 item.Quantity++;
+            }
             else
                 cart.Add(new CartItem
                 {
@@ -150,11 +173,20 @@ public CartController(ApplicationDbContext context)
     // Tăng số lượng
     public IActionResult Increase(int id)
     {
+        var product = _context.Products.FirstOrDefault(p => p.Id == id);
+        if (product == null) return NotFound();
+
         if (IsAuthenticated && CurrentUserId != null)
         {
             var line = _context.CartLines.FirstOrDefault(x => x.UserId == CurrentUserId && x.ProductId == id);
             if (line != null)
             {
+                // Kiểm tra không vượt quá tồn kho
+                if (line.Quantity >= product.Stock)
+                {
+                    TempData["Error"] = $"{product.Name} chỉ còn {product.Stock} sản phẩm trong kho.";
+                    return RedirectToAction("Index");
+                }
                 line.Quantity++;
                 _context.SaveChanges();
             }
@@ -165,6 +197,12 @@ public CartController(ApplicationDbContext context)
             var item = cart.FirstOrDefault(p => p.Id == id);
             if (item != null)
             {
+                // Kiểm tra không vượt quá tồn kho
+                if (item.Quantity >= product.Stock)
+                {
+                    TempData["Error"] = $"{product.Name} chỉ còn {product.Stock} sản phẩm trong kho.";
+                    return RedirectToAction("Index");
+                }
                 item.Quantity++;
                 SaveCart(cart);
             }

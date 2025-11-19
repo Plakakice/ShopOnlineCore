@@ -16,23 +16,25 @@ namespace ShopOnlineCore.Models
         {
         }
 
-        // Cấu hình thêm để tránh lỗi decimal và set chính xác schema
+        // Cấu hình cho SQL Server
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
 
-            // Cấu hình cột Price cho SQLite (decimal không hỗ trợ trực tiếp)
+            // SQL Server hỗ trợ decimal native, không cần conversion
+
+            // Cấu hình precision cho decimal
             modelBuilder.Entity<Product>()
                 .Property(p => p.Price)
-                .HasConversion<double>(); // dùng double thay cho decimal cho SQLite
+                .HasPrecision(18, 2);
 
             modelBuilder.Entity<OrderItem>()
                 .Property(oi => oi.Price)
-                .HasConversion<double>();
+                .HasPrecision(18, 2);
 
             modelBuilder.Entity<CartLine>()
                 .Property(c => c.Price)
-                .HasConversion<double>();
+                .HasPrecision(18, 2);
 
             // Cấu hình relationship Order - OrderItem
             modelBuilder.Entity<Order>()
@@ -40,6 +42,19 @@ namespace ShopOnlineCore.Models
                 .WithOne(oi => oi.Order)
                 .HasForeignKey(oi => oi.OrderId)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            // Thêm indexes để tối ưu performance
+            modelBuilder.Entity<Product>()
+                .HasIndex(p => p.Category);
+
+            modelBuilder.Entity<Product>()
+                .HasIndex(p => p.Stock);
+
+            modelBuilder.Entity<Order>()
+                .HasIndex(o => o.Status);
+
+            modelBuilder.Entity<CartLine>()
+                .HasIndex(c => c.UserId);
         }
     }
 }

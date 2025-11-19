@@ -21,8 +21,10 @@ namespace ShopOnlineCore.Controllers
         // =============================
         // Danh sách sản phẩm
         // =============================
-        public async Task<IActionResult> Index(string? category, string? search, decimal? minPrice, decimal? maxPrice, int page = 1, int pageSize = 9)
+        public async Task<IActionResult> Index(string? category, string? search, decimal? minPrice, decimal? maxPrice, int page = 1, int pageSize = 6)
         {
+            // Ép pageSize về tối đa 6 để đảm bảo mỗi trang chỉ hiển thị 6 sản phẩm
+            pageSize = pageSize <= 0 ? 6 : Math.Min(pageSize, 6);
             var products = _context.Products.AsQueryable();
 
             var categoryQueryValue = category?.Trim() ?? string.Empty;
@@ -196,6 +198,7 @@ namespace ShopOnlineCore.Controllers
             old.Category = product.Category;
             old.Price = product.Price;
             old.Description = product.Description;
+            old.Stock = product.Stock;
 
             await _context.SaveChangesAsync();
             TempData["Success"] = "Cập nhật sản phẩm thành công!";

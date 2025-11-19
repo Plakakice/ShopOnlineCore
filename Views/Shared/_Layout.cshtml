@@ -64,9 +64,9 @@
 <div class="header-bot">
 	<div class="header-bot_inner_wthreeinfo_header_mid">
 		<div class="col-md-4 header-middle">
-			<form action="#" method="post">
-					<input type="search" name="search" placeholder="Search here..." required="">
-					<input type="submit" value=" ">
+			<form asp-controller="Product" asp-action="Index" method="get">
+					<input type="search" name="search" placeholder="Tìm kiếm sản phẩm..." value="@ViewData["SearchTerm"]">
+					<input type="submit" value="" title="Tìm kiếm">
 				<div class="clearfix"></div>
 			</form>
 		</div>
@@ -116,23 +116,29 @@
                             </button>
                         </div>
                         <div class="collapse navbar-collapse menu--shylock" id="shop-navbar">
-                            <ul class="nav navbar-nav menu__list">
-                                <li class="menu__item @NavState("Home", "Index")">
-                                    <a class="menu__link" asp-controller="Home" asp-action="Index">Trang chủ</a>
-                                </li>
-                                <li class="menu__item @NavState("Product", "Index")">
-                                    <a class="menu__link" asp-controller="Product" asp-action="Index">Sản phẩm</a>
-                                </li>
-                                <li class="menu__item @NavState("Home", "Contact")">
-                                    <a class="menu__link" asp-controller="Home" asp-action="Contact">Liên hệ</a>
-                                </li>
+							<ul class="nav navbar-nav menu__list">
+								<li class="menu__item @NavState("Home", "Index")">
+									<a class="menu__link" asp-area="" asp-controller="Home" asp-action="Index">Trang chủ</a>
+								</li>
+								<li class="menu__item @NavState("Product", "Index")">
+									<a class="menu__link" asp-area="" asp-controller="Product" asp-action="Index">Sản phẩm</a>
+								</li>
+								<li class="menu__item @NavState("Home", "Contact")">
+									<a class="menu__link" asp-area="" asp-controller="Home" asp-action="Contact">Liên hệ</a>
+								</li>
 								@if (User.IsInRole("Admin"))
 								{
-									<li class="menu__item @NavState("Orders", "Index")">
-										<a class="menu__link" asp-area="Admin" asp-controller="Orders" asp-action="Index">Quản trị đơn hàng</a>
+									<li class="menu__item dropdown">
+										<a href="#" class="menu__link dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+											Quản trị <span class="caret"></span>
+										</a>
+										<ul class="dropdown-menu">
+											<li><a asp-area="Admin" asp-controller="Orders" asp-action="Index">Quản trị đơn hàng</a></li>
+											<li><a asp-area="Admin" asp-controller="Products" asp-action="Index">Quản trị sản phẩm</a></li>
+										</ul>
 									</li>
 								}
-                            </ul>
+							</ul>
                         </div>
                     </div>
                 </nav>

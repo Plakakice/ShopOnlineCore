@@ -112,6 +112,22 @@
             <h3>@Model.Name</h3>
             <p><span class="item_price">@Model.Price.ToString("N0") ₫</span></p>
             
+            <!-- Stock Status -->
+            <div class="stock-status mb-3">
+                @if (Model.IsAvailable)
+                {
+                    <span class="badge bg-success" style="font-size: 1em; padding: 8px 15px;">
+                        <i class="fa fa-check-circle"></i> Còn hàng: @Model.Stock sản phẩm
+                    </span>
+                }
+                else
+                {
+                    <span class="badge bg-danger" style="font-size: 1em; padding: 8px 15px;">
+                        <i class="fa fa-times-circle"></i> Hết hàng
+                    </span>
+                }
+            </div>
+            
             <div class="rating1">
                 <span class="starRating">
                     <input id="rating5" type="radio" name="rating" value="5">
@@ -136,11 +152,20 @@
 
             <div class="occasion-cart">
                 <div class="snipcart-details top_brand_home_details item_add single-item hvr-outline-out button2">
-                    <form asp-controller="Cart" asp-action="Add" asp-route-id="@Model.Id" method="post">
-                        <fieldset>
-                            <input type="submit" name="submit" value="Thêm vào giỏ" class="button">
-                        </fieldset>
-                    </form>
+                    @if (Model.IsAvailable)
+                    {
+                        <form asp-controller="Cart" asp-action="Add" asp-route-id="@Model.Id" method="post">
+                            <fieldset>
+                                <input type="submit" name="submit" value="Thêm vào giỏ" class="button">
+                            </fieldset>
+                        </form>
+                    }
+                    else
+                    {
+                        <button class="button" disabled style="opacity: 0.5; cursor: not-allowed;">
+                            Hết hàng
+                        </button>
+                    }
                 </div>
             </div>
 
@@ -195,6 +220,8 @@
                                 <li>Tên sản phẩm: <strong>@Model.Name</strong></li>
                                 <li>Danh mục: <strong>@Model.Category</strong></li>
                                 <li>Giá: <strong>@Model.Price.ToString("N0") ₫</strong></li>
+                                <li>Tồn kho: <strong>@(Model.IsAvailable ? $"{Model.Stock} sản phẩm" : "Hết hàng")</strong></li>
+                                <li>Trạng thái: <strong>@(Model.IsAvailable ? "Còn hàng" : "Hết hàng")</strong></li>
                                 <li>Bảo hành: 12 tháng</li>
                                 <li>Giao hàng: Toàn quốc</li>
                             </ul>

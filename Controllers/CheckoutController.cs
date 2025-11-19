@@ -85,6 +85,28 @@ public class CheckoutController : Controller
             return View(model);
         }
 
+        // Kiểm tra tồn kho trước khi đặt hàng
+        var outOfStockItems = new List<string>();
+        foreach (var item in cart)
+        {
+            var product = await _context.Products.FindAsync(item.Id);
+            if (product == null)
+            {
+                outOfStockItems.Add($"{item.Name} - Sản phẩm không tồn tại");
+            }
+            else if (product.Stock < item.Quantity)
+            {
+                outOfStockItems.Add($"{item.Name} - Chỉ còn {product.Stock} sản phẩm (bạn đặt {item.Quantity})");
+            }
+        }
+
+        if (outOfStockItems.Any())
+        {
+            TempData["Error"] = "Một số sản phẩm không đủ hàng:<br>" + string.Join("<br>", outOfStockItems);
+            ViewBag.Total = cart.Sum(x => x.Total);
+            return View(model);
+        }
+
         // Convert CartItem to OrderItem
         model.OrderItems = cart.Select(item => new OrderItem
         {
@@ -97,8 +119,23 @@ public class CheckoutController : Controller
 
         model.UserId = userId;
 
+        // Lưu đơn hàng
         await _orderRepository.AddAsync(model);
+
+        // Trừ tồn kho sau khi đặt hàng thành công
+        foreach (var item in cart)
+        {
+            var product = await _context.Products.FindAsync(item.Id);
+            if (product != null)
+            {
+                product.Stock -= item.Quantity;
+            }
+        }
+        await _context.SaveChangesAsync();
+
+        // Xóa giỏ hàng
         await ClearCartAsync();
+        
         TempData["Success"] = "Đặt hàng thành công! Cảm ơn bạn đã mua sắm.";
         return RedirectToAction("Success");
     }

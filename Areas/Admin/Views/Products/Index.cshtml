@@ -1,0 +1,326 @@
+@model IEnumerable<ShopOnlineCore.Models.Product>
+@{
+    ViewData["Title"] = "Quản lý sản phẩm";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    var totalCount = (int)(ViewData["TotalCount"] ?? 0);
+    var page = (int)(ViewData["Page"] ?? 1);
+    var pageSize = (int)(ViewData["PageSize"] ?? 20);
+    var totalPages = (int)(ViewData["TotalPages"] ?? 1);
+    var search = ViewData["Search"]?.ToString() ?? "";
+    var category = ViewData["Category"]?.ToString() ?? "";
+
+    var totalProducts = (int)(ViewData["TotalProducts"] ?? 0);
+    var totalInStock = (int)(ViewData["TotalInStock"] ?? 0);
+    var totalOutOfStock = (int)(ViewData["TotalOutOfStock"] ?? 0);
+    var totalValue = (decimal)(ViewData["TotalValue"] ?? 0);
+}
+
+<div class="page-head_agile_info_w3l">
+    <div class="container">
+        <h3><i class="fa fa-cogs"></i> Quản trị <span>Sản phẩm</span></h3>
+    </div>
+</div>
+
+<div class="container" style="margin-top: 30px; margin-bottom: 50px;">
+    
+    <!-- Thống kê nhanh -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card text-center" style="border-left: 4px solid #3498db;">
+                <div class="card-body">
+                    <h3 style="color: #3498db; margin: 0;">@totalProducts</h3>
+                    <p style="margin: 5px 0 0 0; color: #7f8c8d;">Tổng sản phẩm</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center" style="border-left: 4px solid #27ae60;">
+                <div class="card-body">
+                    <h3 style="color: #27ae60; margin: 0;">@totalInStock</h3>
+                    <p style="margin: 5px 0 0 0; color: #7f8c8d;">Còn hàng</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center" style="border-left: 4px solid #e74c3c;">
+                <div class="card-body">
+                    <h3 style="color: #e74c3c; margin: 0;">@totalOutOfStock</h3>
+                    <p style="margin: 5px 0 0 0; color: #7f8c8d;">Hết hàng</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center" style="border-left: 4px solid #f39c12;">
+                <div class="card-body">
+                    <h3 style="color: #f39c12; margin: 0;">@totalValue.ToString("N0")₫</h3>
+                    <p style="margin: 5px 0 0 0; color: #7f8c8d;">Giá trị kho</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Thanh công cụ -->
+    <div class="card mb-3">
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <a asp-controller="Product" asp-action="Create" class="btn btn-success">
+                        <i class="fa fa-plus"></i> Thêm sản phẩm
+                    </a>
+                    <button type="button" class="btn btn-danger" onclick="bulkDelete()">
+                        <i class="fa fa-trash"></i> Xóa đã chọn
+                    </button>
+                    <button type="button" class="btn btn-warning" onclick="showBulkPriceModal()">
+                        <i class="fa fa-dollar"></i> Cập nhật giá
+                    </button>
+                </div>
+                <div class="col-md-6">
+                    <form method="get" class="form-inline float-right">
+                        <select name="category" class="form-control mr-2" onchange="this.form.submit()">
+                            <option value="">Tất cả danh mục</option>
+                            <option value="Laptop" selected="@(category == "Laptop")">Laptop</option>
+                            <option value="Chuột" selected="@(category == "Chuột")">Chuột</option>
+                            <option value="Bàn phím" selected="@(category == "Bàn phím")">Bàn phím</option>
+                            <option value="Bags" selected="@(category == "Bags")">Bags</option>
+                            <option value="Âm thanh" selected="@(category == "Âm thanh")">Âm thanh</option>
+                        </select>
+                        <input type="search" name="search" value="@search" class="form-control mr-2" placeholder="Tìm kiếm...">
+                        <button type="submit" class="btn btn-primary"><i class="fa fa-search"></i></button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bảng sản phẩm -->
+    <div class="card">
+        <div class="card-body" style="padding: 0;">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead style="background: #34495e; color: white;">
+                        <tr>
+                            <th style="width: 40px;"><input type="checkbox" id="selectAll" onchange="toggleSelectAll()"></th>
+                            <th style="width: 60px;">ID</th>
+                            <th style="width: 80px;">Ảnh</th>
+                            <th>Tên sản phẩm</th>
+                            <th style="width: 120px;">Danh mục</th>
+                            <th style="width: 120px;">Giá</th>
+                            <th style="width: 100px;">Tồn kho</th>
+                            <th style="width: 100px;">Trạng thái</th>
+                            <th style="width: 150px;">Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var product in Model)
+                        {
+                            <tr>
+                                <td><input type="checkbox" class="product-checkbox" value="@product.Id"></td>
+                                <td>@product.Id</td>
+                                <td>
+                                    <img src="@Url.Content(product.ImageUrl)" alt="@product.Name" 
+                                         style="width: 50px; height: 50px; object-fit: cover; border-radius: 4px;">
+                                </td>
+                                <td>
+                                    <strong>@product.Name</strong><br>
+                                    @{
+                                        var desc = product.Description ?? "";
+                                        var shortDesc = desc.Length > 50 ? desc.Substring(0, 50) : desc;
+                                    }
+                                    <small class="text-muted">@shortDesc</small>
+                                </td>
+                                <td><span class="badge bg-primary">@product.Category</span></td>
+                                <td><strong>@product.Price.ToString("N0")₫</strong></td>
+                                <td>
+                                    <input type="number" class="form-control form-control-sm" 
+                                           value="@product.Stock" min="0" 
+                                           onchange="updateStock(@product.Id, this.value)"
+                                           style="width: 80px;">
+                                </td>
+                                <td>
+                                    @if (product.IsAvailable)
+                                    {
+                                        <span class="badge bg-success">Còn hàng</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-danger">Hết hàng</span>
+                                    }
+                                </td>
+                                <td>
+                                    <a asp-controller="Product" asp-action="Edit" asp-route-id="@product.Id" 
+                                       class="btn btn-sm btn-warning" title="Sửa">
+                                        <i class="fa fa-edit"></i>
+                                    </a>
+                                    <a asp-controller="Product" asp-action="Details" asp-route-id="@product.Id" 
+                                       class="btn btn-sm btn-info" title="Xem">
+                                        <i class="fa fa-eye"></i>
+                                    </a>
+                                    <button onclick="deleteProduct(@product.Id)" class="btn btn-sm btn-danger" title="Xóa">
+                                        <i class="fa fa-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pagination -->
+    @if (totalPages > 1)
+    {
+        <nav class="mt-3">
+            <ul class="pagination justify-content-center">
+                @for (int i = 1; i <= totalPages; i++)
+                {
+                    <li class="page-item @(i == page ? "active" : "")">
+                        <a class="page-link" href="@Url.Action("Index", new { page = i, search, category })">@i</a>
+                    </li>
+                }
+            </ul>
+            <p class="text-center text-muted">Hiển thị @Model.Count() / @totalCount sản phẩm</p>
+        </nav>
+    }
+</div>
+
+<!-- Modal cập nhật giá hàng loạt -->
+<div class="modal fade" id="bulkPriceModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Cập nhật giá hàng loạt</h5>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Phần trăm thay đổi (%)</label>
+                    <input type="number" id="pricePercentage" class="form-control" value="10" min="0" max="100">
+                </div>
+                <div class="form-group">
+                    <label>Hành động</label>
+                    <select id="priceAction" class="form-control">
+                        <option value="increase">Tăng giá</option>
+                        <option value="decrease">Giảm giá</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Hủy</button>
+                <button type="button" class="btn btn-primary" onclick="bulkUpdatePrice()">Cập nhật</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Toggle select all
+        function toggleSelectAll() {
+            const checked = document.getElementById('selectAll').checked;
+            document.querySelectorAll('.product-checkbox').forEach(cb => cb.checked = checked);
+        }
+
+        // Cập nhật stock nhanh
+        function updateStock(id, stock) {
+            fetch('@Url.Action("UpdateStock")', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'RequestVerificationToken': '@Html.AntiForgeryToken()'
+                },
+                body: `id=${id}&stock=${stock}`
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    showToast('success', data.message);
+                    setTimeout(() => location.reload(), 500);
+                } else {
+                    showToast('error', data.message);
+                }
+            });
+        }
+
+        // Xóa sản phẩm đơn
+        function deleteProduct(id) {
+            if (!confirm('Xác nhận xóa sản phẩm này?')) return;
+            
+            fetch('@Url.Action("BulkDelete")', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: `ids=${id}`
+            })
+            .then(res => res.json())
+            .then(data => {
+                showToast(data.success ? 'success' : 'error', data.message);
+                if (data.success) setTimeout(() => location.reload(), 500);
+            });
+        }
+
+        // Xóa nhiều sản phẩm
+        function bulkDelete() {
+            const ids = Array.from(document.querySelectorAll('.product-checkbox:checked')).map(cb => cb.value);
+            if (ids.length === 0) {
+                showToast('warning', 'Chưa chọn sản phẩm nào');
+                return;
+            }
+            if (!confirm(`Xác nhận xóa ${ids.length} sản phẩm đã chọn?`)) return;
+
+            fetch('@Url.Action("BulkDelete")', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: `ids=${ids.join('&ids=')}`
+            })
+            .then(res => res.json())
+            .then(data => {
+                showToast(data.success ? 'success' : 'error', data.message);
+                if (data.success) setTimeout(() => location.reload(), 1000);
+            });
+        }
+
+        // Hiển thị modal cập nhật giá
+        function showBulkPriceModal() {
+            const ids = Array.from(document.querySelectorAll('.product-checkbox:checked'));
+            if (ids.length === 0) {
+                showToast('warning', 'Chưa chọn sản phẩm nào');
+                return;
+            }
+            $('#bulkPriceModal').modal('show');
+        }
+
+        // Cập nhật giá hàng loạt
+        function bulkUpdatePrice() {
+            const ids = Array.from(document.querySelectorAll('.product-checkbox:checked')).map(cb => cb.value);
+            const percentage = document.getElementById('pricePercentage').value;
+            const action = document.getElementById('priceAction').value;
+
+            fetch('@Url.Action("BulkUpdatePrice")', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: `ids=${ids.join('&ids=')}&percentage=${percentage}&action=${action}`
+            })
+            .then(res => res.json())
+            .then(data => {
+                $('#bulkPriceModal').modal('hide');
+                showToast(data.success ? 'success' : 'error', data.message);
+                if (data.success) setTimeout(() => location.reload(), 1000);
+            });
+        }
+
+        // Toast notification
+        function showToast(type, message) {
+            const colors = {
+                success: '#27ae60',
+                error: '#e74c3c',
+                warning: '#f39c12'
+            };
+            const toast = document.createElement('div');
+            toast.style.cssText = `position: fixed; top: 80px; right: 20px; background: ${colors[type]}; color: white; padding: 15px 20px; border-radius: 5px; z-index: 9999; box-shadow: 0 4px 8px rgba(0,0,0,0.2);`;
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+    </script>
+}

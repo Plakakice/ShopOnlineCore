@@ -181,11 +181,20 @@
 
                 <!-- Danh sách sản phẩm -->
                 <div class="row">
+                    @if (!Model.Any())
+                    {
+                        <div class="col-md-12 text-center" style="padding: 60px 0;">
+                            <i class="fa fa-search" style="font-size: 4em; color: #ccc; margin-bottom: 20px;"></i>
+                            <h3 style="color: #666;">Không tìm thấy sản phẩm</h3>
+                            <p style="color: #999; margin-bottom: 20px;">@(ViewData["SearchTerm"] != null ? $"Không có sản phẩm nào khớp với từ khóa \"{ViewData["SearchTerm"]}\"" : "Không có sản phẩm nào trong danh mục này")</p>
+                            <a href="@Url.Action("Index")" class="btn btn-primary">Xem tất cả sản phẩm</a>
+                        </div>
+                    }
                     @foreach (var product in Model)
                     {
-                        <div class="col-md-4 col-sm-6 product-men wow zoomIn" data-wow-delay="0.2s" style="margin-bottom: 30px;">
-                            <div class="men-pro-item simpleCart_shelfItem" style="border: 1px solid #e8e8e8; border-radius: 8px; overflow: hidden; height: 100%; display: flex; flex-direction: column;">
-                                <div class="men-thumb-item" style="position: relative; overflow: hidden; background: #f8f8f8;">
+                        <div class="col-md-4 col-sm-6 product-men wow zoomIn" data-wow-delay="0.2s" style="margin-bottom: 30px; display: flex;">
+                            <div class="men-pro-item simpleCart_shelfItem" style="border: 1px solid #e8e8e8; border-radius: 8px; overflow: hidden; display: flex; flex-direction: column; width: 100%;">
+                                <div class="men-thumb-item" style="position: relative; overflow: hidden; background: #f8f8f8; flex-shrink: 0;">
                                     <img src="@Url.Content(product.ImageUrl)" alt="@product.Name" class="pro-image-front img-responsive" style="width: 100%; height: 250px; object-fit: cover;" />
                                     <img src="@Url.Content(product.ImageUrl)" alt="@product.Name" class="pro-image-back img-responsive" style="width: 100%; height: 250px; object-fit: cover;" />
                                     <div class="men-cart-pro">
@@ -197,8 +206,8 @@
                                 </div>
 
                                 <div class="item-info-product text-center" style="padding: 20px 15px; flex: 1; display: flex; flex-direction: column; justify-content: space-between;">
-                                    <div>
-                                        <h4 style="font-size: 1.1em; margin-bottom: 10px; min-height: 50px; display: flex; align-items: center; justify-content: center;">@product.Name</h4>
+                                    <div style="flex: 1; display: flex; flex-direction: column; justify-content: center;">
+                                        <h4 style="font-size: 1.05em; margin-bottom: 12px; height: 48px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; text-overflow: ellipsis; line-height: 1.4em;">@product.Name</h4>
                                         <div class="info-product-price" style="margin-bottom: 15px;">
                                             <span class="item_price" style="font-size: 1.3em; font-weight: 700; color: #e74c3c;">@product.Price.ToString("N0") ₫</span>
                                         </div>

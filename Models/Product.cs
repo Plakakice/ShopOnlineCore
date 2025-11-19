@@ -1,3 +1,5 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace ShopOnlineCore.Models
 {
     public class Product
@@ -13,5 +15,12 @@ namespace ShopOnlineCore.Models
 
         // Danh sách ảnh khác
         public List<string> ImageGallery { get; set; } = new();
+
+        // Tồn kho
+        [Range(0, int.MaxValue, ErrorMessage = "Số lượng phải >= 0")]
+        public int Stock { get; set; } = 0;
+
+        // Trạng thái còn hàng
+        public bool IsAvailable => Stock > 0;
     }
 }
