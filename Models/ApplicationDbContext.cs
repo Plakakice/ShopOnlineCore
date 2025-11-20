@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using ShopOnlineCore.Models.Identity;
 
@@ -21,7 +22,19 @@ namespace ShopOnlineCore.Models
         {
             base.OnModelCreating(modelBuilder);
 
-            // SQL Server hỗ trợ decimal native, không cần conversion
+            // Loại bỏ các bảng Identity không sử dụng
+            modelBuilder.Ignore<IdentityUserClaim<string>>();
+            modelBuilder.Ignore<IdentityUserLogin<string>>();
+            modelBuilder.Ignore<IdentityUserToken<string>>();
+            modelBuilder.Ignore<IdentityRoleClaim<string>>();
+
+            // Loại bỏ các cột không sử dụng trong AspNetUsers
+            modelBuilder.Entity<ApplicationUser>()
+                .Ignore(u => u.PhoneNumberConfirmed)
+                .Ignore(u => u.TwoFactorEnabled)
+                .Ignore(u => u.LockoutEnabled)
+                .Ignore(u => u.LockoutEnd)
+                .Ignore(u => u.AccessFailedCount);
 
             // Cấu hình precision cho decimal
             modelBuilder.Entity<Product>()
