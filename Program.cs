@@ -13,6 +13,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>()
+    .AddUserStore<ApplicationUserStore>()
     .AddDefaultTokenProviders();
 
 // ==================== MVC + SESSION + RAZOR ====================
