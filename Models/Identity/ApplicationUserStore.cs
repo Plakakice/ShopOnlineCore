@@ -45,5 +45,41 @@ namespace ShopOnlineCore.Models.Identity
             // Return empty list - claims are not supported
             return Task.FromResult<IList<ApplicationUser>>(new List<ApplicationUser>());
         }
+
+        // Override lockout methods since we removed lockout support
+        public override Task<DateTimeOffset?> GetLockoutEndDateAsync(ApplicationUser user, CancellationToken cancellationToken = default)
+        {
+            return Task.FromResult<DateTimeOffset?>(null);
+        }
+
+        public override Task<int> GetAccessFailedCountAsync(ApplicationUser user, CancellationToken cancellationToken = default)
+        {
+            return Task.FromResult(0);
+        }
+
+        public override Task<bool> GetLockoutEnabledAsync(ApplicationUser user, CancellationToken cancellationToken = default)
+        {
+            return Task.FromResult(false);
+        }
+
+        public override Task<IdentityResult> SetLockoutEndDateAsync(ApplicationUser user, DateTimeOffset? lockoutEnd, CancellationToken cancellationToken = default)
+        {
+            return Task.FromResult(IdentityResult.Success);
+        }
+
+        public override Task<IdentityResult> SetLockoutEnabledAsync(ApplicationUser user, bool enabled, CancellationToken cancellationToken = default)
+        {
+            return Task.FromResult(IdentityResult.Success);
+        }
+
+        public override Task<int> IncrementAccessFailedCountAsync(ApplicationUser user, CancellationToken cancellationToken = default)
+        {
+            return Task.FromResult(0);
+        }
+
+        public override Task<IdentityResult> ResetAccessFailedCountAsync(ApplicationUser user, CancellationToken cancellationToken = default)
+        {
+            return Task.FromResult(IdentityResult.Success);
+        }
     }
 }
