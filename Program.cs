@@ -11,10 +11,16 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+// Đăng ký custom UserStore
+builder.Services.AddScoped<ApplicationUserStore>();
+
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>()
-    .AddUserStore<ApplicationUserStore>()
     .AddDefaultTokenProviders();
+
+// Override UserStore bằng custom store
+builder.Services.AddScoped<IUserStore<ApplicationUser>>(provider =>
+    provider.GetRequiredService<ApplicationUserStore>());
 
 // ==================== MVC + SESSION + RAZOR ====================
 builder.Services.AddControllersWithViews();
