@@ -89,6 +89,9 @@ namespace ShopOnlineCore.Models
 
             modelBuilder.Entity<CartLine>()
                 .HasIndex(c => c.UserId);
+
+            // Seed data - remove any existing users to ensure clean state
+            modelBuilder.Entity<ApplicationUser>().HasData();
         }
     }
 }
