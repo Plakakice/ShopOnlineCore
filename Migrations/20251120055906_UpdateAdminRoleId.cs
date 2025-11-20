@@ -39,8 +39,14 @@ namespace ShopOnlineCore.Migrations
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            // This migration cannot be safely rolled back as we don't know the original Admin role ID
-            // Migration intentionally left empty for Down
+            // Rollback: revert to old Admin role ID
+            migrationBuilder.Sql(@"
+                IF EXISTS (SELECT 1 FROM [AspNetRoles] WHERE [Id] = 'cab19749-7cf8-4c7b-91d7-afdbb1944c0d' AND [Name] = 'Admin')
+                BEGIN
+                    -- This migration cannot be safely rolled back as we don't know the original ID
+                    -- Do nothing for rollback
+                END
+            ");
         }
     }
 }

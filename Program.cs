@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Identity.UI.Services;
 using ShopOnlineCore.Services;
 using ShopOnlineCore.Models;
 using ShopOnlineCore.Models.Identity;
-using ShopOnlineCore.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,12 +11,20 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+// Đăng ký custom UserStore và RoleStore
+builder.Services.AddScoped<ApplicationUserStore>();
+builder.Services.AddScoped<ApplicationRoleStore>();
+
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>()
     .AddDefaultTokenProviders();
 
-// Ghi đè custom UserStore và RoleStore bằng extension method
-builder.Services.AddCustomIdentityStores();
+// Override UserStore và RoleStore bằng custom stores
+builder.Services.AddScoped<IUserStore<ApplicationUser>>(provider =>
+    provider.GetRequiredService<ApplicationUserStore>());
+
+builder.Services.AddScoped<IRoleStore<IdentityRole>>(provider =>
+    provider.GetRequiredService<ApplicationRoleStore>());
 
 // ==================== MVC + SESSION + RAZOR ====================
 builder.Services.AddControllersWithViews();

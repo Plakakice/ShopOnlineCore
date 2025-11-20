@@ -1,7 +1,220 @@
-<div class="text-center mt-5">
-    <h2>🎉 Đặt hàng thành công!</h2>
-    <p>Cảm ơn bạn đã mua sắm tại <b>ShopOnlineCore</b>.</p>
-    <p>Chúng tôi sẽ liên hệ bạn sớm nhất để xác nhận đơn hàng.</p>
+@using Microsoft.AspNetCore.Identity
+@using ShopOnlineCore.Models.Identity
+@inject SignInManager<ApplicationUser> SignInManager
 
-    <a asp-controller="Home" asp-action="Index" class="btn btn-primary mt-3">Về trang chủ</a>
+@{
+    ViewData["Title"] = "Đặt hàng thành công";
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewData["Title"] - ShopOnlineCore</title>
+    <link rel="stylesheet" href="~/css/bootstrap.css" />
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+    </style>
+</head>
+<body>
+
+<style>
+    .success-container {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+    }
+
+    .success-card {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        padding: 60px 40px;
+        max-width: 500px;
+        width: 100%;
+        text-align: center;
+    }
+
+    .success-icon {
+        width: 80px;
+        height: 80px;
+        background: #1AAD19;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 30px;
+        font-size: 40px;
+        transform: scale(1);
+        opacity: 1;
+    }
+
+    .success-title {
+        font-size: 28px;
+        font-weight: 700;
+        color: #333;
+        margin-bottom: 15px;
+    }
+
+    .success-subtitle {
+        font-size: 14px;
+        color: #666;
+        margin-bottom: 10px;
+    }
+
+    .success-text {
+        font-size: 14px;
+        color: #999;
+        line-height: 1.6;
+        margin-bottom: 30px;
+    }
+
+    .success-message {
+        background: #f0f9ff;
+        border-left: 4px solid #1AAD19;
+        padding: 15px;
+        margin-bottom: 30px;
+        border-radius: 4px;
+        font-size: 14px;
+        color: #1AAD19;
+    }
+
+    .success-buttons {
+        display: flex;
+        gap: 12px;
+        flex-direction: column;
+    }
+
+    .btn-primary-success {
+        padding: 12px 24px;
+        background: #1AAD19;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-weight: 600;
+        font-size: 15px;
+        text-decoration: none;
+        transition: all 0.3s;
+        display: inline-block;
+    }
+
+    .btn-primary-success:hover {
+        background: #17a016;
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(26, 173, 25, 0.2);
+    }
+
+    .btn-secondary-success {
+        padding: 12px 24px;
+        background: white;
+        color: #333;
+        border: 1px solid #e0e0e0;
+        border-radius: 6px;
+        cursor: pointer;
+        font-weight: 600;
+        font-size: 15px;
+        text-decoration: none;
+        transition: all 0.3s;
+        display: inline-block;
+    }
+
+    .btn-secondary-success:hover {
+        background: #f5f5f5;
+        border-color: #ccc;
+    }
+
+    .success-info {
+        background: #f9f9f9;
+        border-radius: 8px;
+        padding: 20px;
+        margin-top: 30px;
+        text-align: left;
+        border: 1px solid #e0e0e0;
+    }
+
+    .success-info-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 10px 0;
+        border-bottom: 1px solid #f0f0f0;
+        font-size: 14px;
+    }
+
+    .success-info-row:last-child {
+        border-bottom: none;
+    }
+
+    .success-info-label {
+        color: #999;
+    }
+
+    .success-info-value {
+        font-weight: 600;
+        color: #333;
+    }
+</style>
+
+<div class="success-container">
+    <div class="success-card">
+        <div class="success-icon">✓</div>
+        
+        <h2 class="success-title">🎉 Đặt hàng thành công!</h2>
+        
+        <p class="success-subtitle">Cảm ơn bạn đã tin tưởng ShopOnlineCore</p>
+        
+        <p class="success-text">
+            Đơn hàng của bạn đã được tiếp nhận. Chúng tôi sẽ liên hệ bạn sớm nhất để xác nhận và giao hàng.
+        </p>
+
+        <div class="success-message">
+            <strong>✓ Đơn hàng đã được lưu trong hệ thống</strong><br>
+            Bạn có thể xem chi tiết tại mục "Đơn hàng của tôi"
+        </div>
+
+        @if (SignInManager.IsSignedIn(User))
+        {
+            <div class="success-info">
+                <div class="success-info-row">
+                    <span class="success-info-label">📧 Email:</span>
+                    <span class="success-info-value">@User.Identity?.Name</span>
+                </div>
+                <div class="success-info-row">
+                    <span class="success-info-label">🔔 Trạng thái:</span>
+                    <span class="success-info-value" style="color: #ff9800;">Chờ xử lý</span>
+                </div>
+            </div>
+        }
+
+        <div class="success-buttons" style="margin-top: 30px;">
+            <a asp-controller="Checkout" asp-action="Orders" class="btn-primary-success">
+                📋 Xem đơn hàng của tôi
+            </a>
+            <a asp-controller="Product" asp-action="Index" class="btn-secondary-success">
+                🛍️ Tiếp tục mua sắm
+            </a>
+            <a asp-controller="Home" asp-action="Index" class="btn-secondary-success">
+                🏠 Về trang chủ
+            </a>
+        </div>
+
+        <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #e0e0e0;">
+            <p style="font-size: 12px; color: #999; margin: 0;">
+                💬 Nếu bạn có bất kỳ câu hỏi nào, vui lòng<br>
+                <a href="@Url.Action("Contact", "Home")" style="color: #1AAD19; text-decoration: none;">liên hệ với chúng tôi</a>
+            </p>
+        </div>
+    </div>
 </div>
+
+</body>
+</html>

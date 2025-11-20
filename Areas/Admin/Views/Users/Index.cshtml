@@ -1,0 +1,273 @@
+@using ShopOnlineCore.Models.Identity
+@model IEnumerable<ApplicationUser>
+
+@{
+    ViewData["Title"] = "Quản lý Người dùng";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    var pageNum = (int)(ViewData["Page"] ?? 1);
+    var pageSize = (int)(ViewData["PageSize"] ?? 20);
+    var totalPages = (int)(ViewData["TotalPages"] ?? 1);
+    var totalUsers = (int)(ViewData["TotalUsers"] ?? 0);
+    var totalOrders = (int)(ViewData["TotalOrders"] ?? 0);
+    var totalCustomers = (int)(ViewData["TotalCustomers"] ?? 0);
+    var totalRevenue = (decimal)(ViewData["TotalRevenue"] ?? 0);
+}
+
+<style>
+    .admin-header {
+        background: linear-gradient(135deg, #2fdab8 0%, #27b39e 100%);
+        color: white;
+        padding: 40px 0;
+        margin-bottom: 30px;
+        border-radius: 0;
+    }
+
+    .stats-card {
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        border-left: 4px solid;
+    }
+
+    .stats-card h3 {
+        margin: 0;
+        color: #333;
+        font-size: 1.8em;
+        font-weight: 700;
+    }
+
+    .stats-card p {
+        margin: 8px 0 0 0;
+        color: #999;
+        font-size: 0.9em;
+    }
+
+    .nav-tabs-custom {
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        margin-bottom: 30px;
+    }
+
+    .nav-tabs-custom .nav-link {
+        color: #666;
+        border: none;
+        border-bottom: 3px solid transparent;
+        font-weight: 600;
+        padding: 12px 20px;
+        transition: all 0.3s ease;
+    }
+
+    .nav-tabs-custom .nav-link:hover {
+        color: #2fdab8;
+    }
+
+    .nav-tabs-custom .nav-link.active {
+        color: #2fdab8;
+        border-bottom-color: #2fdab8;
+        background: transparent;
+    }
+
+    .table-card {
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        overflow: hidden;
+    }
+
+    .table-card table {
+        margin-bottom: 0;
+    }
+
+    .table-card thead {
+        background: #f8f9fa;
+        border-bottom: 2px solid #e9ecef;
+    }
+
+    .table-card thead th {
+        font-weight: 700;
+        color: #333;
+        padding: 16px;
+        border: none;
+        font-size: 0.95em;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .table-card tbody td {
+        padding: 16px;
+        border-bottom: 1px solid #f0f0f0;
+        color: #555;
+        vertical-align: middle;
+    }
+
+    .table-card tbody tr:hover {
+        background-color: #f9f9f9;
+    }
+
+    .user-id {
+        font-weight: 700;
+        color: #2fdab8;
+        font-size: 0.9em;
+        font-family: monospace;
+    }
+
+    .user-name {
+        font-weight: 700;
+        color: #333;
+        font-size: 1.05em;
+    }
+
+    .pagination {
+        justify-content: center;
+        margin-top: 30px;
+    }
+
+    .pagination .page-link {
+        border: 1px solid #ddd;
+        color: #2fdab8;
+        border-radius: 6px;
+        margin: 0 4px;
+        transition: all 0.3s ease;
+    }
+
+    .pagination .page-link:hover {
+        background-color: #2fdab8;
+        border-color: #2fdab8;
+        color: white;
+    }
+
+    .pagination .page-item.active .page-link {
+        background-color: #2fdab8;
+        border-color: #2fdab8;
+    }
+
+    .btn-details {
+        background: #27ae60;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        padding: 6px 12px;
+        transition: all 0.3s ease;
+    }
+
+    .btn-details:hover {
+        background: #229954;
+        color: white;
+    }
+</style>
+
+<!-- Page Header -->
+<div class="admin-header">
+    <div class="container-fluid" style="padding: 0 10px;">
+        <h2 style="margin: 0; font-size: 2em; font-weight: 700;">👥 Quản trị Người dùng</h2>
+        <p style="margin: 5px 0 0 0; opacity: 0.95;">Quản lý tài khoản người dùng và khách hàng</p>
+    </div>
+</div>
+
+<!-- Content -->
+<div class="container-fluid" style="margin-bottom: 50px; padding: 0 10px;">
+    
+    <!-- Statistics Cards -->
+    <div class="row mb-4" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px;">
+        <div class="stats-card" style="border-left-color: #2fdab8;">
+            <p>Tổng người dùng</p>
+            <h3>@totalUsers</h3>
+        </div>
+        <div class="stats-card" style="border-left-color: #3498db;">
+            <p>Tổng đơn hàng</p>
+            <h3>@totalOrders</h3>
+        </div>
+        <div class="stats-card" style="border-left-color: #27ae60;">
+            <p>Khách hàng duy nhất</p>
+            <h3>@totalCustomers</h3>
+        </div>
+        <div class="stats-card" style="border-left-color: #f39c12;">
+            <p>Tổng doanh thu</p>
+            <h3 style="font-size: 1.4em;">@totalRevenue.ToString("N0")₫</h3>
+        </div>
+    </div>
+
+
+
+    <!-- Table Card -->
+    <div class="table-card">
+        <div style="overflow-x: auto;">
+            <table class="table table-hover" style="margin-bottom: 0;">
+                <thead>
+                    <tr>
+                        <th style="width: 200px;">ID</th>
+                        <th>Tên người dùng</th>
+                        <th>Email</th>
+                        <th style="width: 150px;">Số điện thoại</th>
+                        <th style="width: 150px;">Ngày tạo</th>
+                        <th style="width: 100px; text-align: center;">Hành động</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (!Model.Any())
+                    {
+                        <tr>
+                            <td colspan="6" style="text-align: center; padding: 40px; color: #999;">
+                                <i class="fa fa-inbox" style="font-size: 2em; margin-bottom: 15px; display: block;"></i>
+                                Không có người dùng nào
+                            </td>
+                        </tr>
+                    }
+                    @foreach (var user in Model)
+                    {
+                        <tr>
+                            <td><span class="user-id">@user.Id.Substring(0, Math.Min(10, user.Id.Length))...</span></td>
+                            <td><span class="user-name">@user.UserName</span></td>
+                            <td style="color: #666;">@user.Email</td>
+                            <td style="color: #999;">@(user.PhoneNumber ?? "Chưa cập nhật")</td>
+                            <td style="color: #999; font-size: 0.95em;">@(user.LockoutEnd.HasValue && user.LockoutEnd > DateTime.UtcNow ? user.LockoutEnd.Value.ToString("dd/MM/yyyy") : "Không")</td>
+                            <td style="text-align: center;">
+                                <a href="@Url.Action("Details", "Users", new { area = "Admin", id = user.Id })" class="btn btn-details" title="Xem chi tiết">
+                                    <i class="fa fa-eye"></i> Xem
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination -->
+        @if (totalPages > 1)
+        {
+            <nav style="padding: 25px;">
+                <ul class="pagination">
+                    @if (pageNum > 1)
+                    {
+                        <li class="page-item">
+                            <a class="page-link" href="@Url.Action("Index", new { page = pageNum - 1 })">
+                                <i class="fa fa-chevron-left"></i> Trước
+                            </a>
+                        </li>
+                    }
+
+                    @for (int i = Math.Max(1, pageNum - 2); i <= Math.Min(totalPages, pageNum + 2); i++)
+                    {
+                        <li class="page-item @(i == pageNum ? "active" : "")">
+                            <a class="page-link" href="@Url.Action("Index", new { page = i })">@i</a>
+                        </li>
+                    }
+
+                    @if (pageNum < totalPages)
+                    {
+                        <li class="page-item">
+                            <a class="page-link" href="@Url.Action("Index", new { page = pageNum + 1 })">
+                                Sau <i class="fa fa-chevron-right"></i>
+                            </a>
+                        </li>
+                    }
+                </ul>
+                <p style="text-align: center; color: #999; margin-top: 15px; font-size: 0.9em;">Trang @pageNum / @totalPages</p>
+            </nav>
+        }
+    </div>
+</div>

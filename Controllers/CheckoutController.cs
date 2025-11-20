@@ -61,8 +61,123 @@ public class CheckoutController : Controller
         if (!cart.Any())
             return RedirectToAction("Index", "Cart");
 
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (string.IsNullOrEmpty(userId))
+            return Challenge();
+
+        // Kiểm tra xem user đã có đầy đủ thông tin không
+        var lastOrder = await _context.Orders
+            .Where(o => o.UserId == userId)
+            .OrderByDescending(o => o.CreatedDate)
+            .FirstOrDefaultAsync();
+
+        // Nếu có đơn hàng trước đó và có đầy đủ thông tin, tự động điền vào
+        var order = new Order();
+        if (lastOrder != null && 
+            !string.IsNullOrWhiteSpace(lastOrder.CustomerName) &&
+            !string.IsNullOrWhiteSpace(lastOrder.Email) &&
+            !string.IsNullOrWhiteSpace(lastOrder.Address) &&
+            !string.IsNullOrWhiteSpace(lastOrder.PhoneNumber))
+        {
+            order.CustomerName = lastOrder.CustomerName;
+            order.Email = lastOrder.Email;
+            order.Address = lastOrder.Address;
+            order.PhoneNumber = lastOrder.PhoneNumber;
+        }
+
         ViewBag.Total = cart.Sum(x => x.Total);
-        return View();
+        ViewBag.HasCompleteInfo = order.CustomerName != null;
+        return View(order);
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> QuickCheckout()
+    {
+        var cart = await GetCartAsync();
+        if (!cart.Any())
+            return RedirectToAction("Index", "Cart");
+
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (string.IsNullOrEmpty(userId))
+            return Challenge();
+
+        // Lấy thông tin đơn hàng cuối cùng
+        var lastOrder = await _context.Orders
+            .Where(o => o.UserId == userId)
+            .OrderByDescending(o => o.CreatedDate)
+            .FirstOrDefaultAsync();
+
+        if (lastOrder == null || 
+            string.IsNullOrWhiteSpace(lastOrder.CustomerName) ||
+            string.IsNullOrWhiteSpace(lastOrder.Email) ||
+            string.IsNullOrWhiteSpace(lastOrder.Address) ||
+            string.IsNullOrWhiteSpace(lastOrder.PhoneNumber))
+        {
+            // Không có đầy đủ thông tin, quay lại checkout form
+            return RedirectToAction("Index");
+        }
+
+        // Kiểm tra tồn kho
+        var outOfStockItems = new List<string>();
+        foreach (var item in cart)
+        {
+            var product = await _context.Products.FindAsync(item.Id);
+            if (product == null)
+            {
+                outOfStockItems.Add($"{item.Name} - Sản phẩm không tồn tại");
+            }
+            else if (product.Stock < item.Quantity)
+            {
+                outOfStockItems.Add($"{item.Name} - Chỉ còn {product.Stock} sản phẩm (bạn đặt {item.Quantity})");
+            }
+        }
+
+        if (outOfStockItems.Any())
+        {
+            TempData["Error"] = "Một số sản phẩm không đủ hàng:<br>" + string.Join("<br>", outOfStockItems);
+            return RedirectToAction("Index", "Cart");
+        }
+
+        // Tạo đơn hàng mới từ thông tin cũ
+        var newOrder = new Order
+        {
+            UserId = userId,
+            CustomerName = lastOrder.CustomerName,
+            Email = lastOrder.Email,
+            Address = lastOrder.Address,
+            PhoneNumber = lastOrder.PhoneNumber,
+            CreatedDate = DateTime.Now,
+            Status = "Pending",
+            OrderItems = cart.Select(item => new OrderItem
+            {
+                ProductId = item.Id,
+                ProductName = item.Name,
+                Price = item.Price,
+                Quantity = item.Quantity,
+                ImageUrl = item.ImageUrl
+            }).ToList()
+        };
+
+        // Lưu đơn hàng
+        await _orderRepository.AddAsync(newOrder);
+
+        // Trừ tồn kho
+        foreach (var item in cart)
+        {
+            var product = await _context.Products.FindAsync(item.Id);
+            if (product != null)
+            {
+                product.Stock -= item.Quantity;
+            }
+        }
+        await _context.SaveChangesAsync();
+
+        // Xóa giỏ hàng
+        await ClearCartAsync();
+
+        TempData["Success"] = "Đặt hàng thành công! Cảm ơn bạn đã mua sắm.";
+        return RedirectToAction("Success");
     }
 
     [HttpPost]

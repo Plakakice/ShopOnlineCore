@@ -1,39 +1,271 @@
 @model ShopOnlineCore.Models.Order
 
-<h2>Thanh toán</h2>
+@{
+    ViewData["Title"] = "Thanh toán";
+}
 
-<form asp-action="Index" method="post" novalidate>
-    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+<style>
+    .checkout-container {
+        background-color: #f5f5f5;
+        padding: 30px 0;
+        min-height: 100vh;
+    }
 
-    <div class="mb-3">
-        <label asp-for="CustomerName" class="form-label"></label>
-        <input asp-for="CustomerName" class="form-control" />
-        <span asp-validation-for="CustomerName" class="text-danger"></span>
+    .checkout-form {
+        background: white;
+        border-radius: 8px;
+        padding: 30px;
+        border: 1px solid #e0e0e0;
+    }
+
+    .checkout-form h3 {
+        font-size: 18px;
+        font-weight: 700;
+        margin-bottom: 20px;
+        padding-bottom: 15px;
+        border-bottom: 2px solid #f0f0f0;
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    .form-group label {
+        font-weight: 600;
+        font-size: 14px;
+        color: #333;
+        margin-bottom: 8px;
+        display: block;
+    }
+
+    .form-group input,
+    .form-group textarea {
+        width: 100%;
+        padding: 12px;
+        border: 1px solid #e0e0e0;
+        border-radius: 4px;
+        font-size: 14px;
+        font-family: inherit;
+        transition: all 0.2s;
+    }
+
+    .form-group input:focus,
+    .form-group textarea:focus {
+        outline: none;
+        border-color: #1AAD19;
+        box-shadow: 0 0 0 2px rgba(26, 173, 25, 0.1);
+    }
+
+    .form-group textarea {
+        resize: vertical;
+        min-height: 100px;
+    }
+
+    .checkout-summary {
+        background: white;
+        border-radius: 8px;
+        padding: 20px;
+        border: 1px solid #e0e0e0;
+        height: fit-content;
+        position: sticky;
+        top: 20px;
+    }
+
+    .summary-title {
+        font-size: 16px;
+        font-weight: 700;
+        margin-bottom: 20px;
+        padding-bottom: 15px;
+        border-bottom: 2px solid #f0f0f0;
+    }
+
+    .summary-item {
+        display: flex;
+        justify-content: space-between;
+        padding: 10px 0;
+        border-bottom: 1px solid #f0f0f0;
+        font-size: 14px;
+    }
+
+    .summary-item:last-child {
+        border-bottom: none;
+    }
+
+    .summary-item-name {
+        color: #666;
+    }
+
+    .summary-item-price {
+        font-weight: 600;
+        color: #333;
+    }
+
+    .summary-total {
+        display: flex;
+        justify-content: space-between;
+        padding: 15px 0;
+        font-size: 16px;
+        font-weight: 700;
+        border-top: 2px solid #f0f0f0;
+        margin-top: 10px;
+    }
+
+    .summary-total-amount {
+        color: #ff4444;
+        font-size: 20px;
+    }
+
+    .checkout-buttons {
+        display: flex;
+        gap: 10px;
+        margin-top: 20px;
+    }
+
+    .btn-checkout-submit {
+        flex: 1;
+        padding: 12px;
+        background: #1AAD19;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-weight: 600;
+        font-size: 15px;
+        transition: all 0.2s;
+    }
+
+    .btn-checkout-submit:hover {
+        background: #17a016;
+    }
+
+    .btn-checkout-back {
+        flex: 1;
+        padding: 12px;
+        border: 1px solid #e0e0e0;
+        background: white;
+        color: #333;
+        border-radius: 4px;
+        cursor: pointer;
+        font-weight: 600;
+        text-decoration: none;
+        text-align: center;
+        transition: all 0.2s;
+    }
+
+    .btn-checkout-back:hover {
+        background: #f5f5f5;
+    }
+
+    .validation-error {
+        color: #ff4444;
+        font-size: 12px;
+        margin-top: 5px;
+    }
+
+    .order-summary-item {
+        display: flex;
+        justify-content: space-between;
+        padding: 8px 0;
+        font-size: 13px;
+    }
+
+    .order-summary-label {
+        color: #666;
+    }
+
+    .order-summary-value {
+        font-weight: 600;
+        color: #333;
+    }
+</style>
+
+<div class="checkout-container">
+    <div class="container" style="max-width: 1000px;">
+        <h2 style="margin-bottom: 30px; font-weight: 700;">Thanh toán</h2>
+
+        <div style="display: flex; gap: 30px;">
+            <!-- Main Checkout Form -->
+            <div style="flex: 1;">
+                <div class="checkout-form">
+                    <h3>📋 Thông tin giao hàng</h3>
+                    
+                    <form asp-action="Index" method="post" novalidate>
+                        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                        <div class="form-group">
+                            <label asp-for="CustomerName">Tên khách hàng <span style="color: #ff4444;">*</span></label>
+                            <input asp-for="CustomerName" class="form-control" placeholder="Nhập tên của bạn" />
+                            <span asp-validation-for="CustomerName" class="validation-error"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label asp-for="Email">Email <span style="color: #ff4444;">*</span></label>
+                            <input asp-for="Email" class="form-control" placeholder="Nhập email của bạn" />
+                            <span asp-validation-for="Email" class="validation-error"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label asp-for="Address">Địa chỉ <span style="color: #ff4444;">*</span></label>
+                            <textarea asp-for="Address" class="form-control" placeholder="Nhập địa chỉ giao hàng đầy đủ"></textarea>
+                            <span asp-validation-for="Address" class="validation-error"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label asp-for="PhoneNumber">Số điện thoại <span style="color: #ff4444;">*</span></label>
+                            <input asp-for="PhoneNumber" class="form-control" placeholder="Nhập số điện thoại" />
+                            <span asp-validation-for="PhoneNumber" class="validation-error"></span>
+                        </div>
+
+                    <div class="checkout-buttons">
+                        <a asp-controller="Cart" asp-action="Index" class="btn-checkout-back">
+                            ← Quay lại giỏ hàng
+                        </a>
+                        @if (ViewBag.HasCompleteInfo == true)
+                        {
+                            <button type="submit" class="btn-checkout-submit" onclick="return confirm('Xác nhận đặt hàng với thông tin đã lưu?');">
+                                Xác nhận đặt hàng →
+                            </button>
+                        }
+                        else
+                        {
+                            <button type="submit" class="btn-checkout-submit">
+                                Tiếp tục →
+                            </button>
+                        }
+                    </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Order Summary Sidebar -->
+            <div style="width: 300px;">
+                <div class="checkout-summary">
+                    <div class="summary-title">📦 Tóm tắt đơn hàng</div>
+
+                    <!-- Order items summary would go here if needed -->
+                    <div class="order-summary-item">
+                        <span class="order-summary-label">Tạm tính:</span>
+                        <span class="order-summary-value">@ViewBag.Total.ToString("N0") đ</span>
+                    </div>
+
+                    <div class="order-summary-item">
+                        <span class="order-summary-label">Phí vận chuyển:</span>
+                        <span class="order-summary-value">Miễn phí</span>
+                    </div>
+
+                    <div class="summary-total">
+                        <span>Tổng cộng:</span>
+                        <span class="summary-total-amount">@ViewBag.Total.ToString("N0") đ</span>
+                    </div>
+
+                    <div style="background: #f9f9f9; padding: 12px; border-radius: 4px; margin-top: 15px; font-size: 12px; color: #666; text-align: center;">
+                        ✓ Bảo mật 100%
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-
-    <div class="mb-3">
-        <label asp-for="Email" class="form-label"></label>
-        <input asp-for="Email" class="form-control" />
-        <span asp-validation-for="Email" class="text-danger"></span>
-    </div>
-
-    <div class="mb-3">
-        <label asp-for="Address" class="form-label"></label>
-        <textarea asp-for="Address" class="form-control"></textarea>
-        <span asp-validation-for="Address" class="text-danger"></span>
-    </div>
-
-    <div class="mb-3">
-        <label asp-for="PhoneNumber" class="form-label"></label>
-        <input asp-for="PhoneNumber" class="form-control" />
-        <span asp-validation-for="PhoneNumber" class="text-danger"></span>
-    </div>
-
-    <h4>Tổng cộng: @ViewBag.Total.ToString("N0") đ</h4>
-
-    <button type="submit" class="btn btn-success">Xác nhận đặt hàng</button>
-    <a asp-controller="Cart" asp-action="Index" class="btn btn-secondary">Quay lại giỏ hàng</a>
-</form>
+</div>
 
 @section Scripts{ 
     <partial name="_ValidationScriptsPartial" />

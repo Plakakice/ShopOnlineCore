@@ -92,10 +92,26 @@ namespace ShopOnlineCore.Controllers
         // =============================
         // Chi tiết sản phẩm
         // =============================
-        public async Task<IActionResult> Details(int id)
+        public async Task<IActionResult> Details(int id, int? showMessage = null)
         {
             var product = await _context.Products.FirstOrDefaultAsync(p => p.Id == id);
             if (product == null) return NotFound();
+
+            // Lấy 4 sản phẩm ngẫu nhiên khác (có thể bạn sẽ thích)
+            var relatedProducts = await _context.Products
+                .Where(p => p.Id != id)
+                .OrderBy(p => Guid.NewGuid())
+                .Take(4)
+                .ToListAsync();
+
+            ViewBag.RelatedProducts = relatedProducts;
+            
+            // Nếu có showMessage, gán vào ViewBag để hiển thị
+            if (showMessage == 1 && TempData["Success"] != null)
+            {
+                ViewBag.SuccessMessage = TempData["Success"];
+            }
+            
             return View(product);
         }
 

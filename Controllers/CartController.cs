@@ -74,7 +74,7 @@ public CartController(ApplicationDbContext context)
     }
 
     // Thêm sản phẩm
-    public IActionResult Add(int id)
+    public IActionResult Add(int id, int quantity = 1, bool buyNow = false)
     {
         var product = _context.Products.FirstOrDefault(p => p.Id == id);
         if (product == null) return NotFound();
@@ -86,18 +86,24 @@ public CartController(ApplicationDbContext context)
             return RedirectToAction("Details", "Product", new { id });
         }
 
+        // Kiểm tra quantity không vượt quá stock
+        if (quantity > product.Stock)
+        {
+            quantity = product.Stock;
+        }
+
         if (IsAuthenticated && CurrentUserId != null)
         {
             var line = _context.CartLines.FirstOrDefault(x => x.UserId == CurrentUserId && x.ProductId == id);
             if (line != null)
             {
                 // Kiểm tra không vượt quá tồn kho
-                if (line.Quantity >= product.Stock)
+                if (line.Quantity + quantity > product.Stock)
                 {
-                    TempData["Error"] = $"{product.Name} chỉ còn {product.Stock} sản phẩm trong kho.";
-                    return RedirectToAction("Index");
+                    TempData["Error"] = $"{product.Name} chỉ còn {product.Stock - line.Quantity} sản phẩm trong kho.";
+                    quantity = product.Stock - line.Quantity;
                 }
-                line.Quantity++;
+                line.Quantity += quantity;
             }
             else
                 _context.CartLines.Add(new CartLine
@@ -107,7 +113,7 @@ public CartController(ApplicationDbContext context)
                     ProductName = product.Name,
                     Price = product.Price,
                     ImageUrl = product.ImageUrl,
-                    Quantity = 1
+                    Quantity = quantity
                 });
             _context.SaveChanges();
         }
@@ -118,12 +124,12 @@ public CartController(ApplicationDbContext context)
             if (item != null)
             {
                 // Kiểm tra không vượt quá tồn kho
-                if (item.Quantity >= product.Stock)
+                if (item.Quantity + quantity > product.Stock)
                 {
-                    TempData["Error"] = $"{product.Name} chỉ còn {product.Stock} sản phẩm trong kho.";
-                    return RedirectToAction("Index");
+                    TempData["Error"] = $"{product.Name} chỉ còn {product.Stock - item.Quantity} sản phẩm trong kho.";
+                    quantity = product.Stock - item.Quantity;
                 }
-                item.Quantity++;
+                item.Quantity += quantity;
             }
             else
                 cart.Add(new CartItem
@@ -132,12 +138,22 @@ public CartController(ApplicationDbContext context)
                     Name = product.Name,
                     Price = product.Price,
                     ImageUrl = product.ImageUrl,
-                    Quantity = 1
+                    Quantity = quantity
                 });
             SaveCart(cart);
         }
-        TempData["Success"] = $"Đã thêm {product.Name} vào giỏ hàng.";
-        return RedirectToAction("Index");
+        
+        // Lưu thông báo thành công
+        TempData["Success"] = $"✓ Đã thêm {quantity} {product.Name} vào giỏ hàng.";
+        
+        // Nếu là "Mua ngay", redirect tới Cart/Index
+        if (buyNow)
+        {
+            return RedirectToAction("Index");
+        }
+        
+        // Nếu là "Thêm vào giỏ", quay lại trang hiện tại với query param
+        return RedirectToAction("Details", "Product", new { id, showMessage = 1 });
     }
 
     // Giảm số lượng

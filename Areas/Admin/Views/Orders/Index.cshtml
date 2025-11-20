@@ -12,133 +12,307 @@
     int totalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
 }
 
+<style>
+    .admin-header {
+        background: linear-gradient(135deg, #2fdab8 0%, #27b39e 100%);
+        color: white;
+        padding: 40px 0;
+        margin-bottom: 30px;
+        border-radius: 0;
+    }
+
+    .filter-card {
+        background: white;
+        padding: 25px;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        margin-bottom: 30px;
+    }
+
+    .filter-card label {
+        font-weight: 600;
+        color: #333;
+        font-size: 0.95em;
+        margin-bottom: 8px;
+    }
+
+    .filter-card .form-control,
+    .filter-card .form-select {
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        padding: 10px 12px;
+        transition: all 0.3s ease;
+    }
+
+    .filter-card .form-control:focus,
+    .filter-card .form-select:focus {
+        border-color: #2fdab8;
+        box-shadow: 0 0 0 3px rgba(47, 218, 184, 0.1);
+    }
+
+    .table-card {
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        overflow: hidden;
+    }
+
+    .table-card table {
+        margin-bottom: 0;
+    }
+
+    .table-card thead {
+        background: #f8f9fa;
+        border-bottom: 2px solid #e9ecef;
+    }
+
+    .table-card thead th {
+        font-weight: 700;
+        color: #333;
+        padding: 16px;
+        border: none;
+        font-size: 0.95em;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .table-card tbody td {
+        padding: 16px;
+        border-bottom: 1px solid #f0f0f0;
+        color: #555;
+    }
+
+    .table-card tbody tr:hover {
+        background-color: #f9f9f9;
+    }
+
+    .order-id {
+        font-weight: 700;
+        color: #2fdab8;
+        font-size: 1.05em;
+    }
+
+    .badge-custom {
+        padding: 8px 12px;
+        border-radius: 6px;
+        font-weight: 600;
+        font-size: 0.85em;
+    }
+
+    .badge-pending {
+        background: #fff3cd;
+        color: #856404;
+    }
+
+    .badge-processing {
+        background: #d1ecf1;
+        color: #0c5460;
+    }
+
+    .badge-shipped {
+        background: #cce5ff;
+        color: #004085;
+    }
+
+    .badge-delivered {
+        background: #d4edda;
+        color: #155724;
+    }
+
+    .badge-cancelled {
+        background: #f8d7da;
+        color: #721c24;
+    }
+
+    .pagination {
+        justify-content: center;
+        margin-top: 30px;
+    }
+
+    .pagination .page-link {
+        border: 1px solid #ddd;
+        color: #2fdab8;
+        border-radius: 6px;
+        margin: 0 4px;
+        transition: all 0.3s ease;
+    }
+
+    .pagination .page-link:hover {
+        background-color: #2fdab8;
+        border-color: #2fdab8;
+        color: white;
+    }
+
+    .pagination .page-item.active .page-link {
+        background-color: #2fdab8;
+        border-color: #2fdab8;
+    }
+</style>
+
 <!-- Page Header -->
-<div class="page-head_agile_info_w3l">
+<div class="admin-header">
     <div class="container">
-        <h3>Quản trị <span>Đơn hàng</span></h3>
-        <div class="services-breadcrumb">
-            <div class="agile_inner_breadcrumb">
-                <ul class="w3_short">
-                    <li><a asp-controller="Home" asp-action="Index">Trang chủ</a><i>|</i></li>
-                    <li>Admin</li>
-                </ul>
-            </div>
-        </div>
+        <h2 style="margin: 0; font-size: 2em; font-weight: 700;">📦 Quản trị Đơn hàng</h2>
+        <p style="margin: 5px 0 0 0; opacity: 0.95;">Quản lý tất cả đơn hàng của khách hàng</p>
     </div>
 </div>
 
-<!-- Content Wrapper theo style trang Single -->
-<div class="banner-bootom-w3-agileits">
-    <div class="container">
-        <div class="row">
-            <div class="col-md-12">
-                <div class="card" style="border:none; box-shadow:0 1px 3px rgba(0,0,0,.1);">
-                    <div class="card-body">
-                        <form method="get" class="row g-2 align-items-end mb-3">
-                            <div class="col-md-2">
-                                <label class="form-label">Trạng thái</label>
-                                <select class="form-control" name="status">
-                                    <option value="">-- Tất cả --</option>
-                                    @foreach (var s in allowedStatuses)
-                                    {
-                                        <option value="@s" selected="@(s == status)">@s</option>
-                                    }
-                                </select>
-                            </div>
-                            <div class="col-md-3">
-                                <label class="form-label">Tìm kiếm</label>
-                                <input class="form-control" name="q" value="@q" placeholder="Tên, Email hoặc Mã đơn" />
-                            </div>
-                            <div class="col-md-2">
-                                <label class="form-label">Từ ngày</label>
-                                <input type="date" class="form-control" name="from" value="@from" />
-                            </div>
-                            <div class="col-md-2">
-                                <label class="form-label">Đến ngày</label>
-                                <input type="date" class="form-control" name="to" value="@to" />
-                            </div>
-                            <div class="col-md-1">
-                                <label class="form-label">Trang</label>
-                                <input type="number" class="form-control" name="page" value="@pageNumber" min="1" max="@Math.Max(totalPages,1)" />
-                            </div>
-                            <div class="col-md-1">
-                                <label class="form-label">/trang</label>
-                                <input type="number" class="form-control" name="pageSize" value="@pageSize" min="5" max="100" />
-                            </div>
-                            <div class="col-md-2 text-end">
-                                <button type="submit" class="btn btn-primary w-100">Lọc</button>
-                            </div>
-                        </form>
-
-                        <div class="table-responsive">
-                            <table class="table table-bordered table-hover align-middle" style="background:#fff;">
-                                <thead style="background:#f8f9fa;">
-                                    <tr>
-                                        <th>Mã</th>
-                                        <th>Khách hàng</th>
-                                        <th>Email</th>
-                                        <th>Ngày tạo</th>
-                                        <th>SL mặt hàng</th>
-                                        <th>Tổng tiền</th>
-                                        <th>Trạng thái</th>
-                                        <th></th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                @foreach (var o in Model)
-                                {
-                                    <tr>
-                                        <td><strong>#@o.Id</strong></td>
-                                        <td>@o.CustomerName</td>
-                                        <td>@o.Email</td>
-                                        <td>@o.CreatedDate.ToString("yyyy-MM-dd HH:mm")</td>
-                                        <td class="text-center">@o.OrderItems.Count</td>
-                                        <td class="text-end"><strong>@o.Total.ToString("N0") ₫</strong></td>
-                                        <td>
-                                            @{
-                                                var badgeClass = o.Status switch
-                                                {
-                                                    "Pending" => "badge bg-warning text-dark",
-                                                    "Processing" => "badge bg-info text-white",
-                                                    "Shipped" => "badge bg-primary",
-                                                    "Delivered" => "badge bg-success",
-                                                    "Cancelled" => "badge bg-danger",
-                                                    _ => "badge bg-secondary"
-                                                };
-                                            }
-                                            <span class="@badgeClass">@o.Status</span>
-                                        </td>
-                                        <td class="text-end">
-                                            <a class="btn btn-sm btn-outline-primary" asp-area="Admin" asp-controller="Orders" asp-action="Details" asp-route-id="@o.Id"><i class="fa fa-eye"></i> Chi tiết</a>
-                                        </td>
-                                    </tr>
-                                }
-                                </tbody>
-                            </table>
-                        </div>
-
-                        @if (totalPages > 1)
-                        {
-                            <nav>
-                                <ul class="pagination">
-                                    <li class="page-item @(pageNumber == 1 ? "disabled" : "")">
-                                        <a class="page-link" asp-area="Admin" asp-controller="Orders" asp-action="Index" asp-route-status="@status" asp-route-q="@q" asp-route-from="@from" asp-route-to="@to" asp-route-page="@(pageNumber-1)" asp-route-pageSize="@pageSize">«</a>
-                                    </li>
-                                    @for (var p = 1; p <= totalPages; p++)
-                                    {
-                                        <li class="page-item @(p == pageNumber ? "active" : "")">
-                                            <a class="page-link" asp-area="Admin" asp-controller="Orders" asp-action="Index" asp-route-status="@status" asp-route-q="@q" asp-route-from="@from" asp-route-to="@to" asp-route-page="@p" asp-route-pageSize="@pageSize">@p</a>
-                                        </li>
-                                    }
-                                    <li class="page-item @(pageNumber == totalPages ? "disabled" : "")">
-                                        <a class="page-link" asp-area="Admin" asp-controller="Orders" asp-action="Index" asp-route-status="@status" asp-route-q="@q" asp-route-from="@from" asp-route-to="@to" asp-route-page="@(pageNumber+1)" asp-route-pageSize="@pageSize">»</a>
-                                    </li>
-                                </ul>
-                            </nav>
-                        }
-                    </div>
-                </div>
+<!-- Content Wrapper -->
+<div class="container" style="margin-bottom: 50px;">
+    <!-- Filter Card -->
+    <div class="filter-card">
+        <form method="get" class="row g-3 align-items-end">
+            <div class="col-md-2">
+                <label class="form-label">Trạng thái</label>
+                <select class="form-select" name="status">
+                    <option value="">-- Tất cả --</option>
+                    @foreach (var s in allowedStatuses)
+                    {
+                        <option value="@s" selected="@(s == status)">@s</option>
+                    }
+                </select>
             </div>
+            <div class="col-md-3">
+                <label class="form-label">Tìm kiếm</label>
+                <input class="form-control" name="q" value="@q" placeholder="Tên, Email hoặc Mã đơn..." />
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">Từ ngày</label>
+                <input type="date" class="form-control" name="from" value="@from" />
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">Đến ngày</label>
+                <input type="date" class="form-control" name="to" value="@to" />
+            </div>
+            <div class="col-md-1">
+                <label class="form-label">Trang</label>
+                <input type="number" class="form-control" name="page" value="@pageNumber" min="1" max="@Math.Max(totalPages,1)" />
+            </div>
+            <div class="col-md-1">
+                <label class="form-label">/trang</label>
+                <input type="number" class="form-control" name="pageSize" value="@pageSize" min="5" max="100" />
+            </div>
+            <div class="col-md-1">
+                <button type="submit" class="btn btn-primary w-100" style="background: linear-gradient(135deg, #2fdab8 0%, #27b39e 100%); border: none; padding: 10px; font-weight: 600; height: 38px;">
+                    <i class="fa fa-filter"></i> Lọc
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Statistics Cards (Optional) -->
+    <div class="row mb-4" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px;">
+        <div style="background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); border-left: 4px solid #2fdab8;">
+            <p style="color: #999; font-size: 0.9em; margin: 0 0 8px 0;">Tổng đơn hàng</p>
+            <h3 style="margin: 0; color: #333; font-size: 1.8em; font-weight: 700;">@totalCount</h3>
         </div>
+        <div style="background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); border-left: 4px solid #ffc107;">
+            <p style="color: #999; font-size: 0.9em; margin: 0 0 8px 0;">Đang xử lý</p>
+            <h3 style="margin: 0; color: #333; font-size: 1.8em; font-weight: 700;">@Model.Count(x => x.Status == "Processing")</h3>
+        </div>
+        <div style="background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); border-left: 4px solid #27ae60;">
+            <p style="color: #999; font-size: 0.9em; margin: 0 0 8px 0;">Đã giao</p>
+            <h3 style="margin: 0; color: #333; font-size: 1.8em; font-weight: 700;">@Model.Count(x => x.Status == "Delivered")</h3>
+        </div>
+    </div>
+
+    <!-- Table Card -->
+    <div class="table-card">
+        <div style="overflow-x: auto;">
+            <table class="table table-hover" style="margin-bottom: 0;">
+                <thead>
+                    <tr>
+                        <th style="width: 80px;">Mã</th>
+                        <th>Khách hàng</th>
+                        <th>Email</th>
+                        <th style="width: 150px;">Ngày tạo</th>
+                        <th style="width: 80px; text-align: center;">SL</th>
+                        <th style="width: 130px; text-align: right;">Tổng tiền</th>
+                        <th style="width: 130px;">Trạng thái</th>
+                        <th style="width: 100px; text-align: center;">Hành động</th>
+                    </tr>
+                </thead>
+                <tbody>
+                @if (Model.Any())
+                {
+                    @foreach (var o in Model)
+                    {
+                        <tr>
+                            <td><span class="order-id">#@o.Id</span></td>
+                            <td>
+                                <span style="font-weight: 600; color: #333;">@o.CustomerName</span>
+                            </td>
+                            <td style="color: #666; font-size: 0.95em;">@o.Email</td>
+                            <td style="color: #999; font-size: 0.95em;">@o.CreatedDate.ToString("dd/MM/yyyy HH:mm")</td>
+                            <td style="text-align: center; font-weight: 600;">@o.OrderItems.Count</td>
+                            <td style="text-align: right; font-weight: 700; color: #e74c3c; font-size: 1.05em;">@o.Total.ToString("N0") ₫</td>
+                            <td>
+                                @{
+                                    var badgeClass = o.Status switch
+                                    {
+                                        "Pending" => "badge-pending",
+                                        "Processing" => "badge-processing",
+                                        "Shipped" => "badge-shipped",
+                                        "Delivered" => "badge-delivered",
+                                        "Cancelled" => "badge-cancelled",
+                                        _ => "badge-secondary"
+                                    };
+                                    var displayStatus = o.Status switch
+                                    {
+                                        "Pending" => "Chờ xử lý",
+                                        "Processing" => "Đang xử lý",
+                                        "Shipped" => "Đã gửi",
+                                        "Delivered" => "Đã giao",
+                                        "Cancelled" => "Hủy",
+                                        _ => o.Status
+                                    };
+                                }
+                                <span class="badge-custom @badgeClass">@displayStatus</span>
+                            </td>
+                            <td style="text-align: center;">
+                                <a class="btn btn-sm" href="@Url.Action("Details", "Orders", new { area = "Admin", id = o.Id })" style="background: #f0f0f0; color: #2fdab8; border: none; border-radius: 6px; padding: 8px 12px; transition: all 0.3s ease; font-weight: 600; font-size: 0.9em;" onmouseover="this.style.background='#2fdab8'; this.style.color='white'" onmouseout="this.style.background='#f0f0f0'; this.style.color='#2fdab8'">
+                                    <i class="fa fa-eye"></i> Xem
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="8" style="text-align: center; padding: 40px; color: #999;">
+                            <i class="fa fa-inbox" style="font-size: 2em; margin-bottom: 15px; display: block;"></i>
+                            Không tìm thấy đơn hàng nào
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination -->
+        @if (totalPages > 1)
+        {
+            <nav style="padding: 25px;">
+                <ul class="pagination">
+                    <li class="page-item @(pageNumber == 1 ? "disabled" : "")">
+                        <a class="page-link" asp-area="Admin" asp-controller="Orders" asp-action="Index" asp-route-status="@status" asp-route-q="@q" asp-route-from="@from" asp-route-to="@to" asp-route-page="@(pageNumber-1)" asp-route-pageSize="@pageSize">
+                            <i class="fa fa-chevron-left"></i> Trước
+                        </a>
+                    </li>
+                    @for (var p = 1; p <= totalPages; p++)
+                    {
+                        <li class="page-item @(p == pageNumber ? "active" : "")">
+                            <a class="page-link" asp-area="Admin" asp-controller="Orders" asp-action="Index" asp-route-status="@status" asp-route-q="@q" asp-route-from="@from" asp-route-to="@to" asp-route-page="@p" asp-route-pageSize="@pageSize">@p</a>
+                        </li>
+                    }
+                    <li class="page-item @(pageNumber == totalPages ? "disabled" : "")">
+                        <a class="page-link" asp-area="Admin" asp-controller="Orders" asp-action="Index" asp-route-status="@status" asp-route-q="@q" asp-route-from="@from" asp-route-to="@to" asp-route-page="@(pageNumber+1)" asp-route-pageSize="@pageSize">
+                            Sau <i class="fa fa-chevron-right"></i>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        }
     </div>
 </div>

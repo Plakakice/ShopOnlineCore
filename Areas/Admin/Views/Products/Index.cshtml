@@ -16,173 +16,406 @@
     var totalValue = (decimal)(ViewData["TotalValue"] ?? 0);
 }
 
-<div class="page-head_agile_info_w3l">
-    <div class="container">
-        <h3><i class="fa fa-cogs"></i> Quản trị <span>Sản phẩm</span></h3>
+<style>
+    .admin-header {
+        background: linear-gradient(135deg, #2fdab8 0%, #27b39e 100%);
+        color: white;
+        padding: 40px 0;
+        margin-bottom: 30px;
+        border-radius: 0;
+    }
+
+    .stats-card {
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        border-left: 4px solid;
+    }
+
+    .stats-card h3 {
+        margin: 0;
+        color: #333;
+        font-size: 1.8em;
+        font-weight: 700;
+    }
+
+    .stats-card p {
+        margin: 8px 0 0 0;
+        color: #999;
+        font-size: 0.9em;
+    }
+
+    .filter-card {
+        background: white;
+        padding: 25px;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        margin-bottom: 30px;
+    }
+
+    .filter-card label {
+        font-weight: 600;
+        color: #333;
+        font-size: 0.95em;
+        margin-bottom: 8px;
+    }
+
+    .filter-card .form-control,
+    .filter-card .form-select {
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        padding: 10px 12px;
+        transition: all 0.3s ease;
+    }
+
+    .filter-card .form-control:focus,
+    .filter-card .form-select:focus {
+        border-color: #2fdab8;
+        box-shadow: 0 0 0 3px rgba(47, 218, 184, 0.1);
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 20px;
+    }
+
+    .action-buttons .btn {
+        border-radius: 6px;
+        font-weight: 600;
+        padding: 10px 16px;
+        transition: all 0.3s ease;
+    }
+
+    .action-buttons .btn-success {
+        background: #27ae60;
+        border: none;
+    }
+
+    .action-buttons .btn-success:hover {
+        background: #229954;
+    }
+
+    .table-card {
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        overflow: hidden;
+    }
+
+    .table-card table {
+        margin-bottom: 0;
+    }
+
+    .table-card thead {
+        background: #f8f9fa;
+        border-bottom: 2px solid #e9ecef;
+    }
+
+    .table-card thead th {
+        font-weight: 700;
+        color: #333;
+        padding: 16px;
+        border: none;
+        font-size: 0.95em;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .table-card tbody td {
+        padding: 16px;
+        border-bottom: 1px solid #f0f0f0;
+        color: #555;
+        vertical-align: middle;
+    }
+
+    .table-card tbody tr:hover {
+        background-color: #f9f9f9;
+    }
+
+    .product-img {
+        width: 50px;
+        height: 50px;
+        object-fit: cover;
+        border-radius: 6px;
+    }
+
+    .product-id {
+        font-weight: 700;
+        color: #2fdab8;
+    }
+
+    .product-price {
+        font-weight: 700;
+        color: #e74c3c;
+        font-size: 1.05em;
+    }
+
+    .badge-custom {
+        padding: 8px 12px;
+        border-radius: 6px;
+        font-weight: 600;
+        font-size: 0.85em;
+    }
+
+    .badge-available {
+        background: #d4edda;
+        color: #155724;
+    }
+
+    .badge-unavailable {
+        background: #f8d7da;
+        color: #721c24;
+    }
+
+    .action-buttons-row {
+        display: flex;
+        gap: 6px;
+    }
+
+    .action-buttons-row .btn {
+        padding: 6px 10px;
+        font-size: 0.85em;
+        border-radius: 4px;
+        border: none;
+        transition: all 0.3s ease;
+    }
+
+    .btn-edit {
+        background: #3498db;
+        color: white;
+    }
+
+    .btn-edit:hover {
+        background: #2980b9;
+    }
+
+    .btn-view {
+        background: #27ae60;
+        color: white;
+    }
+
+    .btn-view:hover {
+        background: #229954;
+    }
+
+    .btn-delete {
+        background: #e74c3c;
+        color: white;
+    }
+
+    .btn-delete:hover {
+        background: #c0392b;
+    }
+
+    .pagination {
+        justify-content: center;
+        margin-top: 30px;
+    }
+
+    .pagination .page-link {
+        border: 1px solid #ddd;
+        color: #2fdab8;
+        border-radius: 6px;
+        margin: 0 4px;
+        transition: all 0.3s ease;
+    }
+
+    .pagination .page-link:hover {
+        background-color: #2fdab8;
+        border-color: #2fdab8;
+        color: white;
+    }
+
+    .pagination .page-item.active .page-link {
+        background-color: #2fdab8;
+        border-color: #2fdab8;
+    }
+</style>
+
+<!-- Page Header -->
+<div class="admin-header">
+    <div class="container-fluid" style="padding: 0 10px;">
+        <h2 style="margin: 0; font-size: 2em; font-weight: 700;">📦 Quản trị Sản phẩm</h2>
+        <p style="margin: 5px 0 0 0; opacity: 0.95;">Quản lý danh sách sản phẩm của cửa hàng</p>
     </div>
 </div>
 
-<div class="container" style="margin-top: 30px; margin-bottom: 50px;">
+<!-- Content -->
+<div class="container-fluid" style="margin-bottom: 50px; padding: 0 10px;">
     
-    <!-- Thống kê nhanh -->
-    <div class="row mb-4">
-        <div class="col-md-3">
-            <div class="card text-center" style="border-left: 4px solid #3498db;">
-                <div class="card-body">
-                    <h3 style="color: #3498db; margin: 0;">@totalProducts</h3>
-                    <p style="margin: 5px 0 0 0; color: #7f8c8d;">Tổng sản phẩm</p>
-                </div>
-            </div>
+    <!-- Statistics Cards -->
+    <div class="row mb-4" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px;">
+        <div class="stats-card" style="border-left-color: #2fdab8;">
+            <p>Tổng sản phẩm</p>
+            <h3>@totalProducts</h3>
         </div>
-        <div class="col-md-3">
-            <div class="card text-center" style="border-left: 4px solid #27ae60;">
-                <div class="card-body">
-                    <h3 style="color: #27ae60; margin: 0;">@totalInStock</h3>
-                    <p style="margin: 5px 0 0 0; color: #7f8c8d;">Còn hàng</p>
-                </div>
-            </div>
+        <div class="stats-card" style="border-left-color: #27ae60;">
+            <p>Còn hàng</p>
+            <h3>@totalInStock</h3>
         </div>
-        <div class="col-md-3">
-            <div class="card text-center" style="border-left: 4px solid #e74c3c;">
-                <div class="card-body">
-                    <h3 style="color: #e74c3c; margin: 0;">@totalOutOfStock</h3>
-                    <p style="margin: 5px 0 0 0; color: #7f8c8d;">Hết hàng</p>
-                </div>
-            </div>
+        <div class="stats-card" style="border-left-color: #e74c3c;">
+            <p>Hết hàng</p>
+            <h3>@totalOutOfStock</h3>
         </div>
-        <div class="col-md-3">
-            <div class="card text-center" style="border-left: 4px solid #f39c12;">
-                <div class="card-body">
-                    <h3 style="color: #f39c12; margin: 0;">@totalValue.ToString("N0")₫</h3>
-                    <p style="margin: 5px 0 0 0; color: #7f8c8d;">Giá trị kho</p>
-                </div>
-            </div>
+        <div class="stats-card" style="border-left-color: #f39c12;">
+            <p>Giá trị kho</p>
+            <h3 style="font-size: 1.4em;">@totalValue.ToString("N0")₫</h3>
         </div>
     </div>
 
-    <!-- Thanh công cụ -->
-    <div class="card mb-3">
-        <div class="card-body">
-            <div class="row">
-                <div class="col-md-6">
-                    <a asp-controller="Product" asp-action="Create" class="btn btn-success">
-                        <i class="fa fa-plus"></i> Thêm sản phẩm
-                    </a>
-                    <button type="button" class="btn btn-danger" onclick="bulkDelete()">
-                        <i class="fa fa-trash"></i> Xóa đã chọn
-                    </button>
-                    <button type="button" class="btn btn-warning" onclick="showBulkPriceModal()">
-                        <i class="fa fa-dollar"></i> Cập nhật giá
-                    </button>
-                </div>
-                <div class="col-md-6">
-                    <form method="get" class="form-inline float-right">
-                        <select name="category" class="form-control mr-2" onchange="this.form.submit()">
-                            <option value="">Tất cả danh mục</option>
-                            <option value="Laptop" selected="@(category == "Laptop")">Laptop</option>
-                            <option value="Chuột" selected="@(category == "Chuột")">Chuột</option>
-                            <option value="Bàn phím" selected="@(category == "Bàn phím")">Bàn phím</option>
-                            <option value="Bags" selected="@(category == "Bags")">Bags</option>
-                            <option value="Âm thanh" selected="@(category == "Âm thanh")">Âm thanh</option>
-                        </select>
-                        <input type="search" name="search" value="@search" class="form-control mr-2" placeholder="Tìm kiếm...">
-                        <button type="submit" class="btn btn-primary"><i class="fa fa-search"></i></button>
-                    </form>
-                </div>
-            </div>
+    <!-- Filter Card -->
+    <div class="filter-card">
+        <div class="action-buttons">
+            <a href="@Url.Action("Create", "Product", new { area = "" })" class="btn btn-success">
+                <i class="fa fa-plus"></i> Thêm sản phẩm
+            </a>
+            <button type="button" class="btn btn-danger" onclick="bulkDelete()" style="background: #e74c3c; border: none;">
+                <i class="fa fa-trash"></i> Xóa đã chọn
+            </button>
+            <button type="button" class="btn btn-warning" onclick="showBulkPriceModal()" style="background: #f39c12; border: none;">
+                <i class="fa fa-dollar"></i> Cập nhật giá
+            </button>
         </div>
+
+        <form method="get" class="row g-3 align-items-end">
+            <div class="col-md-4">
+                <label class="form-label">Danh mục</label>
+                <select class="form-select" name="category" onchange="this.form.submit()">
+                    <option value="">-- Tất cả danh mục --</option>
+                    <option value="Laptop" selected="@(category == "Laptop")">Laptop</option>
+                    <option value="Chuột" selected="@(category == "Chuột")">Chuột</option>
+                    <option value="Bàn phím" selected="@(category == "Bàn phím")">Bàn phím</option>
+                    <option value="Bags" selected="@(category == "Bags")">Bags</option>
+                    <option value="Âm thanh" selected="@(category == "Âm thanh")">Âm thanh</option>
+                </select>
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Tìm kiếm</label>
+                <input type="search" name="search" value="@search" class="form-control" placeholder="Tên sản phẩm..." />
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-primary w-100" style="background: linear-gradient(135deg, #2fdab8 0%, #27b39e 100%); border: none; padding: 10px; font-weight: 600; height: 38px;">
+                    <i class="fa fa-search"></i> Tìm
+                </button>
+            </div>
+        </form>
     </div>
 
-    <!-- Bảng sản phẩm -->
-    <div class="card">
-        <div class="card-body" style="padding: 0;">
-            <div class="table-responsive">
-                <table class="table table-hover mb-0">
-                    <thead style="background: #34495e; color: white;">
-                        <tr>
-                            <th style="width: 40px;"><input type="checkbox" id="selectAll" onchange="toggleSelectAll()"></th>
-                            <th style="width: 60px;">ID</th>
-                            <th style="width: 80px;">Ảnh</th>
-                            <th>Tên sản phẩm</th>
-                            <th style="width: 120px;">Danh mục</th>
-                            <th style="width: 120px;">Giá</th>
-                            <th style="width: 100px;">Tồn kho</th>
-                            <th style="width: 100px;">Trạng thái</th>
-                            <th style="width: 150px;">Thao tác</th>
-                        </tr>
-                    </thead>
-                    <tbody>
+    <!-- Table Card -->
+    <div class="table-card">
+        <div style="overflow-x: auto;">
+            <table class="table table-hover" style="margin-bottom: 0;">
+                <thead>
+                    <tr>
+                        <th style="width: 40px;"><input type="checkbox" id="selectAll" onchange="toggleSelectAll()"></th>
+                        <th style="width: 60px; ">ID</th>
+                        <th style="width: 80px; ">Ảnh</th>
+                        <th style="width: 200px;">Tên sản phẩm</th>
+                        <th style="width: 80px; text-align: center;">Danh mục</th>
+                        <th style="width: 100px; ">Giá</th>
+                        <th style="width: 80px; text-align: center;">Kho</th>
+                        <th style="width: 110px; text-align: center;">Trạng thái</th>
+                        <th style="width: 140px; ">Hành động</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model.Any())
+                    {
                         @foreach (var product in Model)
                         {
                             <tr>
                                 <td><input type="checkbox" class="product-checkbox" value="@product.Id"></td>
-                                <td>@product.Id</td>
+                                <td><span class="product-id">#@product.Id</span></td>
                                 <td>
-                                    <img src="@Url.Content(product.ImageUrl)" alt="@product.Name" 
-                                         style="width: 50px; height: 50px; object-fit: cover; border-radius: 4px;">
+                                    <img src="@Url.Content(product.ImageUrl)" alt="@product.Name" class="product-img">
                                 </td>
                                 <td>
-                                    <strong>@product.Name</strong><br>
+                                    <strong style="color: #333;">@product.Name</strong><br>
                                     @{
                                         var desc = product.Description ?? "";
-                                        var shortDesc = desc.Length > 50 ? desc.Substring(0, 50) : desc;
+                                        var shortDesc = desc.Length > 50 ? desc.Substring(0, 50) + "..." : desc;
                                     }
-                                    <small class="text-muted">@shortDesc</small>
+                                    <small style="color: #999;">@shortDesc</small>
                                 </td>
-                                <td><span class="badge bg-primary">@product.Category</span></td>
-                                <td><strong>@product.Price.ToString("N0")₫</strong></td>
                                 <td>
+                                    <span class="badge-custom" style="background: #e8f9f6; color: #2fdab8; font-weight: 600;">@product.Category</span>
+                                </td>
+                                <td>
+                                    <span class="product-price">@product.Price.ToString("N0")₫</span>
+                                </td>
+                                <td style="text-align: center;">
                                     <input type="number" class="form-control form-control-sm" 
                                            value="@product.Stock" min="0" 
                                            onchange="updateStock(@product.Id, this.value)"
-                                           style="width: 80px;">
+                                           style="width: 70px; margin: 0 auto; text-align: center;">
                                 </td>
                                 <td>
                                     @if (product.IsAvailable)
                                     {
-                                        <span class="badge bg-success">Còn hàng</span>
+                                        <span class="badge-custom badge-available">Còn hàng</span>
                                     }
                                     else
                                     {
-                                        <span class="badge bg-danger">Hết hàng</span>
+                                        <span class="badge-custom badge-unavailable">Hết hàng</span>
                                     }
                                 </td>
-                                <td>
-                                    <a asp-controller="Product" asp-action="Edit" asp-route-id="@product.Id" 
-                                       class="btn btn-sm btn-warning" title="Sửa">
-                                        <i class="fa fa-edit"></i>
-                                    </a>
-                                    <a asp-controller="Product" asp-action="Details" asp-route-id="@product.Id" 
-                                       class="btn btn-sm btn-info" title="Xem">
-                                        <i class="fa fa-eye"></i>
-                                    </a>
-                                    <button onclick="deleteProduct(@product.Id)" class="btn btn-sm btn-danger" title="Xóa">
-                                        <i class="fa fa-trash"></i>
-                                    </button>
+                                <td style="text-align: center;">
+                                    <div class="action-buttons-row">
+                                        <a href="@Url.Action("Edit", "Product", new { area = "", id = product.Id })" class="btn btn-edit" title="Sửa">
+                                            <i class="fa fa-edit"></i>
+                                        </a>
+                                        <a href="@Url.Action("Details", "Product", new { area = "", id = product.Id })" class="btn btn-view" title="Xem">
+                                            <i class="fa fa-eye"></i>
+                                        </a>
+                                        <button onclick="deleteProduct(@product.Id)" class="btn btn-delete" title="Xóa">
+                                            <i class="fa fa-trash"></i>
+                                        </button>
+                                    </div>
                                 </td>
                             </tr>
                         }
-                    </tbody>
-                </table>
-            </div>
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="9" style="text-align: center; padding: 40px; color: #999;">
+                                <i class="fa fa-inbox" style="font-size: 2em; margin-bottom: 15px; display: block;"></i>
+                                Không tìm thấy sản phẩm nào
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
         </div>
-    </div>
 
-    <!-- Pagination -->
-    @if (totalPages > 1)
-    {
-        <nav class="mt-3">
-            <ul class="pagination justify-content-center">
-                @for (int i = 1; i <= totalPages; i++)
-                {
-                    <li class="page-item @(i == page ? "active" : "")">
-                        <a class="page-link" href="@Url.Action("Index", new { page = i, search, category })">@i</a>
+        <!-- Pagination -->
+        @if (totalPages > 1)
+        {
+            <nav style="padding: 25px;">
+                <ul class="pagination">
+                    <li class="page-item @(page == 1 ? "disabled" : "")">
+                        <a class="page-link" href="@Url.Action("Index", new { page = page > 1 ? page - 1 : 1, search, category })">
+                            <i class="fa fa-chevron-left"></i> Trước
+                        </a>
                     </li>
-                }
-            </ul>
-            <p class="text-center text-muted">Hiển thị @Model.Count() / @totalCount sản phẩm</p>
-        </nav>
-    }
+                    @for (int i = 1; i <= totalPages; i++)
+                    {
+                        <li class="page-item @(i == page ? "active" : "")">
+                            <a class="page-link" href="@Url.Action("Index", new { page = i, search, category })">@i</a>
+                        </li>
+                    }
+                    <li class="page-item @(page == totalPages ? "disabled" : "")">
+                        <a class="page-link" href="@Url.Action("Index", new { page = page < totalPages ? page + 1 : totalPages, search, category })">
+                            Sau <i class="fa fa-chevron-right"></i>
+                        </a>
+                    </li>
+                </ul>
+                <p style="text-align: center; color: #999; margin-top: 15px; font-size: 0.9em;">Hiển thị @Model.Count() / @totalCount sản phẩm</p>
+            </nav>
+        }
+    </div>
 </div>
 
 <!-- Modal cập nhật giá hàng loạt -->
