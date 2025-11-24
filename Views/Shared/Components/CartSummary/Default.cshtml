@@ -1,10 +1,12 @@
 ﻿@model int
 
 <a asp-area="" asp-controller="Cart" asp-action="Index" class="cart-summary-link">
-    <i class="fa fa-cart-arrow-down" aria-hidden="true"></i>
-    <span>Gi&#x1ECF; h&#x00E0;ng</span>
-    @if (Model > 0)
-    {
-        <span class="cart-count">@Model</span>
-    }
+    <div class="cart-icon-wrapper">
+        <i class="fa fa-cart-arrow-down" aria-hidden="true"></i>
+        @if (Model > 0)
+        {
+            <span class="cart-badge">@Model</span>
+        }
+    </div>
+    <span>Giỏ hàng</span>
 </a>

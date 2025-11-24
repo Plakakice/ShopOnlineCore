@@ -61,37 +61,31 @@ public CartController(ApplicationDbContext context)
             _context.SaveChanges();
             return;
         }
-
         var json = JsonSerializer.Serialize(cart);
         HttpContext.Session.SetString(CARTKEY, json);
     }
-
     // Hiển thị giỏ hàng
     public IActionResult Index()
     {
         var cart = GetCart();
         return View(cart);
     }
-
     // Thêm sản phẩm
     public IActionResult Add(int id, int quantity = 1, bool buyNow = false)
     {
         var product = _context.Products.FirstOrDefault(p => p.Id == id);
         if (product == null) return NotFound();
-
         // Kiểm tra tồn kho
         if (product.Stock <= 0)
         {
             TempData["Error"] = $"{product.Name} hiện đã hết hàng.";
             return RedirectToAction("Details", "Product", new { id });
         }
-
         // Kiểm tra quantity không vượt quá stock
         if (quantity > product.Stock)
         {
             quantity = product.Stock;
         }
-
         if (IsAuthenticated && CurrentUserId != null)
         {
             var line = _context.CartLines.FirstOrDefault(x => x.UserId == CurrentUserId && x.ProductId == id);

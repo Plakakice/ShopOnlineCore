@@ -138,6 +138,29 @@
         box-sizing: border-box;
         white-space: nowrap;
     }
+
+    /* Loading Spinner */
+    .loading-spinner {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 40px 0;
+        width: 100%;
+    }
+
+    .spinner {
+        width: 50px;
+        height: 50px;
+        border: 4px solid #f3f3f3;
+        border-top: 4px solid #2fdab8;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+    }
+
+    @@keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
 </style>
 
 <!-- Carousel banner -->
@@ -196,7 +219,7 @@
             <div class="resp-tabs-container">
 
                 <!-- Chuột Tab -->
-                <div class="tab1">
+                <div class="tab1" data-category="chuột">
                     <div class="row">
                         @{
                             var menProducts = Model.Where(p => !string.IsNullOrEmpty(p.Category) && p.Category.ToLower().Contains("chuột")).Take(8).ToList();
@@ -237,7 +260,7 @@
                 </div>
 
                 <!-- Laptop Tab -->
-                <div class="tab2">
+                <div class="tab2" data-category="laptop">
                     <div class="row">
                         @{
                             var laptopProducts = Model.Where(p => !string.IsNullOrEmpty(p.Category) && p.Category.ToLower().Contains("laptop")).Take(8).ToList();
@@ -278,7 +301,7 @@
                 </div>
 
                 <!-- Bàn phím Tab -->
-                <div class="tab3">
+                <div class="tab3" data-category="bàn phím">
                     <div class="row">
                         @{
                             var bagProducts = Model.Where(p => !string.IsNullOrEmpty(p.Category) && (p.Category.ToLower().Contains("bàn phím") || p.Category.ToLower().Contains("ban phim"))).Take(8).ToList();
@@ -476,6 +499,149 @@
             $('#myCarousel').carousel({
                 interval: 4000,
                 pause: "hover"
+            });
+            
+            // Infinite Scroll với Intersection Observer
+            let isLoading = false;
+            let page = 2;
+            const pageSize = 8;
+            let currentActiveTab = null;
+            let sentinelElement = null;
+            let observer = null;
+            let hasMoreProducts = true; // Flag để check có sản phẩm còn lại không
+            
+            // Khởi tạo Intersection Observer
+            const observerOptions = {
+                root: null,
+                rootMargin: '200px',
+                threshold: 0
+            };
+            
+            observer = new IntersectionObserver(entries => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting && !isLoading && hasMoreProducts) {
+                        loadMoreProducts();
+                    }
+                });
+            }, observerOptions);
+            
+            // Lấy tab active khi chuyển tab
+            function updateActiveTab() {
+                const tabs = document.querySelectorAll('.resp-tabs-container > div');
+                for (let tab of tabs) {
+                    const style = window.getComputedStyle(tab);
+                    if (style.display !== 'none') {
+                        currentActiveTab = tab;
+                        page = 2;
+                        hasMoreProducts = true; // Reset flag khi đổi tab
+                        createSentinel();
+                        break;
+                    }
+                }
+            }
+            
+            // Tạo sentinel element
+            function createSentinel() {
+                if (currentActiveTab) {
+                    const oldSentinel = currentActiveTab.querySelector('[data-sentinel="true"]');
+                    if (oldSentinel) {
+                        observer.unobserve(oldSentinel);
+                        oldSentinel.remove();
+                    }
+                    
+                    sentinelElement = document.createElement('div');
+                    sentinelElement.setAttribute('data-sentinel', 'true');
+                    sentinelElement.style.height = '50px';
+                    
+                    const rowContainer = currentActiveTab.querySelector('.row');
+                    if (rowContainer) {
+                        rowContainer.appendChild(sentinelElement);
+                        observer.observe(sentinelElement);
+                    }
+                }
+            }
+            
+            // Gọi khi tab thay đổi
+            updateActiveTab();
+            
+            function loadMoreProducts() {
+                if (isLoading || !currentActiveTab) return;
+                
+                const category = currentActiveTab.getAttribute('data-category');
+                if (!category) return;
+                
+                const rowContainer = currentActiveTab.querySelector('.row');
+                if (!rowContainer) return;
+                
+                isLoading = true;
+                
+                // Tạo loading spinner
+                const spinnerHTML = `
+                    <div class="loading-spinner" data-spinner="true">
+                        <div class="spinner"></div>
+                    </div>
+                `;
+                
+                const sentinel = rowContainer.querySelector('[data-sentinel="true"]');
+                if (sentinel) {
+                    sentinel.insertAdjacentHTML('beforebegin', spinnerHTML);
+                } else {
+                    rowContainer.insertAdjacentHTML('beforeend', spinnerHTML);
+                }
+                
+                // Delay 1.75 giây trước khi gọi API
+                setTimeout(() => {
+                    $.ajax({
+                        url: '@Url.Action("LoadMoreProducts", "Home")',
+                        type: 'GET',
+                        data: {
+                            category: category,
+                            page: page,
+                            pageSize: pageSize
+                        },
+                        success: function(html) {
+                            // Xóa spinner
+                            const spinner = rowContainer.querySelector('[data-spinner="true"]');
+                            if (spinner) spinner.remove();
+                            
+                            if (html.trim() === '') {
+                                hasMoreProducts = false; // Set flag khi hết sản phẩm
+                                isLoading = false;
+                                return;
+                            }
+                            
+                            // Xóa sentinel cũ
+                            const oldSentinel = rowContainer.querySelector('[data-sentinel="true"]');
+                            if (oldSentinel) {
+                                observer.unobserve(oldSentinel);
+                                oldSentinel.remove();
+                            }
+                            
+                            // Thêm sản phẩm mới
+                            rowContainer.insertAdjacentHTML('beforeend', html);
+                            
+                            // Tạo sentinel mới
+                            const newSentinel = document.createElement('div');
+                            newSentinel.setAttribute('data-sentinel', 'true');
+                            newSentinel.style.height = '50px';
+                            rowContainer.appendChild(newSentinel);
+                            observer.observe(newSentinel);
+                            
+                            page++;
+                            isLoading = false;
+                        },
+                        error: function(err) {
+                            const spinner = rowContainer.querySelector('[data-spinner="true"]');
+                            if (spinner) spinner.remove();
+                            isLoading = false;
+                        }
+                    });
+                }, 1500); // Delay 1.5 giây
+            }
+            
+            // Lắng nghe thay đổi tab
+            $(document).on('click', '.resp-tabs-list li', function() {
+                setTimeout(updateActiveTab, 100);
             });
         });
     </script>

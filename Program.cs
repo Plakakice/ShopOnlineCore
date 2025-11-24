@@ -38,6 +38,33 @@ builder.Services.AddTransient<IEmailSender, EmailSender>();
 // 🛒 Register OrderRepository for Dependency Injection
 builder.Services.AddScoped<OrderRepository>();
 
+// Thêm dịch vụ Razor / MVC như bình thường
+builder.Services.AddRazorPages(); // hoặc AddControllersWithViews()
+
+// 1) Thêm Authentication + Cookie
+builder.Services
+    .AddAuthentication(options =>
+    {
+        options.DefaultScheme = "Cookies";
+        options.DefaultChallengeScheme = "Cookies";
+    })
+    .AddCookie("Cookies") // dùng cookie để lưu trạng thái đăng nhập
+    // 2) Google
+    .AddGoogle("Google", options =>
+    {
+        options.ClientId = builder.Configuration["Authentication:Google:ClientId"] ?? "";
+        options.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"] ?? "";
+        options.CallbackPath = "/signin-google"; // mặc định là /signin-google, có thể đổi
+    })
+    // 3) Facebook (bị tắt vì chưa cấu hình)
+    /* 
+    .AddFacebook("Facebook", options =>
+    {
+        options.AppId = builder.Configuration["Authentication:Facebook:AppId"];
+        options.AppSecret = builder.Configuration["Authentication:Facebook:AppSecret"];
+        options.CallbackPath = "/signin-facebook";
+    })
+    */;
 var app = builder.Build();
 
 // ==================== PIPELINE ====================
@@ -46,6 +73,7 @@ if (!app.Environment.IsDevelopment())
     app.UseExceptionHandler("/Home/Error");
     app.UseHsts();
 }
+app.UseRouting();
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
@@ -55,6 +83,8 @@ app.UseRouting();
 app.UseSession();
 app.UseAuthentication();
 app.UseAuthorization();
+
+
 
 app.MapRazorPages();
 app.MapControllerRoute(
@@ -78,7 +108,7 @@ async Task CreateAdminRole(WebApplication app)
     var adminEmail = "admin@shop.com";
     var adminPassword = "Admin@123"; // bạn có thể đổi
 
-    // Tạo tài khoản admin nếu chưa có
+    // Tạo tài khoản admin nếu chưa có  
     var adminUser = await userManager.FindByEmailAsync(adminEmail);
     if (adminUser == null)
     {

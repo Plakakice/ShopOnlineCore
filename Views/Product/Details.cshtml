@@ -160,9 +160,11 @@
                         <span style="color: #ffc000; font-size: 1.1em;">★★★★☆</span>
                         <span style="color: #666; font-size: 0.95em; margin-left: 5px;">4.5 (145 đánh giá)</span>
                     </div>
-                    <div style="border-left: 1px solid #efefef; padding-left: 15px; color: #666; font-size: 0.95em;">
-                        Đã bán <strong>1.2k</strong>
+                    <div id="sold-box" style="border-left: 1px solid #efefef; padding-left: 15px; color: #666; font-size: 0.95em;">
+                        Đã bán <strong id="sold-num"></strong>
                     </div>
+
+
                 </div>
 
                 <!-- Price Section -->
@@ -354,6 +356,17 @@
                 }
             });
         });
+        var sold = Math.floor(Math.random() * (2000 - 50 + 1)) + 50;
+
+// Format dạng 1.2k nếu muốn
+function formatSold(num) {
+    if (num >= 1000) {
+        return (num / 1000).toFixed(1) + "k";
+    }
+    return num;
+}
+
+document.getElementById("sold-num").textContent = formatSold(sold);
     </script>
 }
 

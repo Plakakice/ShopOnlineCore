@@ -213,14 +213,23 @@
         cursor: pointer;
         font-weight: 600;
         transition: all 0.2s;
+        text-align: center;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
     }
 
     .btn-continue:hover {
         background: #f5f5f5;
     }
 
+    .cart-buttons form {
+        flex: 1;
+    }
+
     .btn-checkout {
-        flex: 2;
+        width: 100%;
         padding: 12px;
         background: #1AAD19;
         color: white;
@@ -282,7 +291,7 @@
                 <div class="empty-cart-icon">📦</div>
                 <div class="empty-cart-text">Giỏ hàng của bạn đang trống</div>
                 <a asp-controller="Product" asp-action="Index" class="btn btn-continue">
-                    ← Tiếp tục mua sắm
+                    ← Mua Tiếp
                 </a>
             </div>
         }
@@ -349,12 +358,12 @@
 
                         <div class="cart-buttons">
                             <a asp-controller="Product" asp-action="Index" class="btn-continue">
-                                ← Tiếp tục mua
+                                ← Mua Tiếp
                             </a>
                             @if (SignInManager.IsSignedIn(User))
                             {
-                                <form asp-controller="Checkout" asp-action="QuickCheckout" method="post" style="flex: 2;">
-                                    <button type="submit" class="btn-checkout" style="width: 100%;">
+                                <form asp-controller="Checkout" asp-action="QuickCheckout" method="post">
+                                    <button type="submit" class="btn-checkout">
                                         Thanh toán →
                                     </button>
                                 </form>

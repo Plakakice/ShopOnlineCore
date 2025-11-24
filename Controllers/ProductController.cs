@@ -120,7 +120,7 @@ namespace ShopOnlineCore.Controllers
         // =============================
         [Authorize(Roles = "Admin")]
         public IActionResult Create() => View();
-
+    
         [Authorize(Roles = "Admin")]
         [HttpPost]
         public IActionResult Create(Product product, List<IFormFile> files)
