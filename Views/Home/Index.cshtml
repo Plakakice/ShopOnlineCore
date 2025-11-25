@@ -778,7 +778,44 @@
             
             // Lắng nghe thay đổi tab
             $(document).on('click', '.resp-tabs-list li', function() {
-                setTimeout(updateActiveTab, 100);
+                setTimeout(() => {
+                    updateActiveTab();
+                    
+                    // Reinitialize loaded IDs for the new tab
+                    if (currentActiveTab) {
+                        const category = currentActiveTab.getAttribute('data-category');
+                        if (category) {
+                            const initialProducts = currentActiveTab.querySelectorAll('[data-product-id]');
+                            console.log(`Tab switched to ${category}. Found ${initialProducts.length} initial products`);
+                            
+                            const initialIds = [];
+                            initialProducts.forEach(product => {
+                                const id = product.getAttribute('data-product-id');
+                                if (id) {
+                                    initialIds.push(id);
+                                }
+                            });
+                            
+                            // Notify server about new tab's initial products
+                            if (initialIds.length > 0) {
+                                $.ajax({
+                                    url: '@Url.Action("InitializeLoadedIds", "Home")',
+                                    type: 'POST',
+                                    data: {
+                                        category: category,
+                                        productIds: initialIds
+                                    },
+                                    success: function() {
+                                        console.log('Server initialized LoadedIds for new tab:', category);
+                                    },
+                                    error: function(err) {
+                                        console.error('Error initializing LoadedIds for new tab:', err);
+                                    }
+                                });
+                            }
+                        }
+                    }
+                }, 100);
             });
         });
     </script>
