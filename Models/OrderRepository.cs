@@ -90,4 +90,54 @@ public class OrderRepository
             await _context.SaveChangesAsync(ct);
         }
     }
+
+    public async Task<(List<Order> Items, int TotalCount)> GetOrdersAsync(
+        string? status, 
+        string? search, 
+        DateTime? from, 
+        DateTime? to, 
+        int page, 
+        int pageSize, 
+        CancellationToken ct = default)
+    {
+        var query = _context.Orders
+            .AsNoTracking()
+            .Include(o => o.OrderItems)
+            .OrderByDescending(o => o.CreatedDate)
+            .AsQueryable();
+
+        if (!string.IsNullOrWhiteSpace(status))
+        {
+            query = query.Where(o => o.Status == status);
+        }
+
+        if (!string.IsNullOrWhiteSpace(search))
+        {
+            var term = search.Trim().ToLower();
+            query = query.Where(o =>
+                o.CustomerName.ToLower().Contains(term) ||
+                o.Email.ToLower().Contains(term) ||
+                o.Id.ToString().Contains(term));
+        }
+
+        if (from.HasValue)
+        {
+            var f = from.Value.Date;
+            query = query.Where(o => o.CreatedDate >= f);
+        }
+
+        if (to.HasValue)
+        {
+            var t = to.Value.Date.AddDays(1).AddTicks(-1);
+            query = query.Where(o => o.CreatedDate <= t);
+        }
+
+        var totalCount = await query.CountAsync(ct);
+        var items = await query
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync(ct);
+
+        return (items, totalCount);
+    }
 }
