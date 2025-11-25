@@ -115,13 +115,19 @@ namespace ShopOnlineCore.Controllers
             if (randomProductIds == null || randomProductIds.Count == 0)
                 return Content("");
 
-            var newProductIds = randomProductIds
+            // Get unloaded products (no need to skip based on page, just take the next batch)
+            var unloadedProductIds = randomProductIds
                 .Where(id => !loadedIds.Contains(id))
-                .Skip((page - 1) * pageSize)
+                .ToList();
+            
+            System.Diagnostics.Debug.WriteLine($"Unloaded products available: {unloadedProductIds.Count}");
+
+            // Take the next pageSize items from unloaded products
+            var newProductIds = unloadedProductIds
                 .Take(pageSize)
                 .ToList();
 
-            System.Diagnostics.Debug.WriteLine($"Returning {newProductIds.Count} new products for page {page}");
+            System.Diagnostics.Debug.WriteLine($"Returning {newProductIds.Count} new products");
             
             if (!newProductIds.Any())
                 return Content("");
