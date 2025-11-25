@@ -78,6 +78,7 @@ namespace ShopOnlineCore.Controllers
             
             List<int> randomProductIds;
             HashSet<int> loadedIds;
+            bool isNewRandomOrder = false;
 
             // Kiểm tra xem đã có random order trong Session chưa
             if (HttpContext.Session.TryGetValue(sessionKey, out byte[] data) && data != null)
@@ -96,16 +97,20 @@ namespace ShopOnlineCore.Controllers
 
                 var json = JsonSerializer.Serialize(randomProductIds);
                 HttpContext.Session.SetString(sessionKey, json);
+                isNewRandomOrder = true;
+                
+                System.Diagnostics.Debug.WriteLine($"Generated new random order for {category}, {randomProductIds.Count} products");
             }
 
             // Lấy danh sách IDs đã load rồi
-            if (HttpContext.Session.TryGetValue(loadedIdsKey, out byte[] loadedData) && loadedData != null)
+            if (HttpContext.Session.TryGetValue(loadedIdsKey, out byte[] loadedData) && loadedData != null && !isNewRandomOrder)
             {
                 var loadedList = JsonSerializer.Deserialize<List<int>>(System.Text.Encoding.UTF8.GetString(loadedData));
                 loadedIds = loadedList != null ? new HashSet<int>(loadedList) : new HashSet<int>();
             }
             else
             {
+                // If new random order was generated, start fresh with empty loaded list
                 loadedIds = new HashSet<int>();
             }
 
