@@ -15,9 +15,33 @@ namespace ShopOnlineCore.Controllers
 
         public IActionResult Index()
         {
-            // Lấy tất cả sản phẩm random 1 lần để hiển thị theo các tab category
-            var products = _context.Products.OrderBy(x => Guid.NewGuid()).ToList();
-            return View(products);
+            // Lấy tất cả sản phẩm và random 1 lần duy nhất
+            var allProducts = _context.Products.OrderBy(x => Guid.NewGuid()).ToList();
+            
+            // Lưu toàn bộ sản phẩm random vào Session để dùng chung cho tất cả tab
+            var json = JsonSerializer.Serialize(allProducts.Select(p => p.Id).ToList());
+            HttpContext.Session.SetString("RandomOrder_All", json);
+            
+            // Lưu thứ tự random cho từng category riêng (từ danh sách random chung)
+            var categories = new[] { "chuột", "laptop", "bàn phím", "âm thanh", "bags" };
+            
+            foreach (var category in categories)
+            {
+                string sessionKey = $"RandomOrder_{category}";
+                
+                // Lấy IDs của category này từ danh sách random chung
+                var categoryProductIds = allProducts
+                    .Where(p => !string.IsNullOrEmpty(p.Category) && 
+                               p.Category.ToLower().Contains(category.ToLower()))
+                    .Select(p => p.Id)
+                    .ToList();
+
+                // Lưu vào Session
+                var categoryJson = JsonSerializer.Serialize(categoryProductIds);
+                HttpContext.Session.SetString(sessionKey, categoryJson);
+            }
+
+            return View(allProducts);
         }
 
         public IActionResult Contact() => View();
@@ -26,25 +50,43 @@ namespace ShopOnlineCore.Controllers
 
         public IActionResult DebugCategories() => View();
 
+        // Initialize loaded IDs for a category (called on page load)
+        [HttpPost]
+        public IActionResult InitializeLoadedIds(string category, List<int> productIds)
+        {
+            if (string.IsNullOrEmpty(category) || productIds == null || productIds.Count == 0)
+                return Json(new { success = false });
+
+            string loadedIdsKey = $"LoadedIds_{category}";
+            var json = JsonSerializer.Serialize(productIds);
+            HttpContext.Session.SetString(loadedIdsKey, json);
+            
+            return Json(new { success = true });
+        }
+
         // Load thêm sản phẩm cho Infinite Scroll
         public IActionResult LoadMoreProducts(string category, int page = 1, int pageSize = 8)
         {
+            System.Diagnostics.Debug.WriteLine($"LoadMoreProducts called: category={category}, page={page}");
+            
             if (string.IsNullOrEmpty(category))
                 return Content("");
 
             // Session key để lưu thứ tự random của category này
             string sessionKey = $"RandomOrder_{category}";
+            string loadedIdsKey = $"LoadedIds_{category}";
+            
             List<int> randomProductIds;
+            HashSet<int> loadedIds;
 
             // Kiểm tra xem đã có random order trong Session chưa
-            if (HttpContext.Session.TryGetValue(sessionKey, out byte[] data))
+            if (HttpContext.Session.TryGetValue(sessionKey, out byte[] data) && data != null)
             {
-                // Lấy từ Session
-                randomProductIds = JsonSerializer.Deserialize<List<int>>(System.Text.Encoding.UTF8.GetString(data));
+                randomProductIds = JsonSerializer.Deserialize<List<int>>(System.Text.Encoding.UTF8.GetString(data)) ?? new List<int>();
             }
             else
             {
-                // Lần đầu tiên - random và lưu vào Session
+                // Fallback - random lại (nếu session expire)
                 randomProductIds = _context.Products
                     .Where(p => !string.IsNullOrEmpty(p.Category) && 
                                p.Category.ToLower().Contains(category.ToLower()))
@@ -52,33 +94,61 @@ namespace ShopOnlineCore.Controllers
                     .Select(p => p.Id)
                     .ToList();
 
-                // Lưu vào Session
                 var json = JsonSerializer.Serialize(randomProductIds);
                 HttpContext.Session.SetString(sessionKey, json);
             }
 
-            // Lấy sản phẩm từ danh sách random đã lưu
-            var productIds = randomProductIds
+            // Lấy danh sách IDs đã load rồi
+            if (HttpContext.Session.TryGetValue(loadedIdsKey, out byte[] loadedData) && loadedData != null)
+            {
+                var loadedList = JsonSerializer.Deserialize<List<int>>(System.Text.Encoding.UTF8.GetString(loadedData));
+                loadedIds = loadedList != null ? new HashSet<int>(loadedList) : new HashSet<int>();
+            }
+            else
+            {
+                loadedIds = new HashSet<int>();
+            }
+
+            System.Diagnostics.Debug.WriteLine($"Total products in {category}: {randomProductIds.Count}, Already loaded: {loadedIds.Count}");
+
+            // Lấy sản phẩm chưa load từ danh sách random
+            if (randomProductIds == null || randomProductIds.Count == 0)
+                return Content("");
+
+            var newProductIds = randomProductIds
+                .Where(id => !loadedIds.Contains(id))
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
                 .ToList();
 
-            if (!productIds.Any())
+            System.Diagnostics.Debug.WriteLine($"Returning {newProductIds.Count} new products for page {page}");
+            
+            if (!newProductIds.Any())
                 return Content("");
 
+            // Thêm các ID mới vào loaded list
+            foreach (var id in newProductIds)
+            {
+                loadedIds.Add(id);
+            }
+
+            // Lưu danh sách loaded IDs vào Session
+            var loadedJson = JsonSerializer.Serialize(loadedIds.ToList());
+            HttpContext.Session.SetString(loadedIdsKey, loadedJson);
+
             var products = _context.Products
-                .Where(p => productIds.Contains(p.Id))
+                .Where(p => newProductIds.Contains(p.Id))
                 .ToList();
 
             // Giữ lại thứ tự random
-            products = products.OrderBy(p => productIds.IndexOf(p.Id)).ToList();
+            products = products.OrderBy(p => newProductIds.IndexOf(p.Id)).ToList();
 
             // Tạo HTML cho sản phẩm
             var html = "";
             foreach (var product in products)
             {
                 html += $@"
-                    <div class=""col-md-3 product-men"" style=""margin-bottom: 30px; display: flex;"">>
+                    <div class=""col-md-3 product-men"" data-product-id=""{product.Id}"" style=""margin-bottom: 30px; display: flex;"">
                         <div class=""men-pro-item simpleCart_shelfItem"" style=""border: 1px solid #e8e8e8; border-radius: 8px; overflow: hidden; display: flex; flex-direction: column; width: 100%;"">
                             <div class=""men-thumb-item"" style=""position: relative; overflow: hidden; background: #f8f8f8; flex-shrink: 0;"">
                                 <img src=""{Url.Content(product.ImageUrl)}"" class=""pro-image-front img-responsive"" alt=""{product.Name}"" style=""width: 100%; height: 250px; object-fit: cover;"" />

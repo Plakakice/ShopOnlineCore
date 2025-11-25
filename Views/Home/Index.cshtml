@@ -232,7 +232,7 @@
                         }
                         @foreach (var product in menProducts)
                         {
-                            <div class="col-md-3 product-men wow fadeInUp" data-wow-delay="0.2s" style="margin-bottom: 30px; display: flex;">
+                            <div class="col-md-3 product-men wow fadeInUp" data-product-id="@product.Id" data-wow-delay="0.2s" style="margin-bottom: 30px; display: flex;">
                                 <div class="men-pro-item simpleCart_shelfItem" style="border: 1px solid #e8e8e8; border-radius: 8px; overflow: hidden; display: flex; flex-direction: column; width: 100%;">
                                     <div class="men-thumb-item" style="position: relative; overflow: hidden; background: #f8f8f8; flex-shrink: 0;">
                                         <img src="@Url.Content(product.ImageUrl)" class="pro-image-front img-responsive" alt="@product.Name" style="width: 100%; height: 250px; object-fit: cover;" />
@@ -263,6 +263,7 @@
                 <div class="tab2" data-category="laptop">
                     <div class="row">
                         @{
+                            // Hiển thị 8 cái đầu tiên - phần còn lại sẽ được load bởi LoadMoreProducts
                             var laptopProducts = Model.Where(p => !string.IsNullOrEmpty(p.Category) && p.Category.ToLower().Contains("laptop")).Take(8).ToList();
                             if (!laptopProducts.Any())
                             {
@@ -273,7 +274,7 @@
                         }
                         @foreach (var product in laptopProducts)
                         {
-                            <div class="col-md-3 product-men wow fadeInUp" data-wow-delay="0.2s" style="margin-bottom: 30px; display: flex;">
+                            <div class="col-md-3 product-men wow fadeInUp" data-product-id="@product.Id" data-wow-delay="0.2s" style="margin-bottom: 30px; display: flex;">
                                 <div class="men-pro-item simpleCart_shelfItem" style="border: 1px solid #e8e8e8; border-radius: 8px; overflow: hidden; display: flex; flex-direction: column; width: 100%;">
                                     <div class="men-thumb-item" style="position: relative; overflow: hidden; background: #f8f8f8; flex-shrink: 0;">
                                         <img src="@Url.Content(product.ImageUrl)" class="pro-image-front img-responsive" alt="@product.Name" style="width: 100%; height: 250px; object-fit: cover;" />
@@ -314,7 +315,7 @@
                         }
                         @foreach (var product in bagProducts)
                         {
-                            <div class="col-md-3 product-men wow fadeInUp" data-wow-delay="0.2s" style="margin-bottom: 30px; display: flex;">
+                            <div class="col-md-3 product-men wow fadeInUp" data-product-id="@product.Id" data-wow-delay="0.2s" style="margin-bottom: 30px; display: flex;">
                                 <div class="men-pro-item simpleCart_shelfItem" style="border: 1px solid #e8e8e8; border-radius: 8px; overflow: hidden; display: flex; flex-direction: column; width: 100%;">
                                     <div class="men-thumb-item" style="position: relative; overflow: hidden; background: #f8f8f8; flex-shrink: 0;">
                                         <img src="@Url.Content(product.ImageUrl)" class="pro-image-front img-responsive" alt="@product.Name" style="width: 100%; height: 250px; object-fit: cover;" />
@@ -342,7 +343,7 @@
                 </div>
 
                 <!-- Âm thanh Tab -->
-                <div class="tab4">
+                <div class="tab4" data-category="âm thanh">
                     <div class="row">
                         @{
                             var footwearProducts = Model.Where(p => !string.IsNullOrEmpty(p.Category) && (p.Category.ToLower().Contains("âm thanh") || p.Category.ToLower().Contains("am thanh"))).Take(8).ToList();
@@ -355,7 +356,7 @@
                         }
                         @foreach (var product in footwearProducts)
                         {
-                            <div class="col-md-3 product-men wow fadeInUp" data-wow-delay="0.2s" style="margin-bottom: 30px; display: flex;">
+                            <div class="col-md-3 product-men wow fadeInUp" data-product-id="@product.Id" data-wow-delay="0.2s" style="margin-bottom: 30px; display: flex;">
                                 <div class="men-pro-item simpleCart_shelfItem" style="border: 1px solid #e8e8e8; border-radius: 8px; overflow: hidden; display: flex; flex-direction: column; width: 100%;">
                                     <div class="men-thumb-item" style="position: relative; overflow: hidden; background: #f8f8f8; flex-shrink: 0;">
                                         <img src="@Url.Content(product.ImageUrl)" class="pro-image-front img-responsive" alt="@product.Name" style="width: 100%; height: 250px; object-fit: cover;" />
@@ -383,7 +384,7 @@
                 </div>
 
                 <!-- Bags Tab -->
-                <div class="tab5">
+                <div class="tab5" data-category="bags">
                     <div class="row">
                         @{
                             var bagsProducts = Model.Where(p => !string.IsNullOrEmpty(p.Category) && p.Category.ToLower().Contains("bags")).Take(8).ToList();
@@ -396,7 +397,7 @@
                         }
                         @foreach (var product in bagsProducts)
                         {
-                            <div class="col-md-3 product-men wow fadeInUp" data-wow-delay="0.2s" style="margin-bottom: 30px; display: flex;">
+                            <div class="col-md-3 product-men wow fadeInUp" data-product-id="@product.Id" data-wow-delay="0.2s" style="margin-bottom: 30px; display: flex;">
                                 <div class="men-pro-item simpleCart_shelfItem" style="border: 1px solid #e8e8e8; border-radius: 8px; overflow: hidden; display: flex; flex-direction: column; width: 100%;">
                                     <div class="men-thumb-item" style="position: relative; overflow: hidden; background: #f8f8f8; flex-shrink: 0;">
                                         <img src="@Url.Content(product.ImageUrl)" class="pro-image-front img-responsive" alt="@product.Name" style="width: 100%; height: 250px; object-fit: cover;" />
@@ -481,7 +482,109 @@
     <script src="~/js/jquery.countup.js"></script>
     <script src="~/js/jquery.waypoints.min.js"></script>
     <script>
+        // Biến global cho Infinite Scroll
+        let isLoading = false;
+        let page = 2;
+        const pageSize = 8;
+        let currentActiveTab = null;
+        let sentinelElement = null;
+        let observer = null;
+        let hasMoreProducts = true;
+        let loadedProductIds = new Set();
+        
+        // Helper: Load từ localStorage
+        function getLoadedIdsFromStorage(category) {
+            const key = `loaded_${category}`;
+            const stored = localStorage.getItem(key);
+            return stored ? new Set(JSON.parse(stored)) : new Set();
+        }
+        
+        // Helper: Save vào localStorage
+        function saveLoadedIdsToStorage(category, ids) {
+            const key = `loaded_${category}`;
+            localStorage.setItem(key, JSON.stringify(Array.from(ids)));
+        }
+        
+        // Tạo sentinel element
+        function createSentinel() {
+            if (currentActiveTab) {
+                const oldSentinel = currentActiveTab.querySelector('[data-sentinel="true"]');
+                if (oldSentinel) {
+                    if (observer) observer.unobserve(oldSentinel);
+                    oldSentinel.remove();
+                }
+                
+                sentinelElement = document.createElement('div');
+                sentinelElement.setAttribute('data-sentinel', 'true');
+                sentinelElement.style.height = '50px';
+                
+                const rowContainer = currentActiveTab.querySelector('.row');
+                console.log('createSentinel - rowContainer found:', !!rowContainer);
+                if (rowContainer) {
+                    rowContainer.appendChild(sentinelElement);
+                    if (observer) {
+                        observer.observe(sentinelElement);
+                        console.log('Sentinel observed');
+                    }
+                }
+            } else {
+                console.warn('createSentinel called but no currentActiveTab');
+            }
+        }
+        
+        // Lấy tab active khi chuyển tab
+        function updateActiveTab() {
+            // First, try finding by visible display style
+            let foundTab = null;
+            const tabs = document.querySelectorAll('.resp-tabs-container > div[data-category]');
+            console.log('updateActiveTab called. Found tabs with data-category:', tabs.length);
+            
+            for (let tab of tabs) {
+                const style = window.getComputedStyle(tab);
+                const display = style.display;
+                const category = tab.getAttribute('data-category');
+                console.log(`Tab: ${category}, display: ${display}, visibility: ${style.visibility}`);
+                
+                // Check if tab is visible
+                if (display !== 'none' && style.visibility !== 'hidden') {
+                    foundTab = tab;
+                    break;
+                }
+            }
+            
+            // If no tab found by display, try first tab as fallback
+            if (!foundTab && tabs.length > 0) {
+                console.log('No visible tab found, using first tab as fallback');
+                foundTab = tabs[0];
+            }
+            
+            if (foundTab) {
+                currentActiveTab = foundTab;
+                const category = currentActiveTab.getAttribute('data-category');
+                page = 2;
+                hasMoreProducts = true;
+                
+                loadedProductIds = getLoadedIdsFromStorage(category);
+                console.log(`Active tab: ${category}, loaded products from storage:`, loadedProductIds.size);
+                
+                createSentinel();
+            } else {
+                console.warn('No tabs found!');
+            }
+        }
+        
         $(document).ready(function () {
+            // Kiểm tra xem đây là lần đầu vào trang hay quay lại từ trang khác
+            const isNewSession = !sessionStorage.getItem('home_visited');
+            if (isNewSession) {
+                localStorage.removeItem('loaded_chuột');
+                localStorage.removeItem('loaded_laptop');
+                localStorage.removeItem('loaded_bàn phím');
+                localStorage.removeItem('loaded_âm thanh');
+                localStorage.removeItem('loaded_bags');
+                sessionStorage.setItem('home_visited', 'true');
+            }
+            
             // Tabs
             $('#horizontalTab').easyResponsiveTabs({
                 type: 'default',
@@ -501,15 +604,6 @@
                 pause: "hover"
             });
             
-            // Infinite Scroll với Intersection Observer
-            let isLoading = false;
-            let page = 2;
-            const pageSize = 8;
-            let currentActiveTab = null;
-            let sentinelElement = null;
-            let observer = null;
-            let hasMoreProducts = true; // Flag để check có sản phẩm còn lại không
-            
             // Khởi tạo Intersection Observer
             const observerOptions = {
                 root: null,
@@ -525,53 +619,78 @@
                 });
             }, observerOptions);
             
-            // Lấy tab active khi chuyển tab
-            function updateActiveTab() {
-                const tabs = document.querySelectorAll('.resp-tabs-container > div');
-                for (let tab of tabs) {
-                    const style = window.getComputedStyle(tab);
-                    if (style.display !== 'none') {
-                        currentActiveTab = tab;
-                        page = 2;
-                        hasMoreProducts = true; // Reset flag khi đổi tab
-                        createSentinel();
-                        break;
-                    }
-                }
-            }
-            
-            // Tạo sentinel element
-            function createSentinel() {
+            // Gọi updateActiveTab() sau khi tabs khởi tạo xong
+            setTimeout(() => {
+                console.log('Initial updateActiveTab() called after 1000ms delay');
+                updateActiveTab();
+                
+                // Capture initial 8 products from the current tab
                 if (currentActiveTab) {
-                    const oldSentinel = currentActiveTab.querySelector('[data-sentinel="true"]');
-                    if (oldSentinel) {
-                        observer.unobserve(oldSentinel);
-                        oldSentinel.remove();
-                    }
-                    
-                    sentinelElement = document.createElement('div');
-                    sentinelElement.setAttribute('data-sentinel', 'true');
-                    sentinelElement.style.height = '50px';
-                    
-                    const rowContainer = currentActiveTab.querySelector('.row');
-                    if (rowContainer) {
-                        rowContainer.appendChild(sentinelElement);
-                        observer.observe(sentinelElement);
+                    const category = currentActiveTab.getAttribute('data-category');
+                    if (category) {
+                        const initialProducts = currentActiveTab.querySelectorAll('[data-product-id]');
+                        console.log(`Found ${initialProducts.length} initial products in ${category} tab`);
+                        
+                        const initialIds = [];
+                        initialProducts.forEach(product => {
+                            const id = product.getAttribute('data-product-id');
+                            if (id) {
+                                loadedProductIds.add(id);
+                                initialIds.push(id);
+                            }
+                        });
+                        
+                        // Save initial product IDs to localStorage
+                        if (loadedProductIds.size > 0) {
+                            saveLoadedIdsToStorage(category, loadedProductIds);
+                            console.log(`Saved ${loadedProductIds.size} initial product IDs to localStorage for ${category}`);
+                            
+                            // Notify server about initial products (to initialize LoadedIds_category in Session)
+                            $.ajax({
+                                url: '@Url.Action("InitializeLoadedIds", "Home")',
+                                type: 'POST',
+                                data: {
+                                    category: category,
+                                    productIds: initialIds
+                                },
+                                success: function() {
+                                    console.log('Server initialized LoadedIds for category:', category);
+                                },
+                                error: function(err) {
+                                    console.error('Error initializing LoadedIds on server:', err);
+                                }
+                            });
+                        }
                     }
                 }
-            }
-            
-            // Gọi khi tab thay đổi
-            updateActiveTab();
+                
+                // Manually trigger first load after 2 seconds to ensure everything is ready
+                setTimeout(() => {
+                    console.log('Triggering first loadMoreProducts() manually');
+                    loadMoreProducts();
+                }, 2000);
+            }, 1000);
             
             function loadMoreProducts() {
-                if (isLoading || !currentActiveTab) return;
+                console.log('=== loadMoreProducts called ===');
+                console.log('State: isLoading=' + isLoading + ', currentActiveTab=' + (!!currentActiveTab) + ', hasMoreProducts=' + hasMoreProducts);
+                if (isLoading || !currentActiveTab) {
+                    console.log('Returning early: isLoading or no currentActiveTab');
+                    return;
+                }
                 
                 const category = currentActiveTab.getAttribute('data-category');
-                if (!category) return;
+                if (!category) {
+                    console.warn('No category found in current tab');
+                    return;
+                }
+                console.log('Category: ' + category + ', Page: ' + page);
                 
                 const rowContainer = currentActiveTab.querySelector('.row');
-                if (!rowContainer) return;
+                if (!rowContainer) {
+                    console.warn('No row container found in current tab');
+                    return;
+                }
                 
                 isLoading = true;
                 
@@ -600,15 +719,33 @@
                             pageSize: pageSize
                         },
                         success: function(html) {
+                            console.log('API Success! Response length:', html.length);
+                            
                             // Xóa spinner
                             const spinner = rowContainer.querySelector('[data-spinner="true"]');
                             if (spinner) spinner.remove();
                             
                             if (html.trim() === '') {
+                                console.log('Empty response - no more products');
                                 hasMoreProducts = false; // Set flag khi hết sản phẩm
                                 isLoading = false;
                                 return;
                             }
+                            
+                            console.log('Adding products to page...');
+                            
+                            // Extract product IDs từ HTML (dùng data attribute)
+                            const tempDiv = document.createElement('div');
+                            tempDiv.innerHTML = html;
+                            const newItems = tempDiv.querySelectorAll('[data-product-id]');
+                            console.log('Found ' + newItems.length + ' products in response');
+                            newItems.forEach(item => {
+                                const id = item.getAttribute('data-product-id');
+                                if (id) loadedProductIds.add(id);
+                            });
+                            
+                            // Save vào localStorage
+                            saveLoadedIdsToStorage(category, loadedProductIds);
                             
                             // Xóa sentinel cũ
                             const oldSentinel = rowContainer.querySelector('[data-sentinel="true"]');

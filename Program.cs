@@ -30,7 +30,12 @@ builder.Services.AddScoped<IRoleStore<IdentityRole>>(provider =>
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
 builder.Services.AddDistributedMemoryCache();
-builder.Services.AddSession();
+builder.Services.AddSession(options =>
+{
+    options.IdleTimeout = TimeSpan.FromHours(2); // Session timeout 2 tiếng
+    options.Cookie.HttpOnly = true;
+    options.Cookie.IsEssential = true;
+});
 
 // 📨 Giả lập EmailSender để tránh lỗi khi đăng ký user
 builder.Services.AddTransient<IEmailSender, EmailSender>();
