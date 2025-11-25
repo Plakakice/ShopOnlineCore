@@ -157,11 +157,20 @@
 </div><!-- /.site-header -->
 
     <div class="content-wrapper">
-        <div class="container">
+        @if (ViewData["FullWidth"] as bool? == true)
+        {
             <main role="main" class="py-4">
                 @RenderBody()
             </main>
-        </div>
+        }
+        else
+        {
+            <div class="container">
+                <main role="main" class="py-4">
+                    @RenderBody()
+                </main>
+            </div>
+        }
         <div class="clearfix"></div>
     </div>
 

@@ -313,7 +313,6 @@ F:\Code\Web\ShopOnlineCore\obj\Debug\net9.0\compressed\2bb8617p26-ptogkab6iu.gz
 F:\Code\Web\ShopOnlineCore\obj\Debug\net9.0\compressed\7tzgfddm8i-g6k180fm55.gz
 F:\Code\Web\ShopOnlineCore\obj\Debug\net9.0\compressed\te115o3fvf-qj35fca2th.gz
 F:\Code\Web\ShopOnlineCore\obj\Debug\net9.0\compressed\ee7tvtqlki-dgxosy2wor.gz
-F:\Code\Web\ShopOnlineCore\obj\Debug\net9.0\compressed\0mnjk4v3cj-fwe7sgohnc.gz
 F:\Code\Web\ShopOnlineCore\obj\Debug\net9.0\compressed\nr6my7v9lf-lmcwtbson7.gz
 F:\Code\Web\ShopOnlineCore\obj\Debug\net9.0\compressed\xnp5keyuud-qybwitg4mr.gz
 F:\Code\Web\ShopOnlineCore\obj\Debug\net9.0\compressed\mew1h2dy1x-8tx31xxtvy.gz
@@ -403,3 +402,4 @@ F:\Code\Web\ShopOnlineCore\obj\Debug\net9.0\refint\ShopOnlineCore.dll
 F:\Code\Web\ShopOnlineCore\obj\Debug\net9.0\ShopOnlineCore.pdb
 F:\Code\Web\ShopOnlineCore\obj\Debug\net9.0\ShopOnlineCore.genruntimeconfig.cache
 F:\Code\Web\ShopOnlineCore\obj\Debug\net9.0\ref\ShopOnlineCore.dll
+F:\Code\Web\ShopOnlineCore\obj\Debug\net9.0\compressed\0mnjk4v3cj-zeqpw2ugsf.gz

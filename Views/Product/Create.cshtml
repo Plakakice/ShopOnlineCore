@@ -1,77 +1,179 @@
 @model ShopOnlineCore.Models.Product
 
-<div class="page-head_agile_info_w3l">
-    <div class="container">
-        <h3>Thêm sản phẩm mới</h3>
+@{
+    ViewData["Title"] = "Thêm sản phẩm mới";
+}
+
+<style>
+    .admin-header {
+        background: linear-gradient(135deg, #2fdab8 0%, #27b39e 100%);
+        color: white;
+        padding: 40px 0;
+        margin-bottom: 30px;
+        border-radius: 0;
+    }
+
+    .info-card {
+        background: white;
+        padding: 25px;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        margin-bottom: 25px;
+    }
+
+    .info-card h3 {
+        color: #2fdab8;
+        font-size: 1.3em;
+        font-weight: 700;
+        margin-bottom: 20px;
+        padding-bottom: 15px;
+        border-bottom: 2px solid #f0f0f0;
+    }
+
+    .form-group label {
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 8px;
+    }
+
+    .btn-save {
+        background: #27ae60;
+        color: white;
+        border: none;
+        padding: 10px 24px;
+        border-radius: 6px;
+        font-weight: 600;
+        transition: all 0.3s;
+    }
+
+    .btn-save:hover {
+        background: #219150;
+        color: white;
+    }
+
+    .btn-cancel {
+        background: #95a5a6;
+        color: white;
+        border: none;
+        padding: 10px 24px;
+        border-radius: 6px;
+        font-weight: 600;
+        transition: all 0.3s;
+        text-decoration: none;
+        display: inline-block;
+    }
+
+    .btn-cancel:hover {
+        background: #7f8c8d;
+        color: white;
+    }
+    .image-selection-item {
+        position: relative;
+        cursor: pointer;
+        transition: transform 0.2s;
+    }
+
+    .image-selection-item:hover {
+        transform: scale(1.05);
+    }
+
+    .image-selection-item input[type="radio"] {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        transform: scale(1.5);
+        z-index: 10;
+        cursor: pointer;
+    }
+    
+    .image-selection-item.is-main {
+        border: 3px solid #2fdab8;
+        border-radius: 6px;
+    }
+</style>
+
+<div class="admin-header">
+    <div class="container-fluid" style="padding: 0 10px;">
+        <h2 style="margin: 0; font-size: 2em; font-weight: 700;">✨ Thêm sản phẩm mới</h2>
+        <p style="margin: 5px 0 0 0; opacity: 0.95;">Nhập thông tin chi tiết để tạo sản phẩm mới</p>
     </div>
 </div>
 
-<div class="container mt-4 mb-5">
+<div class="container-fluid" style="margin-bottom: 50px; padding: 0 10px;">
     <div class="row">
         <div class="col-md-8 offset-md-2">
-            <div class="card">
-                <div class="card-body">
-                    <form asp-action="Create" method="post" enctype="multipart/form-data">
-                        <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
-                        
-                        <div class="form-group mb-3">
-                            <label for="Name">Tên sản phẩm <span class="text-danger">*</span></label>
-                            <input asp-for="Name" class="form-control" required />
-                            <span asp-validation-for="Name" class="text-danger"></span>
+            <div class="info-card">
+                <h3><i class="fa fa-plus-circle"></i> Thông tin sản phẩm</h3>
+                <form asp-action="Create" method="post" enctype="multipart/form-data">
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group mb-3">
+                                <label for="Name">Tên sản phẩm <span class="text-danger">*</span></label>
+                                <input asp-for="Name" class="form-control" required />
+                                <span asp-validation-for="Name" class="text-danger"></span>
+                            </div>
                         </div>
-
-                        <div class="form-group mb-3">
-                            <label for="Category">Danh mục <span class="text-danger">*</span></label>
-                            <select asp-for="Category" class="form-control" required>
-                                <option value="">-- Chọn danh mục --</option>
-                                <option value="Laptop">Laptop</option>
-                                <option value="Chuột">Chuột</option>
-                                <option value="Bàn phím">Bàn phím</option>
-                                <option value="Bags">Bags</option>
-                                <option value="Âm thanh">Âm thanh</option>
-                            </select>
-                            <span asp-validation-for="Category" class="text-danger"></span>
+                        <div class="col-md-6">
+                            <div class="form-group mb-3">
+                                <label for="Category">Danh mục <span class="text-danger">*</span></label>
+                                <select asp-for="Category" class="form-control" required>
+                                    <option value="">-- Chọn danh mục --</option>
+                                    <option value="Laptop">Laptop</option>
+                                    <option value="Chuột">Chuột</option>
+                                    <option value="Bàn phím">Bàn phím</option>
+                                    <option value="Bags">Bags</option>
+                                    <option value="Âm thanh">Âm thanh</option>
+                                </select>
+                                <span asp-validation-for="Category" class="text-danger"></span>
+                            </div>
                         </div>
+                    </div>
 
-                        <div class="form-group mb-3">
-                            <label for="Price">Giá (VND) <span class="text-danger">*</span></label>
-                            <input asp-for="Price" type="number" step="1000" min="0" class="form-control" required />
-                            <span asp-validation-for="Price" class="text-danger"></span>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group mb-3">
+                                <label for="Price">Giá (VND) <span class="text-danger">*</span></label>
+                                <input asp-for="Price" type="number" step="1000" min="0" class="form-control" required />
+                                <span asp-validation-for="Price" class="text-danger"></span>
+                            </div>
                         </div>
-
-                        <div class="form-group mb-3">
-                            <label for="Stock">Số lượng tồn kho <span class="text-danger">*</span></label>
-                            <input asp-for="Stock" type="number" min="0" class="form-control" required />
-                            <span asp-validation-for="Stock" class="text-danger"></span>
-                            <small class="form-text text-muted">Nhập 0 nếu hết hàng</small>
+                        <div class="col-md-6">
+                            <div class="form-group mb-3">
+                                <label for="Stock">Số lượng tồn kho <span class="text-danger">*</span></label>
+                                <input asp-for="Stock" type="number" min="0" class="form-control" required />
+                                <span asp-validation-for="Stock" class="text-danger"></span>
+                                <small class="form-text text-muted">Nhập 0 nếu hết hàng</small>
+                            </div>
                         </div>
+                    </div>
 
-                        <div class="form-group mb-3">
-                            <label for="Description">Mô tả</label>
-                            <textarea asp-for="Description" class="form-control" rows="4"></textarea>
-                            <span asp-validation-for="Description" class="text-danger"></span>
-                        </div>
+                    <div class="form-group mb-3">
+                        <label for="Description">Mô tả</label>
+                        <textarea asp-for="Description" class="form-control" rows="4"></textarea>
+                        <span asp-validation-for="Description" class="text-danger"></span>
+                    </div>
 
-                        <!-- Upload nhiều ảnh -->
-                        <div class="form-group mb-3">
-                            <label for="files">Ảnh sản phẩm (chọn nhiều ảnh) <span class="text-danger">*</span></label>
-                            <input type="file" id="files" name="files" multiple accept="image/*" class="form-control" required />
-                            <small class="form-text text-muted">Ảnh đầu tiên sẽ là ảnh đại diện</small>
-                        </div>
+                    <!-- Upload nhiều ảnh -->
+                    <div class="form-group mb-3">
+                        <label for="files">Ảnh sản phẩm (chọn nhiều ảnh) <span class="text-danger">*</span></label>
+                        <input type="file" id="files" name="files" multiple accept="image/*" class="form-control" required />
+                        <small class="form-text text-muted">Chọn ảnh chính bằng cách tích vào ô tròn trên ảnh.</small>
+                    </div>
 
-                        <!-- Preview ảnh trước khi lưu -->
-                        <div id="preview" class="d-flex flex-wrap gap-2 mb-3"></div>
+                    <!-- Preview ảnh trước khi lưu -->
+                    <div id="preview" class="d-flex flex-wrap gap-3 mb-4"></div>
 
-                        <div class="form-group">
-                            <button type="submit" class="btn btn-success">
-                                <i class="fa fa-save"></i> Lưu sản phẩm
-                            </button>
-                            <a asp-action="Index" class="btn btn-secondary">
-                                <i class="fa fa-times"></i> Hủy
-                            </a>
-                        </div>
-                    </form>
-                </div>
+                    <div class="form-group text-center">
+                        <button type="submit" class="btn btn-save">
+                            <i class="fa fa-save"></i> Lưu sản phẩm
+                        </button>
+                        <a asp-action="Index" class="btn btn-cancel">
+                            <i class="fa fa-times"></i> Hủy
+                        </a>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
@@ -92,25 +194,34 @@
                     const reader = new FileReader();
                     reader.onload = function (e) {
                         const wrapper = document.createElement('div');
-                        wrapper.style.position = 'relative';
+                        wrapper.className = 'image-selection-item ' + (i === 0 ? 'is-main' : '');
                         
                         const img = document.createElement('img');
                         img.src = e.target.result;
-                        img.style.height = '150px';
-                        img.style.width = '150px';
+                        img.style.height = '120px';
+                        img.style.width = '120px';
                         img.style.objectFit = 'cover';
-                        img.classList.add('rounded', 'border');
+                        img.classList.add('rounded', 'shadow-sm');
                         
-                        if (i === 0) {
-                            const badge = document.createElement('span');
-                            badge.className = 'badge bg-primary';
-                            badge.style.position = 'absolute';
-                            badge.style.top = '5px';
-                            badge.style.left = '5px';
-                            badge.textContent = 'Ảnh chính';
-                            wrapper.appendChild(badge);
-                        }
+                        // Radio button để chọn ảnh chính
+                        const radio = document.createElement('input');
+                        radio.type = 'radio';
+                        radio.name = 'selectedMainImageIndex';
+                        radio.value = i;
+                        radio.checked = i === 0; // Mặc định chọn ảnh đầu tiên
+                        radio.title = 'Đặt làm ảnh chính';
                         
+                        // Sự kiện click để highlight
+                        radio.addEventListener('change', function() {
+                            document.querySelectorAll('.image-selection-item').forEach(item => {
+                                item.classList.remove('is-main');
+                            });
+                            if (this.checked) {
+                                wrapper.classList.add('is-main');
+                            }
+                        });
+
+                        wrapper.appendChild(radio);
                         wrapper.appendChild(img);
                         preview.appendChild(wrapper);
                     };

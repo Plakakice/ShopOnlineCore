@@ -43,8 +43,12 @@ builder.Services.AddTransient<IEmailSender, EmailSender>();
 // 🛒 Register OrderRepository for Dependency Injection
 builder.Services.AddScoped<OrderRepository>();
 
+// 🛒 Register CartService
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<ICartService, CartService>();
+
 // Thêm dịch vụ Razor / MVC như bình thường
-builder.Services.AddRazorPages(); // hoặc AddControllersWithViews()
+// builder.Services.AddRazorPages(); // Đã có ở trên
 
 // 1) Thêm Authentication + Cookie
 builder.Services
@@ -60,16 +64,8 @@ builder.Services
         options.ClientId = builder.Configuration["Authentication:Google:ClientId"] ?? "";
         options.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"] ?? "";
         options.CallbackPath = "/signin-google"; // mặc định là /signin-google, có thể đổi
-    })
-    // 3) Facebook (bị tắt vì chưa cấu hình)
-    /* 
-    .AddFacebook("Facebook", options =>
-    {
-        options.AppId = builder.Configuration["Authentication:Facebook:AppId"];
-        options.AppSecret = builder.Configuration["Authentication:Facebook:AppSecret"];
-        options.CallbackPath = "/signin-facebook";
-    })
-    */;
+    });
+
 var app = builder.Build();
 
 // ==================== PIPELINE ====================
@@ -78,7 +74,6 @@ if (!app.Environment.IsDevelopment())
     app.UseExceptionHandler("/Home/Error");
     app.UseHsts();
 }
-app.UseRouting();
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();

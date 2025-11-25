@@ -1,292 +1,84 @@
 using Microsoft.AspNetCore.Mvc;
 using ShopOnlineCore.Models;
-using System.Text.Json;
-using System.Security.Claims;
+using ShopOnlineCore.Services;
 
 namespace ShopOnlineCore.Controllers;
 
 public class CartController : Controller
 {
-    private readonly ApplicationDbContext _context;
+    private readonly ICartService _cartService;
 
-public CartController(ApplicationDbContext context)
-{
-    _context = context;
-}
-
-    private const string CARTKEY = "cart";
-
-    private bool IsAuthenticated => User?.Identity?.IsAuthenticated == true;
-    private string? CurrentUserId => User.FindFirstValue(ClaimTypes.NameIdentifier);
-
-    // Lấy giỏ hàng hiện tại (DB nếu đã đăng nhập, Session nếu ẩn danh)
-    private List<CartItem> GetCart()
+    public CartController(ICartService cartService)
     {
-        if (IsAuthenticated && CurrentUserId != null)
-        {
-            var lines = _context.CartLines.Where(x => x.UserId == CurrentUserId).ToList();
-            return lines.Select(l => new CartItem
-            {
-                Id = l.ProductId,
-                Name = l.ProductName,
-                Price = l.Price,
-                Quantity = l.Quantity,
-                ImageUrl = l.ImageUrl
-            }).ToList();
-        }
-
-        var json = HttpContext.Session.GetString(CARTKEY);
-        if (json != null)
-            return JsonSerializer.Deserialize<List<CartItem>>(json)!;
-        return new List<CartItem>();
+        _cartService = cartService;
     }
 
-    // Lưu giỏ hàng (DB hoặc Session)
-    private void SaveCart(List<CartItem> cart)
-    {
-        if (IsAuthenticated && CurrentUserId != null)
-        {
-            // Replace user's cart lines with provided list
-            var existing = _context.CartLines.Where(x => x.UserId == CurrentUserId);
-            _context.CartLines.RemoveRange(existing);
-            _context.CartLines.AddRange(cart.Select(c => new CartLine
-            {
-                UserId = CurrentUserId,
-                ProductId = c.Id,
-                ProductName = c.Name,
-                Price = c.Price,
-                Quantity = c.Quantity,
-                ImageUrl = c.ImageUrl
-            }));
-            _context.SaveChanges();
-            return;
-        }
-        var json = JsonSerializer.Serialize(cart);
-        HttpContext.Session.SetString(CARTKEY, json);
-    }
-    // Hiển thị giỏ hàng
     public IActionResult Index()
     {
-        var cart = GetCart();
+        var cart = _cartService.GetCart();
         return View(cart);
     }
-    // Thêm sản phẩm
+
     public IActionResult Add(int id, int quantity = 1, bool buyNow = false)
     {
-        var product = _context.Products.FirstOrDefault(p => p.Id == id);
-        if (product == null) return NotFound();
-        // Kiểm tra tồn kho
-        if (product.Stock <= 0)
+        try
         {
-            TempData["Error"] = $"{product.Name} hiện đã hết hàng.";
+            _cartService.AddToCart(id, quantity);
+            TempData["Success"] = "Đã thêm sản phẩm vào giỏ hàng.";
+        }
+        catch (Exception ex)
+        {
+            TempData["Error"] = ex.Message;
             return RedirectToAction("Details", "Product", new { id });
         }
-        // Kiểm tra quantity không vượt quá stock
-        if (quantity > product.Stock)
-        {
-            quantity = product.Stock;
-        }
-        if (IsAuthenticated && CurrentUserId != null)
-        {
-            var line = _context.CartLines.FirstOrDefault(x => x.UserId == CurrentUserId && x.ProductId == id);
-            if (line != null)
-            {
-                // Kiểm tra không vượt quá tồn kho
-                if (line.Quantity + quantity > product.Stock)
-                {
-                    TempData["Error"] = $"{product.Name} chỉ còn {product.Stock - line.Quantity} sản phẩm trong kho.";
-                    quantity = product.Stock - line.Quantity;
-                }
-                line.Quantity += quantity;
-            }
-            else
-                _context.CartLines.Add(new CartLine
-                {
-                    UserId = CurrentUserId,
-                    ProductId = product.Id,
-                    ProductName = product.Name,
-                    Price = product.Price,
-                    ImageUrl = product.ImageUrl,
-                    Quantity = quantity
-                });
-            _context.SaveChanges();
-        }
-        else
-        {
-            var cart = GetCart();
-            var item = cart.FirstOrDefault(p => p.Id == id);
-            if (item != null)
-            {
-                // Kiểm tra không vượt quá tồn kho
-                if (item.Quantity + quantity > product.Stock)
-                {
-                    TempData["Error"] = $"{product.Name} chỉ còn {product.Stock - item.Quantity} sản phẩm trong kho.";
-                    quantity = product.Stock - item.Quantity;
-                }
-                item.Quantity += quantity;
-            }
-            else
-                cart.Add(new CartItem
-                {
-                    Id = product.Id,
-                    Name = product.Name,
-                    Price = product.Price,
-                    ImageUrl = product.ImageUrl,
-                    Quantity = quantity
-                });
-            SaveCart(cart);
-        }
-        
-        // Lưu thông báo thành công
-        TempData["Success"] = $"✓ Đã thêm {quantity} {product.Name} vào giỏ hàng.";
-        
-        // Nếu là "Mua ngay", redirect tới Cart/Index
+
         if (buyNow)
         {
             return RedirectToAction("Index");
         }
-        
-        // Nếu là "Thêm vào giỏ", quay lại trang hiện tại với query param
+
         return RedirectToAction("Details", "Product", new { id, showMessage = 1 });
     }
 
-    // Giảm số lượng
     public IActionResult Decrease(int id)
     {
-        if (IsAuthenticated && CurrentUserId != null)
-        {
-            var line = _context.CartLines.FirstOrDefault(x => x.UserId == CurrentUserId && x.ProductId == id);
-            if (line != null)
-            {
-                line.Quantity--;
-                if (line.Quantity <= 0)
-                    _context.CartLines.Remove(line);
-                _context.SaveChanges();
-            }
-        }
-        else
-        {
-            var cart = GetCart();
-            var item = cart.FirstOrDefault(p => p.Id == id);
-            if (item != null)
-            {
-                item.Quantity--;
-                if (item.Quantity <= 0)
-                    cart.Remove(item);
-                SaveCart(cart);
-            }
-        }
+        _cartService.DecreaseQuantity(id);
         TempData["Info"] = "Đã cập nhật giỏ hàng.";
         return RedirectToAction("Index");
     }
 
-    // Tăng số lượng
     public IActionResult Increase(int id)
     {
-        var product = _context.Products.FirstOrDefault(p => p.Id == id);
-        if (product == null) return NotFound();
-
-        if (IsAuthenticated && CurrentUserId != null)
+        try
         {
-            var line = _context.CartLines.FirstOrDefault(x => x.UserId == CurrentUserId && x.ProductId == id);
-            if (line != null)
-            {
-                // Kiểm tra không vượt quá tồn kho
-                if (line.Quantity >= product.Stock)
-                {
-                    TempData["Error"] = $"{product.Name} chỉ còn {product.Stock} sản phẩm trong kho.";
-                    return RedirectToAction("Index");
-                }
-                line.Quantity++;
-                _context.SaveChanges();
-            }
+            _cartService.IncreaseQuantity(id);
+            TempData["Info"] = "Đã cập nhật giỏ hàng.";
         }
-        else
+        catch (Exception ex)
         {
-            var cart = GetCart();
-            var item = cart.FirstOrDefault(p => p.Id == id);
-            if (item != null)
-            {
-                // Kiểm tra không vượt quá tồn kho
-                if (item.Quantity >= product.Stock)
-                {
-                    TempData["Error"] = $"{product.Name} chỉ còn {product.Stock} sản phẩm trong kho.";
-                    return RedirectToAction("Index");
-                }
-                item.Quantity++;
-                SaveCart(cart);
-            }
+            TempData["Error"] = ex.Message;
         }
-        TempData["Info"] = "Đã cập nhật giỏ hàng.";
         return RedirectToAction("Index");
     }
 
-    // Cập nhật thủ công (nếu người dùng gõ số lượng)
     [HttpPost]
     public IActionResult Update(int id, int quantity)
     {
-        if (IsAuthenticated && CurrentUserId != null)
-        {
-            var line = _context.CartLines.FirstOrDefault(x => x.UserId == CurrentUserId && x.ProductId == id);
-            if (line != null && quantity > 0)
-            {
-                line.Quantity = quantity;
-                _context.SaveChanges();
-            }
-        }
-        else
-        {
-            var cart = GetCart();
-            var item = cart.FirstOrDefault(p => p.Id == id);
-            if (item != null && quantity > 0)
-            {
-                item.Quantity = quantity;
-                SaveCart(cart);
-            }
-        }
+        _cartService.UpdateQuantity(id, quantity);
         TempData["Info"] = "Đã cập nhật giỏ hàng.";
         return RedirectToAction("Index");
     }
 
-    // Xóa 1 sản phẩm
     public IActionResult Remove(int id)
     {
-        if (IsAuthenticated && CurrentUserId != null)
-        {
-            var line = _context.CartLines.FirstOrDefault(x => x.UserId == CurrentUserId && x.ProductId == id);
-            if (line != null)
-            {
-                _context.CartLines.Remove(line);
-                _context.SaveChanges();
-            }
-        }
-        else
-        {
-            var cart = GetCart();
-            var item = cart.FirstOrDefault(p => p.Id == id);
-            if (item != null)
-            {
-                cart.Remove(item);
-                SaveCart(cart);
-            }
-        }
+        _cartService.RemoveFromCart(id);
         TempData["Success"] = "Đã xóa sản phẩm khỏi giỏ.";
         return RedirectToAction("Index");
     }
 
-    // Xóa toàn bộ
     public IActionResult Clear()
     {
-        if (IsAuthenticated && CurrentUserId != null)
-        {
-            var lines = _context.CartLines.Where(x => x.UserId == CurrentUserId);
-            _context.CartLines.RemoveRange(lines);
-            _context.SaveChanges();
-        }
-        else
-        {
-            HttpContext.Session.Remove(CARTKEY);
-        }
+        _cartService.ClearCart();
         TempData["Success"] = "Đã xóa toàn bộ giỏ hàng.";
         return RedirectToAction("Index");
     }

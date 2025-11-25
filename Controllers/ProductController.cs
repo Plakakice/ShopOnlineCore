@@ -21,10 +21,10 @@ namespace ShopOnlineCore.Controllers
         // =============================
         // Danh sách sản phẩm
         // =============================
-        public async Task<IActionResult> Index(string? category, string? search, decimal? minPrice, decimal? maxPrice, int page = 1, int pageSize = 6)
+        public async Task<IActionResult> Index(string? category, string? search, decimal? minPrice, decimal? maxPrice, string? sort, int page = 1, int pageSize = 8)
         {
-            // Ép pageSize về tối đa 6 để đảm bảo mỗi trang chỉ hiển thị 6 sản phẩm
-            pageSize = pageSize <= 0 ? 6 : Math.Min(pageSize, 6);
+            // Ép pageSize về tối đa 8 để đảm bảo mỗi trang chỉ hiển thị 8 sản phẩm
+            pageSize = pageSize <= 0 ? 8 : Math.Min(pageSize, 8);
             var products = _context.Products.AsQueryable();
 
             var categoryQueryValue = category?.Trim() ?? string.Empty;
@@ -69,9 +69,22 @@ namespace ShopOnlineCore.Controllers
                 products = products.Where(p => p.Price <= maxPrice.Value);
             }
 
+            // Sắp xếp
+            switch (sort)
+            {
+                case "price_asc":
+                    products = products.OrderBy(p => p.Price);
+                    break;
+                case "price_desc":
+                    products = products.OrderByDescending(p => p.Price);
+                    break;
+                default:
+                    products = products.OrderBy(p => Guid.NewGuid()); // Mặc định ngẫu nhiên
+                    break;
+            }
+
             var totalCount = await products.CountAsync();
             var productList = await products
-                .OrderByDescending(p => p.Id)
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
                 .ToListAsync();
@@ -82,6 +95,7 @@ namespace ShopOnlineCore.Controllers
             ViewData["FilterMax"] = maxPrice ?? sliderMax;
             ViewData["SelectedCategoryQuery"] = categoryQueryValue;
             ViewData["SelectedSearchQuery"] = searchQueryValue;
+            ViewData["CurrentSort"] = sort; // Lưu trạng thái sort
             ViewData["Page"] = page;
             ViewData["PageSize"] = pageSize;
             ViewData["TotalCount"] = totalCount;
@@ -98,9 +112,13 @@ namespace ShopOnlineCore.Controllers
             if (product == null) return NotFound();
 
             // Lấy 4 sản phẩm ngẫu nhiên khác (có thể bạn sẽ thích)
+            // Tối ưu: Dùng Skip ngẫu nhiên thay vì OrderBy(Guid) để tránh scan toàn bộ bảng
+            var count = await _context.Products.CountAsync(p => p.Id != id);
+            var skip = count > 4 ? Random.Shared.Next(0, count - 4) : 0;
+
             var relatedProducts = await _context.Products
                 .Where(p => p.Id != id)
-                .OrderBy(p => Guid.NewGuid())
+                .Skip(skip)
                 .Take(4)
                 .ToListAsync();
 
@@ -123,7 +141,7 @@ namespace ShopOnlineCore.Controllers
     
         [Authorize(Roles = "Admin")]
         [HttpPost]
-        public IActionResult Create(Product product, List<IFormFile> files)
+        public IActionResult Create(Product product, List<IFormFile> files, int selectedMainImageIndex = 0)
         {
             if (ModelState.IsValid)
             {
@@ -144,7 +162,17 @@ namespace ShopOnlineCore.Controllers
                     }
 
                     if (product.ImageGallery.Any())
-                        product.ImageUrl = product.ImageGallery.First();
+                    {
+                        // Nếu index hợp lệ thì dùng, không thì lấy ảnh đầu tiên
+                        if (selectedMainImageIndex >= 0 && selectedMainImageIndex < product.ImageGallery.Count)
+                        {
+                            product.ImageUrl = product.ImageGallery[selectedMainImageIndex];
+                        }
+                        else
+                        {
+                            product.ImageUrl = product.ImageGallery.First();
+                        }
+                    }
                 }
 
                 _context.Products.Add(product);
@@ -171,7 +199,7 @@ namespace ShopOnlineCore.Controllers
         [Authorize(Roles = "Admin")]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, Product product, List<IFormFile>? files, List<string>? existingImages)
+        public async Task<IActionResult> Edit(int id, Product product, List<IFormFile>? files, List<string>? existingImages, string? selectedMainImage)
         {
             var old = await _context.Products.FirstOrDefaultAsync(p => p.Id == product.Id);
             if (old == null) return NotFound();
@@ -204,10 +232,24 @@ namespace ShopOnlineCore.Controllers
                 }
             }
 
-            // Đảm bảo ImageUrl luôn có giá trị
-            if (old.ImageGallery.Any())
+            // Cập nhật ảnh đại diện (ImageUrl)
+            if (!string.IsNullOrEmpty(selectedMainImage) && old.ImageGallery.Contains(selectedMainImage))
             {
-                old.ImageUrl = old.ImageGallery.First();
+                // Nếu người dùng chọn ảnh cụ thể
+                old.ImageUrl = selectedMainImage;
+            }
+            else if (old.ImageGallery.Any())
+            {
+                // Nếu ảnh hiện tại không còn trong danh sách (do bị xóa), chọn ảnh đầu tiên làm mặc định
+                if (string.IsNullOrEmpty(old.ImageUrl) || !old.ImageGallery.Contains(old.ImageUrl))
+                {
+                    old.ImageUrl = old.ImageGallery.First();
+                }
+            }
+            else
+            {
+                // Không còn ảnh nào
+                old.ImageUrl = null;
             }
 
             old.Name = product.Name;

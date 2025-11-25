@@ -2,6 +2,7 @@
 @using System.Globalization
 @{
         ViewData["Title"] = "Danh sách sản phẩm";
+    ViewData["FullWidth"] = true;
     Layout = "~/Views/Shared/_Layout.cshtml";
 
     var culture = CultureInfo.GetCultureInfo("vi-VN");
@@ -44,7 +45,7 @@
     var selectedSearchQuery = ViewData["SelectedSearchQuery"]?.ToString() ?? string.Empty;
 
     int currentPage = (int)(ViewData["Page"] ?? 1);
-    int pageSize = (int)(ViewData["PageSize"] ?? 9);
+    int pageSize = (int)(ViewData["PageSize"] ?? 8);
     int totalCount = (int)(ViewData["TotalCount"] ?? Model.Count());
     int totalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
 }
@@ -78,7 +79,7 @@
 
 <!-- Bộ lọc và danh mục -->
 <div class="banner-bootom-w3-agileits">
-    <div class="container">
+    <div class="container-fluid" style="max-width: 1650px; margin: 0 auto;">
         <div class="row">
             <!-- Cột trái (sidebar lọc) -->
             <div class="col-md-3 products-left wow fadeInLeft product-sticky-sidebar" data-wow-delay="0.2s">
@@ -93,6 +94,10 @@
                         @if (!string.IsNullOrEmpty(selectedSearchQuery))
                         {
                             <input type="hidden" name="search" value="@selectedSearchQuery" />
+                        }
+                        @if (ViewData["CurrentSort"] != null)
+                        {
+                            <input type="hidden" name="sort" value="@ViewData["CurrentSort"]" />
                         }
                         <input type="hidden" name="minPrice" id="min-price-input" value="@filterMinJs" />
                         <input type="hidden" name="maxPrice" id="max-price-input" value="@filterMaxJs" />
@@ -121,6 +126,14 @@
                 </div>
 
                 <div class="css-treeview">
+                    <h4>Sắp xếp</h4>
+                    <ul class="tree-list-pad">
+                        <li><a href="@Url.Action("Index", new { sort = "price_asc", category = selectedCategoryQuery, search = selectedSearchQuery, minPrice = filterMinJs, maxPrice = filterMaxJs })"><i class="fa fa-sort-amount-asc"></i> Giá: Thấp đến Cao</a></li>
+                        <li><a href="@Url.Action("Index", new { sort = "price_desc", category = selectedCategoryQuery, search = selectedSearchQuery, minPrice = filterMinJs, maxPrice = filterMaxJs })"><i class="fa fa-sort-amount-desc"></i> Giá: Cao đến Thấp</a></li>
+                    </ul>
+                </div>
+
+                <div class="css-treeview">
                     <h4>Danh mục</h4>
                     <ul class="tree-list-pad">
                         <li><a href="@Url.Action("Index")" style="font-weight: 600;"><i class="fa fa-th"></i> Tất cả</a></li>
@@ -136,15 +149,7 @@
 
             <!-- Cột phải -->
             <div class="col-md-9 products-right wow fadeInUp" data-wow-delay="0.3s">
-                <div class="men-wear-top">
-                    <div id="top" class="callbacks_container">
-                        <ul class="rslides" id="slider3">
-                            <li><img class="img-responsive" src="~/images/banner4.jpg" alt=""/></li>
-                            <li><img class="img-responsive" src="~/images/banner3.jpg" alt=""/></li>
-                            <li><img class="img-responsive" src="~/images/banner1.jpg" alt=""/></li>
-                        </ul>
-                    </div>
-                </div>
+                <!-- Banner slider removed -->
 
                 <div class="clearfix"></div>
 
@@ -171,7 +176,7 @@
                     }
                     @foreach (var product in Model)
                     {
-                        <div class="col-md-4 col-sm-6 product-men wow zoomIn" data-wow-delay="0.2s" style="margin-bottom: 30px; display: flex;">
+                        <div class="col-md-3 col-sm-6 product-men wow zoomIn" data-wow-delay="0.2s" style="margin-bottom: 30px; display: flex;">
                             <div class="men-pro-item simpleCart_shelfItem" style="border: 1px solid #e8e8e8; border-radius: 8px; overflow: hidden; display: flex; flex-direction: column; width: 100%;">
                                 <div class="men-thumb-item" style="position: relative; overflow: hidden; background: #f8f8f8; flex-shrink: 0;">
                                     <img src="@Url.Content(product.ImageUrl)" alt="@product.Name" class="pro-image-front img-responsive" style="width: 100%; height: 250px; object-fit: cover;" />
@@ -254,14 +259,8 @@
         new WOW().init();
 
         $(document).ready(function () {
-            // Slider banner
-            $("#slider3").responsiveSlides({
-                auto: true,
-                pager: true,
-                nav: false,
-                speed: 500,
-                namespace: "callbacks"
-            });
+            // Slider banner removed
+
 
             const priceForm = document.getElementById("price-filter-form");
             const sliderTrack = document.getElementById("price-slider-track");
@@ -327,6 +326,12 @@
                         }
                         minValue = Math.max(minValue, boundMin);
                         maxValue = Math.min(maxValue, boundMax);
+
+                        // Snap to bounds if close (within 1 step)
+                        if (maxValue >= boundMax - sliderStep) {
+                            maxValue = boundMax;
+                            maxRange.value = boundMax; // Ensure input reflects exact max
+                        }
                     } else {
                         minValue = boundMin;
                         maxValue = boundMax;

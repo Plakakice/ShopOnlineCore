@@ -1,101 +1,212 @@
 @model ShopOnlineCore.Models.Product
 
-<div class="page-head_agile_info_w3l">
-    <div class="container">
-        <h3>Sửa sản phẩm</h3>
+@{
+    ViewData["Title"] = "Sửa sản phẩm";
+}
+
+<style>
+    .admin-header {
+        background: linear-gradient(135deg, #2fdab8 0%, #27b39e 100%);
+        color: white;
+        padding: 40px 0;
+        margin-bottom: 30px;
+        border-radius: 0;
+    }
+
+    .info-card {
+        background: white;
+        padding: 25px;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        margin-bottom: 25px;
+    }
+
+    .info-card h3 {
+        color: #2fdab8;
+        font-size: 1.3em;
+        font-weight: 700;
+        margin-bottom: 20px;
+        padding-bottom: 15px;
+        border-bottom: 2px solid #f0f0f0;
+    }
+
+    .form-group label {
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 8px;
+    }
+
+    .btn-save {
+        background: #27ae60;
+        color: white;
+        border: none;
+        padding: 10px 24px;
+        border-radius: 6px;
+        font-weight: 600;
+        transition: all 0.3s;
+    }
+
+    .btn-save:hover {
+        background: #219150;
+        color: white;
+    }
+
+    .btn-cancel {
+        background: #95a5a6;
+        color: white;
+        border: none;
+        padding: 10px 24px;
+        border-radius: 6px;
+        font-weight: 600;
+        transition: all 0.3s;
+        text-decoration: none;
+        display: inline-block;
+    }
+
+    .btn-cancel:hover {
+        background: #7f8c8d;
+        color: white;
+    }
+
+    .image-selection-item {
+        position: relative;
+        cursor: pointer;
+        transition: transform 0.2s;
+    }
+
+    .image-selection-item:hover {
+        transform: scale(1.05);
+    }
+
+    .image-selection-item input[type="radio"] {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        transform: scale(1.5);
+        z-index: 10;
+        cursor: pointer;
+    }
+    
+    .image-selection-item.is-main {
+        border: 3px solid #2fdab8;
+        border-radius: 6px;
+    }
+</style>
+
+<div class="admin-header">
+    <div class="container-fluid" style="padding: 0 10px;">
+        <h2 style="margin: 0; font-size: 2em; font-weight: 700;">✏️ Sửa sản phẩm</h2>
+        <p style="margin: 5px 0 0 0; opacity: 0.95;">Cập nhật thông tin và hình ảnh sản phẩm</p>
     </div>
 </div>
 
-<div class="container mt-4 mb-5">
+<div class="container-fluid" style="margin-bottom: 50px; padding: 0 10px;">
     <div class="row">
         <div class="col-md-8 offset-md-2">
-            <div class="card">
-                <div class="card-body">
-                    <form asp-action="Edit" method="post" enctype="multipart/form-data">
-                        @Html.AntiForgeryToken()
-                        <input type="hidden" asp-for="Id" />
-                        <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+            <div class="info-card">
+                <h3><i class="fa fa-edit"></i> Thông tin sản phẩm</h3>
+                <form asp-action="Edit" method="post" enctype="multipart/form-data">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" asp-for="Id" />
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group mb-3">
+                                <label for="Name">Tên sản phẩm <span class="text-danger">*</span></label>
+                                <input asp-for="Name" class="form-control" required />
+                                <span asp-validation-for="Name" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group mb-3">
+                                <label for="Category">Danh mục <span class="text-danger">*</span></label>
+                                <select asp-for="Category" class="form-control" required>
+                                    <option value="">-- Chọn danh mục --</option>
+                                    <option value="Laptop">Laptop</option>
+                                    <option value="Chuột">Chuột</option>
+                                    <option value="Bàn phím">Bàn phím</option>
+                                    <option value="Bags">Bags</option>
+                                    <option value="Âm thanh">Âm thanh</option>
+                                </select>
+                                <span asp-validation-for="Category" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group mb-3">
+                                <label for="Price">Giá (VND) <span class="text-danger">*</span></label>
+                                <input asp-for="Price" type="number" step="1000" min="0" class="form-control" required />
+                                <span asp-validation-for="Price" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group mb-3">
+                                <label for="Stock">Số lượng tồn kho <span class="text-danger">*</span></label>
+                                <input asp-for="Stock" type="number" min="0" class="form-control" required />
+                                <span asp-validation-for="Stock" class="text-danger"></span>
+                                <small class="form-text text-muted">Nhập 0 nếu hết hàng</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label for="Description">Mô tả</label>
+                        <textarea asp-for="Description" class="form-control" rows="4"></textarea>
+                        <span asp-validation-for="Description" class="text-danger"></span>
+                    </div>
+
+                    <!-- Quản lý ảnh -->
+                    <div class="form-group mb-3">
+                        <label style="display: block; margin-bottom: 10px;">Quản lý ảnh (Chọn ảnh chính để hiển thị):</label>
                         
-                        <div class="form-group mb-3">
-                            <label for="Name">Tên sản phẩm <span class="text-danger">*</span></label>
-                            <input asp-for="Name" class="form-control" required />
-                            <span asp-validation-for="Name" class="text-danger"></span>
-                        </div>
-
-                        <div class="form-group mb-3">
-                            <label for="Category">Danh mục <span class="text-danger">*</span></label>
-                            <select asp-for="Category" class="form-control" required>
-                                <option value="">-- Chọn danh mục --</option>
-                                <option value="Laptop">Laptop</option>
-                                <option value="Chuột">Chuột</option>
-                                <option value="Bàn phím">Bàn phím</option>
-                                <option value="Bags">Bags</option>
-                                <option value="Âm thanh">Âm thanh</option>
-                            </select>
-                            <span asp-validation-for="Category" class="text-danger"></span>
-                        </div>
-
-                        <div class="form-group mb-3">
-                            <label for="Price">Giá (VND) <span class="text-danger">*</span></label>
-                            <input asp-for="Price" type="number" step="1000" min="0" class="form-control" required />
-                            <span asp-validation-for="Price" class="text-danger"></span>
-                        </div>
-
-                        <div class="form-group mb-3">
-                            <label for="Stock">Số lượng tồn kho <span class="text-danger">*</span></label>
-                            <input asp-for="Stock" type="number" min="0" class="form-control" required />
-                            <span asp-validation-for="Stock" class="text-danger"></span>
-                            <small class="form-text text-muted">Nhập 0 nếu hết hàng</small>
-                        </div>
-
-                        <div class="form-group mb-3">
-                            <label for="Description">Mô tả</label>
-                            <textarea asp-for="Description" class="form-control" rows="4"></textarea>
-                            <span asp-validation-for="Description" class="text-danger"></span>
-                        </div>
-
-                        <!-- Hiển thị ảnh hiện tại -->
                         @if (Model.ImageGallery != null && Model.ImageGallery.Any())
                         {
-                            <div class="form-group mb-3">
-                                <label>Ảnh hiện tại:</label>
-                                <div class="d-flex flex-wrap gap-2" id="existing-images-container">
-                                    @for (int i = 0; i < Model.ImageGallery.Count; i++)
-                                    {
-                                        var img = Model.ImageGallery[i];
-                                        <div class="position-relative" data-image-url="@img">
-                                            <img src="@Url.Content(img)" alt="Product" style="height: 100px; width: 100px; object-fit: cover;" class="rounded border" />
-                                            <button type="button" class="btn btn-danger btn-sm position-absolute" 
-                                                    style="top: -5px; right: -5px; width: 25px; height: 25px; padding: 0; border-radius: 50%; line-height: 1;"
-                                                    onclick="removeExistingImage(this, '@img')">
-                                                <i class="fa fa-times"></i>
-                                            </button>
-                                            <input type="hidden" name="existingImages" value="@img" class="existing-image-input" />
-                                        </div>
-                                    }
-                                </div>
+                            <div class="d-flex flex-wrap gap-3" id="existing-images-container">
+                                @for (int i = 0; i < Model.ImageGallery.Count; i++)
+                                {
+                                    var img = Model.ImageGallery[i];
+                                    var isMain = img == Model.ImageUrl;
+                                    <div class="image-selection-item @(isMain ? "is-main" : "")" data-image-url="@img">
+                                        <input type="radio" name="selectedMainImage" value="@img" @(isMain ? "checked" : "") title="Đặt làm ảnh chính" />
+                                        <img src="@Url.Content(img)" alt="Product" style="height: 120px; width: 120px; object-fit: cover;" class="rounded shadow-sm" />
+                                        
+                                        <button type="button" class="btn btn-danger btn-sm position-absolute" 
+                                                style="top: -10px; right: -10px; width: 24px; height: 24px; padding: 0; border-radius: 50%; display: flex; align-items: center; justify-content: center;"
+                                                onclick="removeExistingImage(this, '@img')" title="Xóa ảnh này">
+                                            <i class="fa fa-times" style="font-size: 12px;"></i>
+                                        </button>
+                                        <input type="hidden" name="existingImages" value="@img" class="existing-image-input" />
+                                    </div>
+                                }
                             </div>
                         }
+                        else 
+                        {
+                            <p class="text-muted font-italic">Chưa có ảnh nào.</p>
+                        }
+                    </div>
 
-                        <div class="form-group mb-3">
-                            <label for="files">Thêm ảnh mới (nếu muốn)</label>
-                            <input type="file" name="files" id="files" multiple class="form-control" accept="image/*" />
-                            <small class="form-text text-muted">Để trống nếu không muốn thay đổi ảnh</small>
-                        </div>
+                    <div class="form-group mb-3">
+                        <label for="files">Thêm ảnh mới</label>
+                        <input type="file" name="files" id="files" multiple class="form-control" accept="image/*" />
+                        <small class="form-text text-muted">Ảnh mới sẽ được thêm vào thư viện ảnh.</small>
+                    </div>
 
-                        <!-- Preview ảnh mới -->
-                        <div id="preview" class="d-flex flex-wrap gap-2 mb-3"></div>
+                    <!-- Preview ảnh mới -->
+                    <div id="preview" class="d-flex flex-wrap gap-2 mb-4"></div>
 
-                        <div class="form-group">
-                            <button type="submit" class="btn btn-success">
-                                <i class="fa fa-save"></i> Lưu thay đổi
-                            </button>
-                            <a asp-action="Index" class="btn btn-secondary">
-                                <i class="fa fa-times"></i> Hủy
-                            </a>
-                        </div>
-                    </form>
-                </div>
+                    <div class="form-group text-center">
+                        <button type="submit" class="btn btn-save">
+                            <i class="fa fa-save"></i> Lưu thay đổi
+                        </button>
+                        <a asp-action="Index" class="btn btn-cancel">
+                            <i class="fa fa-times"></i> Hủy
+                        </a>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
@@ -106,15 +217,33 @@
     <script>
         // Xóa ảnh hiện có
         function removeExistingImage(button, imageUrl) {
-            const wrapper = button.parentElement;
-            wrapper.style.opacity = '0.5';
-            wrapper.querySelector('.existing-image-input').disabled = true;
-            button.disabled = true;
+            if (!confirm('Bạn có chắc muốn xóa ảnh này?')) return;
             
+            const wrapper = button.closest('.image-selection-item');
+            wrapper.style.opacity = '0.3';
+            wrapper.style.pointerEvents = 'none';
+            
+            // Disable inputs so they are not sent
+            wrapper.querySelector('.existing-image-input').disabled = true;
+            wrapper.querySelector('input[type="radio"]').disabled = true;
+            
+            // Visual removal after delay
             setTimeout(() => {
-                wrapper.remove();
-            }, 200);
+                wrapper.style.display = 'none';
+            }, 300);
         }
+
+        // Highlight main image selection
+        document.querySelectorAll('input[name="selectedMainImage"]').forEach(radio => {
+            radio.addEventListener('change', function() {
+                document.querySelectorAll('.image-selection-item').forEach(item => {
+                    item.classList.remove('is-main');
+                });
+                if (this.checked) {
+                    this.closest('.image-selection-item').classList.add('is-main');
+                }
+            });
+        });
 
         // Preview ảnh mới
         document.getElementById('files').addEventListener('change', function (event) {
