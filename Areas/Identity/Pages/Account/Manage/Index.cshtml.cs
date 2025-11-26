@@ -9,6 +9,8 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.EntityFrameworkCore;
+using ShopOnlineCore.Models;
 using ShopOnlineCore.Models.Identity;
 
 namespace ShopOnlineCore.Areas.Identity.Pages.Account.Manage
@@ -17,48 +19,39 @@ namespace ShopOnlineCore.Areas.Identity.Pages.Account.Manage
     {
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
+        private readonly ApplicationDbContext _context;
 
         public IndexModel(
             UserManager<ApplicationUser> userManager,
-            SignInManager<ApplicationUser> signInManager)
+            SignInManager<ApplicationUser> signInManager,
+            ApplicationDbContext context)
         {
             _userManager = userManager;
             _signInManager = signInManager;
+            _context = context;
         }
 
-        /// <summary>
-        ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
         public string Username { get; set; }
 
-        /// <summary>
-        ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
         [TempData]
         public string StatusMessage { get; set; }
 
-        /// <summary>
-        ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
         [BindProperty]
         public InputModel Input { get; set; }
 
-        /// <summary>
-        ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
+        public List<Order> Orders { get; set; }
+
         public class InputModel
         {
-            /// <summary>
-            ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
-            ///     directly from your code. This API may change or be removed in future releases.
-            /// </summary>
             [Phone]
-            [Display(Name = "Phone number")]
+            [Display(Name = "Số điện thoại")]
             public string PhoneNumber { get; set; }
+
+            [Display(Name = "Họ và tên")]
+            public string FullName { get; set; }
+
+            [Display(Name = "Địa chỉ")]
+            public string Address { get; set; }
         }
 
         private async Task LoadAsync(ApplicationUser user)
@@ -70,8 +63,17 @@ namespace ShopOnlineCore.Areas.Identity.Pages.Account.Manage
 
             Input = new InputModel
             {
-                PhoneNumber = phoneNumber
+                PhoneNumber = phoneNumber,
+                FullName = user.FullName,
+                Address = user.Address
             };
+
+            // Fetch orders for the current user
+            Orders = await _context.Orders
+                .Include(o => o.OrderItems)
+                .Where(o => o.UserId == user.Id)
+                .OrderByDescending(o => o.CreatedDate)
+                .ToListAsync();
         }
 
         public async Task<IActionResult> OnGetAsync()
@@ -111,8 +113,20 @@ namespace ShopOnlineCore.Areas.Identity.Pages.Account.Manage
                 }
             }
 
+            if (Input.FullName != user.FullName)
+            {
+                user.FullName = Input.FullName;
+            }
+
+            if (Input.Address != user.Address)
+            {
+                user.Address = Input.Address;
+            }
+
+            await _userManager.UpdateAsync(user);
+
             await _signInManager.RefreshSignInAsync(user);
-            StatusMessage = "Your profile has been updated";
+            StatusMessage = "Hồ sơ của bạn đã được cập nhật";
             return RedirectToPage();
         }
     }

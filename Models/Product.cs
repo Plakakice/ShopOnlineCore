@@ -6,7 +6,14 @@ namespace ShopOnlineCore.Models
     {
         public int Id { get; set; }
         public string Name { get; set; } = string.Empty;
-        public string Category { get; set; } = string.Empty;
+        
+        // Old Category string (will be removed later)
+        public string? Category { get; set; } 
+
+        // New Category Relation
+        public int? CategoryId { get; set; }
+        public Category? CategoryObj { get; set; }
+
         public decimal Price { get; set; }
         public string Description { get; set; } = string.Empty;
 

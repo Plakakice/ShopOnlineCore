@@ -30,11 +30,9 @@ namespace ShopOnlineCore.Controllers
             var categoryQueryValue = category?.Trim() ?? string.Empty;
             if (!string.IsNullOrWhiteSpace(categoryQueryValue))
             {
-                // Tránh dùng ToLower/ToUpper trên DB SQLite (không xử lý Unicode đầy đủ)
-                // So khớp theo nguyên bản; mỗi danh mục tách biệt, không alias
-                products = products.Where(p => p.Category != null &&
-                                               (p.Category == categoryQueryValue ||
-                                                p.Category.Contains(categoryQueryValue)));
+                // Filter by Category Name (via join)
+                products = products.Include(p => p.CategoryObj)
+                                   .Where(p => p.CategoryObj.Name == categoryQueryValue);
                 ViewData["CategoryFilter"] = categoryQueryValue;
             }
 
@@ -137,7 +135,11 @@ namespace ShopOnlineCore.Controllers
         // TẠO (Admin)
         // =============================
         [Authorize(Roles = "Admin")]
-        public IActionResult Create() => View();
+        public IActionResult Create()
+        {
+            ViewBag.Categories = new Microsoft.AspNetCore.Mvc.Rendering.SelectList(_context.Categories, "Id", "Name");
+            return View();
+        }
     
         [Authorize(Roles = "Admin")]
         [HttpPost]
@@ -145,6 +147,10 @@ namespace ShopOnlineCore.Controllers
         {
             if (ModelState.IsValid)
             {
+                // Set Category string for backward compatibility (optional)
+                var categoryObj = _context.Categories.Find(product.CategoryId);
+                if (categoryObj != null) product.Category = categoryObj.Name;
+
                 product.ImageGallery = new List<string>();
 
                 if (files != null && files.Count > 0)
@@ -181,6 +187,7 @@ namespace ShopOnlineCore.Controllers
                 TempData["Message"] = "Thêm sản phẩm thành công!";
                 return RedirectToAction("Index");
             }
+            ViewBag.Categories = new Microsoft.AspNetCore.Mvc.Rendering.SelectList(_context.Categories, "Id", "Name", product.CategoryId);
             return View(product);
         }
 
@@ -193,6 +200,7 @@ namespace ShopOnlineCore.Controllers
         {
             var product = await _context.Products.FirstOrDefaultAsync(p => p.Id == id);
             if (product == null) return NotFound();
+            ViewBag.Categories = new Microsoft.AspNetCore.Mvc.Rendering.SelectList(_context.Categories, "Id", "Name", product.CategoryId);
             return View(product);
         }
 
@@ -253,7 +261,10 @@ namespace ShopOnlineCore.Controllers
             }
 
             old.Name = product.Name;
-            old.Category = product.Category;
+            old.CategoryId = product.CategoryId;
+            var categoryObj = await _context.Categories.FindAsync(product.CategoryId);
+            if (categoryObj != null) old.Category = categoryObj.Name; // Sync string
+            
             old.Price = product.Price;
             old.Description = product.Description;
             old.Stock = product.Stock;

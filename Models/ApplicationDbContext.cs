@@ -7,22 +7,25 @@ namespace ShopOnlineCore.Models
 {
     public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     {
-        public DbSet<Product> Products { get; set; }
-        public DbSet<Order> Orders { get; set; }
-        public DbSet<OrderItem> OrderItems { get; set; }
-        public DbSet<CartLine> CartLines { get; set; }
-
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)
         {
         }
 
+        public DbSet<Product> Products { get; set; }
+        public DbSet<Order> Orders { get; set; }
+        public DbSet<OrderItem> OrderItems { get; set; }
+        public DbSet<CartLine> CartLines { get; set; }
+        public DbSet<Category> Categories { get; set; }
+
         // Cấu hình cho SQL Server
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            base.OnModelCreating(modelBuilder);
+
             // Loại bỏ các entity Identity không sử dụng
             modelBuilder.Ignore<IdentityUserClaim<string>>();
-            modelBuilder.Ignore<IdentityUserLogin<string>>();
+            // modelBuilder.Ignore<IdentityUserLogin<string>>(); // Cần dùng cho Google Login
             modelBuilder.Ignore<IdentityUserToken<string>>();
             modelBuilder.Ignore<IdentityRoleClaim<string>>();
 
@@ -30,6 +33,7 @@ namespace ShopOnlineCore.Models
             modelBuilder.Entity<ApplicationUser>().ToTable("AspNetUsers");
             modelBuilder.Entity<IdentityRole>().ToTable("AspNetRoles");
             modelBuilder.Entity<IdentityUserRole<string>>().ToTable("AspNetUserRoles");
+            modelBuilder.Entity<IdentityUserLogin<string>>().ToTable("AspNetUserLogins");
 
             // Loại bỏ các cột không sử dụng trong AspNetUsers
             modelBuilder.Entity<ApplicationUser>()
@@ -43,6 +47,7 @@ namespace ShopOnlineCore.Models
             modelBuilder.Entity<ApplicationUser>().HasKey(u => u.Id);
             modelBuilder.Entity<IdentityRole>().HasKey(r => r.Id);
             modelBuilder.Entity<IdentityUserRole<string>>().HasKey(ur => new { ur.UserId, ur.RoleId });
+            modelBuilder.Entity<IdentityUserLogin<string>>().HasKey(l => new { l.LoginProvider, l.ProviderKey });
 
             // Configure relationships
             modelBuilder.Entity<IdentityUserRole<string>>()
@@ -89,9 +94,6 @@ namespace ShopOnlineCore.Models
 
             modelBuilder.Entity<CartLine>()
                 .HasIndex(c => c.UserId);
-
-            // Seed data - remove any existing users to ensure clean state
-            modelBuilder.Entity<ApplicationUser>().HasData();
 
             // Cấu hình lưu trữ ImageGallery dưới dạng JSON
             modelBuilder.Entity<Product>()

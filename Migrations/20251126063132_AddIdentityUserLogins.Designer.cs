@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using ShopOnlineCore.Models;
 
@@ -11,9 +12,11 @@ using ShopOnlineCore.Models;
 namespace ShopOnlineCore.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251126063132_AddIdentityUserLogins")]
+    partial class AddIdentityUserLogins
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -28,23 +31,15 @@ namespace ShopOnlineCore.Migrations
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("ConcurrencyStamp")
-                        .IsConcurrencyToken()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Name")
-                        .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("NormalizedName")
-                        .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("NormalizedName")
-                        .IsUnique()
-                        .HasDatabaseName("RoleNameIndex")
-                        .HasFilter("[NormalizedName] IS NOT NULL");
 
                     b.ToTable("AspNetRoles", (string)null);
                 });
@@ -61,12 +56,9 @@ namespace ShopOnlineCore.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("LoginProvider", "ProviderKey");
-
-                    b.HasIndex("UserId");
 
                     b.ToTable("AspNetUserLogins", (string)null);
                 });
@@ -126,55 +118,25 @@ namespace ShopOnlineCore.Migrations
                     b.ToTable("CartLines");
                 });
 
-            modelBuilder.Entity("ShopOnlineCore.Models.Category", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Description")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Categories");
-                });
-
             modelBuilder.Entity("ShopOnlineCore.Models.Identity.ApplicationUser", b =>
                 {
                     b.Property<string>("Id")
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<string>("Address")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("ConcurrencyStamp")
-                        .IsConcurrencyToken()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Email")
-                        .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("EmailConfirmed")
                         .HasColumnType("bit");
 
-                    b.Property<string>("FullName")
+                    b.Property<string>("NormalizedEmail")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("NormalizedEmail")
-                        .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
-
                     b.Property<string>("NormalizedUserName")
-                        .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("PasswordHash")
                         .HasColumnType("nvarchar(max)");
@@ -186,18 +148,9 @@ namespace ShopOnlineCore.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("UserName")
-                        .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("NormalizedEmail")
-                        .HasDatabaseName("EmailIndex");
-
-                    b.HasIndex("NormalizedUserName")
-                        .IsUnique()
-                        .HasDatabaseName("UserNameIndex")
-                        .HasFilter("[NormalizedUserName] IS NOT NULL");
 
                     b.ToTable("AspNetUsers", (string)null);
                 });
@@ -290,10 +243,8 @@ namespace ShopOnlineCore.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Category")
+                        .IsRequired()
                         .HasColumnType("nvarchar(450)");
-
-                    b.Property<int?>("CategoryId")
-                        .HasColumnType("int");
 
                     b.Property<string>("Description")
                         .IsRequired()
@@ -322,20 +273,9 @@ namespace ShopOnlineCore.Migrations
 
                     b.HasIndex("Category");
 
-                    b.HasIndex("CategoryId");
-
                     b.HasIndex("Stock");
 
                     b.ToTable("Products");
-                });
-
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
-                {
-                    b.HasOne("ShopOnlineCore.Models.Identity.ApplicationUser", null)
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<string>", b =>
@@ -371,15 +311,6 @@ namespace ShopOnlineCore.Migrations
                         .IsRequired();
 
                     b.Navigation("Order");
-                });
-
-            modelBuilder.Entity("ShopOnlineCore.Models.Product", b =>
-                {
-                    b.HasOne("ShopOnlineCore.Models.Category", "CategoryObj")
-                        .WithMany()
-                        .HasForeignKey("CategoryId");
-
-                    b.Navigation("CategoryObj");
                 });
 
             modelBuilder.Entity("ShopOnlineCore.Models.Order", b =>

@@ -2,67 +2,203 @@
 @model LoginModel
 
 @{
-    ViewData["Title"] = "\u0110\u0103ng nh\u1EADp";
+    ViewData["Title"] = "Đăng nhập";
 }
 
-<section class="account-page py-5">
+<style>
+    .account-page {
+        background-color: #f8f9fa;
+        min-height: 80vh;
+        display: flex;
+        align-items: center;
+    }
+    .account-card {
+        background: #ffffff;
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+        padding: 40px;
+        border: 1px solid #eaeaea;
+        height: 100%;
+    }
+    .account-card-alt {
+        background: linear-gradient(135deg, #2fdab8 0%, #1b9c83 100%);
+        color: white;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+    }
+    .account-title {
+        font-weight: 700;
+        color: #333;
+        margin-bottom: 30px;
+        font-size: 1.8rem;
+        text-align: center;
+    }
+    .account-card-alt .account-title {
+        color: white;
+    }
+    .form-control {
+        border-radius: 8px;
+        padding: 12px 15px;
+        border: 1px solid #ddd;
+        background-color: #fcfcfc;
+    }
+    .form-control:focus {
+        border-color: #2fdab8;
+        box-shadow: 0 0 0 0.2rem rgba(47, 218, 184, 0.25);
+    }
+    .btn-primary {
+        background-color: #2fdab8;
+        border-color: #2fdab8;
+        border-radius: 8px;
+        padding: 12px;
+        font-weight: 600;
+        font-size: 1.1rem;
+        transition: all 0.3s;
+    }
+    .btn-primary:hover {
+        background-color: #1b9c83;
+        border-color: #1b9c83;
+        transform: translateY(-2px);
+    }
+    .btn-google {
+        background-color: white;
+        color: #333;
+        border-radius: 8px;
+        padding: 12px;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        transition: all 0.3s;
+        width: 100%;
+        border: none;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+    .btn-google:hover {
+        background-color: #f1f1f1;
+        transform: translateY(-2px);
+        color: #333;
+    }
+    .account-links {
+        text-align: center;
+        margin-top: 20px;
+    }
+    .account-links a {
+        color: #2fdab8;
+        text-decoration: none;
+        font-weight: 500;
+        display: block;
+        margin-bottom: 10px;
+    }
+    .account-links a:hover {
+        text-decoration: underline;
+        color: #1b9c83;
+    }
+    .divider {
+        display: flex;
+        align-items: center;
+        text-align: center;
+        margin: 20px 0;
+        color: #999;
+    }
+    .divider::before, .divider::after {
+        content: '';
+        flex: 1;
+        border-bottom: 1px solid #ddd;
+    }
+    .divider:not(:empty)::before {
+        margin-right: .25em;
+    }
+    .divider:not(:empty)::after {
+        margin-left: .25em;
+    }
+</style>
+
+<section class="account-page">
     <div class="container">
-        <div class="row g-4 justify-content-center">
+        <div class="row g-0 justify-content-center">
+            <!-- Left Side: Login Form -->
             <div class="col-lg-5 col-md-6">
-                <div class="account-card">
-                    <h2 class="account-title">@ViewData["Title"]</h2>
+                <div class="account-card" style="border-top-right-radius: 0; border-bottom-right-radius: 0;">
+                    <h2 class="account-title">Đăng nhập</h2>
                     <form id="account" method="post">
                         <div asp-validation-summary="ModelOnly" class="text-danger mb-3" role="alert"></div>
 
                         <div class="mb-3">
                             <label asp-for="Input.Email" class="form-label">Email</label>
-                            <input asp-for="Input.Email" class="form-control" autocomplete="username" aria-required="true" />
+                            <input asp-for="Input.Email" class="form-control" autocomplete="username" aria-required="true" placeholder="name@example.com" />
                             <span asp-validation-for="Input.Email" class="text-danger"></span>
                         </div>
 
                         <div class="mb-3">
-                            <label asp-for="Input.Password" class="form-label">M&#7853;t kh&#7849;u</label>
-                            <div style="position: relative; display: flex; align-items: center;">
-                                <input asp-for="Input.Password" class="form-control" autocomplete="current-password" aria-required="true" id="loginPassword" style="padding-right: 45px; width: 100%;" />
-                                <span style="position: absolute; right: 12px; cursor: pointer; color: #6c757d; font-size: 18px; user-select: none;" onclick="togglePassword('loginPassword', this)">
+                            <label asp-for="Input.Password" class="form-label">Mật khẩu</label>
+                            <div style="position: relative;">
+                                <input asp-for="Input.Password" class="form-control" autocomplete="current-password" aria-required="true" id="loginPassword" placeholder="Nhập mật khẩu" style="padding-right: 45px;" />
+                                <span style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); cursor: pointer; color: #999;" onclick="togglePassword('loginPassword', this)">
                                     <i class="fa fa-eye"></i>
                                 </span>
                             </div>
                             <span asp-validation-for="Input.Password" class="text-danger"></span>
                         </div>
 
-                        <div class="form-check mb-3">
-                            <input class="form-check-input" asp-for="Input.RememberMe" />
-                            <label asp-for="Input.RememberMe" class="form-check-label">
-                                @Html.DisplayNameFor(m => m.Input.RememberMe)
-                            </label>
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <div class="form-check">
+                                <input class="form-check-input" asp-for="Input.RememberMe" />
+                                <label asp-for="Input.RememberMe" class="form-check-label">
+                                    Ghi nhớ đăng nhập
+                                </label>
+                            </div>
+                            <a id="forgot-password" asp-page="./ForgotPassword" style="color: #2fdab8; text-decoration: none; font-size: 0.9rem;">Quên mật khẩu?</a>
                         </div>
 
-                        <button id="login-submit" type="submit" class="btn btn-primary w-100">&#272;&#259;ng nh&#7853;p</button>
+                        <button id="login-submit" type="submit" class="btn btn-primary w-100">Đăng nhập</button>
 
-                        <div class="account-links mt-3">
-                            <a id="forgot-password" asp-page="./ForgotPassword">Qu&ecirc;n m&#7853;t kh&#7849;u?</a>
-                            <a asp-page="./Register" asp-route-returnUrl="@Model.ReturnUrl">T&#7841;o t&agrave;i kho&#7843;n m&#7899;i</a>
-                            <a id="resend-confirmation" asp-page="./ResendEmailConfirmation">G&#7917;i l&#7841;i email k&#237;ch ho&#7841;t</a>
+                        <div class="account-links">
+                            <span style="color: #666;">Chưa có tài khoản?</span>
+                            <a asp-page="./Register" asp-route-returnUrl="@Model.ReturnUrl" style="display: inline; margin-left: 5px;">Đăng ký ngay</a>
                         </div>
                     </form>
                 </div>
             </div>
-            <div class="col-lg-5 col-md-6">
-                <div class="account-card account-card-alt">
-                    <h3 class="account-title">&#272;&#259;ng nh&#7853;p b&#7857;ng d&#7883;ch v&#7909; kh&#225;c</h3>
+
+            <!-- Right Side: External Login -->
+            <div class="col-lg-4 col-md-6">
+                <div class="account-card account-card-alt" style="border-top-left-radius: 0; border-bottom-left-radius: 0;">
+                    <h3 class="account-title">Hoặc đăng nhập bằng</h3>
+                    <p style="margin-bottom: 30px; opacity: 0.9;">Liên kết tài khoản mạng xã hội để đăng nhập nhanh chóng.</p>
+                    
                     @if ((Model.ExternalLogins?.Count ?? 0) == 0)
                     {
-                        <p class="account-note">Ch&#432;a c&#7845;u h&igrave;nh d&#7883;ch v&#7909; &#273;&#259;ng nh&#7853;p b&ecirc;n th&#7913; ba.</p>
+                        <p class="account-note">Chưa cấu hình dịch vụ đăng nhập bên thứ ba.</p>
                     }
                     else
                     {
-                        <form id="external-account" asp-page="./ExternalLogin" asp-route-returnUrl="@Model.ReturnUrl" method="post" class="d-grid gap-2">
+                        <form id="external-account" asp-page="./ExternalLogin" asp-route-returnUrl="@Model.ReturnUrl" method="post" class="w-100 px-4">
                             @foreach (var provider in Model.ExternalLogins!)
                             {
-                                <button type="submit" class="btn btn-outline-light" name="provider" value="@provider.Name" title="&#272;&#259;ng nh&#7853;p b&#7857;ng @provider.DisplayName">
-                                    @provider.DisplayName
-                                </button>
+                                @if (provider.Name == "Google")
+                                {
+                                    <button type="submit" class="btn btn-google mb-3" name="provider" value="@provider.Name" title="Đăng nhập bằng @provider.DisplayName">
+                                        <img src="~/images/Logo-google-icon-PNG.png" alt="Google" style="width: 20px; height: 20px;" />
+                                    </button>
+                                }
+                                else if (provider.Name == "Facebook")
+                                {
+                                    <button type="submit" class="btn btn-google mb-3" name="provider" value="@provider.Name" title="Đăng nhập bằng @provider.DisplayName">
+                                        <i class="fa fa-facebook" style="color: #4267B2; font-size: 1.2em;"></i>
+                                        <span>Đăng nhập bằng Facebook</span>
+                                    </button>
+                                }
+                                else
+                                {
+                                    <button type="submit" class="btn btn-outline-light w-100 mb-3" name="provider" value="@provider.Name" title="Đăng nhập bằng @provider.DisplayName">
+                                        @provider.DisplayName
+                                    </button>
+                                }
                             }
                         </form>
                     }

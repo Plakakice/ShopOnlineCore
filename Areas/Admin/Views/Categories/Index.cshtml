@@ -1,0 +1,51 @@
+@model IEnumerable<ShopOnlineCore.Models.Category>
+
+@{
+    ViewData["Title"] = "Quản lý Danh mục";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="h3 mb-0 text-gray-800">Quản lý Danh mục</h1>
+    <a asp-action="Create" class="btn btn-primary">
+        <i class="fas fa-plus"></i> Thêm mới
+    </a>
+</div>
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">Danh sách Danh mục</h6>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-bordered" width="100%" cellspacing="0">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Tên danh mục</th>
+                        <th>Mô tả</th>
+                        <th>Hành động</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>@item.Id</td>
+                            <td>@item.Name</td>
+                            <td>@item.Description</td>
+                            <td>
+                                <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-info">
+                                    <i class="fas fa-edit"></i> Sửa
+                                </a>
+                                <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-danger">
+                                    <i class="fas fa-trash"></i> Xóa
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

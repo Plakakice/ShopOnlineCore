@@ -1,0 +1,210 @@
+@model ShopOnlineCore.Models.Order
+@using Microsoft.AspNetCore.Identity
+@inject UserManager<ShopOnlineCore.Models.Identity.ApplicationUser> UserManager
+
+@{
+    ViewData["Title"] = $"Chi tiết Đơn hàng #{Model.Id}";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var isAdmin = User.IsInRole("Admin");
+}
+
+<style>
+    .order-header {
+        background: linear-gradient(135deg, #2fdab8 0%, #27b39e 100%);
+        color: white;
+        padding: 30px 0;
+        margin-bottom: 30px;
+    }
+    .info-card {
+        background: white;
+        padding: 25px;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        margin-bottom: 25px;
+        height: 100%;
+    }
+    .info-card h3 {
+        color: #2fdab8;
+        font-size: 1.2em;
+        font-weight: 700;
+        margin-bottom: 20px;
+        padding-bottom: 10px;
+        border-bottom: 2px solid #f0f0f0;
+    }
+    .info-group { margin-bottom: 15px; }
+    .info-group label { font-weight: 700; color: #333; display: block; margin-bottom: 5px; }
+    .info-group p { color: #555; margin: 0; }
+    
+    .table-card {
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        overflow: hidden;
+        margin-bottom: 25px;
+    }
+    .table-card thead { background: #f8f9fa; border-bottom: 2px solid #e9ecef; }
+    .table-card th { font-weight: 700; color: #333; padding: 15px; border: none; }
+    .table-card td { padding: 15px; vertical-align: middle; border-bottom: 1px solid #f0f0f0; }
+    
+    .badge-custom { padding: 8px 12px; border-radius: 6px; font-weight: 600; font-size: 0.9em; }
+    .badge-pending { background: #fff3cd; color: #856404; }
+    .badge-processing { background: #d1ecf1; color: #0c5460; }
+    .badge-shipped { background: #cce5ff; color: #004085; }
+    .badge-delivered { background: #d4edda; color: #155724; }
+    .badge-cancelled { background: #f8d7da; color: #721c24; }
+</style>
+
+<div class="order-header">
+    <div class="container">
+        <h2 style="margin: 0; font-weight: 700;">📦 @ViewData["Title"]</h2>
+        <p style="margin: 5px 0 0 0; opacity: 0.9;">Xem thông tin chi tiết và trạng thái đơn hàng</p>
+    </div>
+</div>
+
+<div class="container mb-5">
+    <div class="row">
+        <!-- Order Info -->
+        <div class="col-md-8">
+            <div class="info-card">
+                <h3><i class="fa fa-info-circle"></i> Thông tin đơn hàng</h3>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="info-group">
+                            <label>Tên khách hàng:</label>
+                            <p style="font-weight: 600; color: #2fdab8;">@Model.CustomerName</p>
+                        </div>
+                        <div class="info-group">
+                            <label>Email:</label>
+                            <p>@Model.Email</p>
+                        </div>
+                        <div class="info-group">
+                            <label>Địa chỉ giao hàng:</label>
+                            <p>@Model.Address</p>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="info-group">
+                            <label>Ngày đặt:</label>
+                            <p>@Model.CreatedDate.ToString("dd/MM/yyyy HH:mm")</p>
+                        </div>
+                        <div class="info-group">
+                            <label>Số điện thoại:</label>
+                            <p>@(Model.PhoneNumber ?? "Chưa cập nhật")</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Order Status & Actions -->
+        <div class="col-md-4">
+            <div class="info-card d-flex flex-column">
+                <h3><i class="fa fa-tasks"></i> Trạng thái đơn hàng</h3>
+                
+                <div class="flex-grow-1 d-flex flex-column justify-content-center align-items-center">
+                    <p class="text-muted mb-2">Trạng thái hiện tại</p>
+                    <div class="mb-4">
+                        @{
+                            var badgeClass = Model.Status switch
+                            {
+                                "Pending" => "badge-pending",
+                                "Processing" => "badge-processing",
+                                "Shipped" => "badge-shipped",
+                                "Delivered" => "badge-delivered",
+                                "Cancelled" => "badge-cancelled",
+                                _ => "badge-secondary"
+                            };
+                            var displayStatus = Model.Status switch
+                            {
+                                "Pending" => "Chờ xử lý",
+                                "Processing" => "Đang xử lý",
+                                "Shipped" => "Đã gửi",
+                                "Delivered" => "Đã giao",
+                                "Cancelled" => "Đã hủy",
+                                _ => Model.Status
+                            };
+                        }
+                        <span class="badge-custom @badgeClass" style="font-size: 1.2em; padding: 10px 25px; display: inline-block; min-width: 160px; text-align: center; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">@displayStatus</span>
+                    </div>
+
+                    @if (isAdmin)
+                    {
+                        <div class="w-100 mt-2 p-3 bg-light rounded">
+                            <form asp-action="UpdateStatus" asp-controller="Orders" asp-area="Admin" method="post">
+                                <input type="hidden" name="id" value="@Model.Id" />
+                                <div class="form-group mb-3 text-start">
+                                    <label class="mb-2 small fw-bold text-uppercase text-muted">Cập nhật trạng thái</label>
+                                    <select name="status" class="form-control">
+                                        <option value="Pending" selected="@(Model.Status == "Pending")">Pending (Chờ xử lý)</option>
+                                        <option value="Processing" selected="@(Model.Status == "Processing")">Processing (Đang xử lý)</option>
+                                        <option value="Shipped" selected="@(Model.Status == "Shipped")">Shipped (Đã gửi)</option>
+                                        <option value="Delivered" selected="@(Model.Status == "Delivered")">Delivered (Đã giao)</option>
+                                        <option value="Cancelled" selected="@(Model.Status == "Cancelled")">Cancelled (Đã hủy)</option>
+                                    </select>
+                                </div>
+                                <button type="submit" class="btn btn-primary w-100">
+                                    <i class="fa fa-save"></i> Lưu thay đổi
+                                </button>
+                            </form>
+                        </div>
+                    }
+                </div>
+                
+                <div class="mt-4 pt-3 border-top text-center">
+                    <p class="mb-1 text-muted text-uppercase small" style="letter-spacing: 1px;">Tổng giá trị đơn hàng</p>
+                    <h2 style="color: #2fdab8; font-weight: 700; font-size: 1.8em; margin: 0;">@Model.Total.ToString("N0")₫</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Order Items -->
+    <div class="row">
+        <div class="col-12">
+            <div class="table-card">
+                <div class="p-3 border-bottom bg-white">
+                    <h3 style="margin: 0; color: #2fdab8; font-size: 1.2em; font-weight: 700;">
+                        <i class="fa fa-shopping-cart"></i> Danh sách sản phẩm
+                    </h3>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead>
+                            <tr>
+                                <th>Mã SP</th>
+                                <th>Tên sản phẩm</th>
+                                <th>Đơn giá</th>
+                                <th>Số lượng</th>
+                                <th>Thành tiền</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model.OrderItems)
+                            {
+                                <tr>
+                                    <td>#@item.ProductId</td>
+                                    <td style="font-weight: 600;">@item.ProductName</td>
+                                    <td>@item.Price.ToString("N0")₫</td>
+                                    <td>@item.Quantity</td>
+                                    <td style="color: #e74c3c; font-weight: 700;">@((item.Price * item.Quantity).ToString("N0"))₫</td>
+                                </tr>
+                            }
+                        </tbody>
+                        <tfoot>
+                            <tr style="background: #f9f9f9;">
+                                <td colspan="4" class="text-end" style="font-weight: 700;">TỔNG CỘNG:</td>
+                                <td style="color: #2fdab8; font-weight: 700; font-size: 1.1em;">@Model.Total.ToString("N0")₫</td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="text-center mt-4">
+        <a href="/Identity/Account/Manage" class="btn btn-outline-secondary">
+            <i class="fa fa-arrow-left"></i> Quay lại Hồ sơ
+        </a>
+    </div>
+</div>

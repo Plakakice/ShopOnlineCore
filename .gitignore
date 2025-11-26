@@ -23,3 +23,6 @@ Release/
 # System files
 Thumbs.db
 desktop.ini
+
+# Secrets
+appsettings.Development.json

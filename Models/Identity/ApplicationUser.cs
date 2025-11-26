@@ -4,5 +4,6 @@ namespace ShopOnlineCore.Models.Identity;
 
 public class ApplicationUser : IdentityUser
 {
-    // Có thể mở rộng thêm thông tin
+    public string? FullName { get; set; }
+    public string? Address { get; set; }
 }

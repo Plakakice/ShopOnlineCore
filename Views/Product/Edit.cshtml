@@ -147,22 +147,6 @@
                                 <label for="Stock">Số lượng tồn kho <span class="text-danger">*</span></label>
                                 <input asp-for="Stock" type="number" min="0" class="form-control" required />
                                 <span asp-validation-for="Stock" class="text-danger"></span>
-                                <small class="form-text text-muted">Nhập 0 nếu hết hàng</small>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="form-group mb-3">
-                        <label for="Description">Mô tả</label>
-                        <textarea asp-for="Description" class="form-control" rows="4"></textarea>
-                        <span asp-validation-for="Description" class="text-danger"></span>
-                    </div>
-
-                    <!-- Quản lý ảnh -->
-                    <div class="form-group mb-3">
-                        <label style="display: block; margin-bottom: 10px;">Quản lý ảnh (Chọn ảnh chính để hiển thị):</label>
-                        
-                        @if (Model.ImageGallery != null && Model.ImageGallery.Any())
                         {
                             <div class="d-flex flex-wrap gap-3" id="existing-images-container">
                                 @for (int i = 0; i < Model.ImageGallery.Count; i++)

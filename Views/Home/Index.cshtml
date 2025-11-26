@@ -589,7 +589,68 @@
             $('#horizontalTab').easyResponsiveTabs({
                 type: 'default',
                 width: 'auto',
-                fit: true
+                fit: true,
+                activate: function(event) {
+                    // 'this' refers to the clicked tab item (li)
+                    const $tab = $(this);
+                    const $tabContent = $('#horizontalTab').find('.resp-tab-content-active');
+                    
+                    console.log('Tab activated:', $tab.text());
+                    
+                    // Update currentActiveTab directly from the active content
+                    if ($tabContent.length > 0) {
+                        currentActiveTab = $tabContent[0];
+                        const category = currentActiveTab.getAttribute('data-category');
+                        console.log('Active category:', category);
+                        
+                        // Reset state for the new tab
+                        page = 2;
+                        hasMoreProducts = true;
+                        loadedProductIds = getLoadedIdsFromStorage(category);
+                        
+                        // Create sentinel for infinite scroll
+                        createSentinel();
+                        
+                        // Capture initial products if needed (same logic as before)
+                        if (category) {
+                            const initialProducts = currentActiveTab.querySelectorAll('[data-product-id]');
+                            const initialIds = [];
+                            initialProducts.forEach(product => {
+                                const id = product.getAttribute('data-product-id');
+                                if (id) initialIds.push(id);
+                            });
+                            
+                            // Notify server
+                            if (initialIds.length > 0) {
+                                $.ajax({
+                                    url: '@Url.Action("InitializeLoadedIds", "Home")',
+                                    type: 'POST',
+                                    data: {
+                                        category: category,
+                                        productIds: initialIds
+                                    },
+                                    success: function() {
+                                        console.log('Server initialized LoadedIds for:', category);
+                                    }
+                                });
+                            }
+                        }
+                        
+                        // Trigger load if content is short
+                        setTimeout(() => {
+                             if (!isLoading && hasMoreProducts) {
+                                 // Check if we need to load more immediately (e.g. large screen)
+                                 const sentinel = currentActiveTab.querySelector('[data-sentinel="true"]');
+                                 if (sentinel) {
+                                     const rect = sentinel.getBoundingClientRect();
+                                     if (rect.top < window.innerHeight + 200) {
+                                         loadMoreProducts();
+                                     }
+                                 }
+                             }
+                        }, 500);
+                    }
+                }
             });
 
             // Counters
@@ -619,58 +680,7 @@
                 });
             }, observerOptions);
             
-            // Gọi updateActiveTab() sau khi tabs khởi tạo xong
-            setTimeout(() => {
-                console.log('Initial updateActiveTab() called after 1000ms delay');
-                updateActiveTab();
-                
-                // Capture initial 8 products from the current tab
-                if (currentActiveTab) {
-                    const category = currentActiveTab.getAttribute('data-category');
-                    if (category) {
-                        const initialProducts = currentActiveTab.querySelectorAll('[data-product-id]');
-                        console.log(`Found ${initialProducts.length} initial products in ${category} tab`);
-                        
-                        const initialIds = [];
-                        initialProducts.forEach(product => {
-                            const id = product.getAttribute('data-product-id');
-                            if (id) {
-                                loadedProductIds.add(id);
-                                initialIds.push(id);
-                            }
-                        });
-                        
-                        // Save initial product IDs to localStorage
-                        if (loadedProductIds.size > 0) {
-                            saveLoadedIdsToStorage(category, loadedProductIds);
-                            console.log(`Saved ${loadedProductIds.size} initial product IDs to localStorage for ${category}`);
-                            
-                            // Notify server about initial products (to initialize LoadedIds_category in Session)
-                            $.ajax({
-                                url: '@Url.Action("InitializeLoadedIds", "Home")',
-                                type: 'POST',
-                                data: {
-                                    category: category,
-                                    productIds: initialIds
-                                },
-                                success: function() {
-                                    console.log('Server initialized LoadedIds for category:', category);
-                                },
-                                error: function(err) {
-                                    console.error('Error initializing LoadedIds on server:', err);
-                                }
-                            });
-                        }
-                    }
-                }
-                
-                // Manually trigger first load after 2 seconds to ensure everything is ready
-                setTimeout(() => {
-                    console.log('Triggering first loadMoreProducts() manually');
-                    loadMoreProducts();
-                }, 2000);
-            }, 1000);
-            
+            // Initial setup
             function loadMoreProducts() {
                 console.log('=== loadMoreProducts called ===');
                 console.log('State: isLoading=' + isLoading + ', currentActiveTab=' + (!!currentActiveTab) + ', hasMoreProducts=' + hasMoreProducts);
@@ -775,48 +785,36 @@
                     });
                 }, 1500); // Delay 1.5 giây
             }
-            
-            // Lắng nghe thay đổi tab
-            $(document).on('click', '.resp-tabs-list li', function() {
-                setTimeout(() => {
-                    updateActiveTab();
-                    
-                    // Reinitialize loaded IDs for the new tab
-                    if (currentActiveTab) {
-                        const category = currentActiveTab.getAttribute('data-category');
-                        if (category) {
-                            const initialProducts = currentActiveTab.querySelectorAll('[data-product-id]');
-                            console.log(`Tab switched to ${category}. Found ${initialProducts.length} initial products`);
-                            
-                            const initialIds = [];
-                            initialProducts.forEach(product => {
-                                const id = product.getAttribute('data-product-id');
-                                if (id) {
-                                    initialIds.push(id);
-                                }
-                            });
-                            
-                            // Notify server about new tab's initial products
-                            if (initialIds.length > 0) {
-                                $.ajax({
-                                    url: '@Url.Action("InitializeLoadedIds", "Home")',
-                                    type: 'POST',
-                                    data: {
-                                        category: category,
-                                        productIds: initialIds
-                                    },
-                                    success: function() {
-                                        console.log('Server initialized LoadedIds for new tab:', category);
-                                    },
-                                    error: function(err) {
-                                        console.error('Error initializing LoadedIds for new tab:', err);
-                                    }
-                                });
+
+            // Initial setup
+            setTimeout(() => {
+                updateActiveTab();
+                
+                // Initial load logic for the first tab
+                if (currentActiveTab) {
+                    const category = currentActiveTab.getAttribute('data-category');
+                    if (category) {
+                        const initialProducts = currentActiveTab.querySelectorAll('[data-product-id]');
+                        const initialIds = [];
+                        initialProducts.forEach(product => {
+                            const id = product.getAttribute('data-product-id');
+                            if (id) {
+                                loadedProductIds.add(id);
+                                initialIds.push(id);
                             }
+                        });
+                        
+                        if (loadedProductIds.size > 0) {
+                            saveLoadedIdsToStorage(category, loadedProductIds);
+                            $.ajax({
+                                url: '@Url.Action("InitializeLoadedIds", "Home")',
+                                type: 'POST',
+                                data: { category: category, productIds: initialIds }
+                            });
                         }
                     }
-                }, 100);
-            });
+                }
+            }, 500);
         });
     </script>
 }

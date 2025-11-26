@@ -9,17 +9,52 @@
     }
 }
 
-<h1>Manage your account</h1>
+<style>
+    .manage-container {
+        padding: 50px 0;
+        min-height: 80vh;
+        background-color: #f8f9fa;
+    }
+    .manage-sidebar {
+        background: #fff;
+        border-radius: 10px;
+        padding: 20px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        border: 1px solid #eaeaea;
+    }
+    .nav-pills .nav-link {
+        color: #555;
+        border-radius: 8px;
+        margin-bottom: 5px;
+        padding: 12px 15px;
+        font-weight: 500;
+        transition: all 0.2s;
+    }
+    .nav-pills .nav-link:hover {
+        background-color: #f0f0f0;
+        color: #2fdab8;
+    }
+    .nav-pills .nav-link.active {
+        background-color: #2fdab8;
+        color: #fff;
+    }
+    .nav-pills .nav-link i {
+        width: 20px;
+        text-align: center;
+    }
+</style>
 
-<div>
-    <h2>Change your account settings</h2>
-    <hr />
-    <div class="row">
-        <div class="col-md-3">
-            <partial name="_ManageNav" />
-        </div>
-        <div class="col-md-9">
-            @RenderBody()
+<div class="manage-container">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-3 mb-4">
+                <div class="manage-sidebar">
+                    <partial name="_ManageNav" />
+                </div>
+            </div>
+            <div class="col-md-9">
+                @RenderBody()
+            </div>
         </div>
     </div>
 </div>
