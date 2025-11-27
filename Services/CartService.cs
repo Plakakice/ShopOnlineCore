@@ -65,12 +65,12 @@ public class CartService : ICartService
         HttpContext.Session.SetString(CARTKEY, json);
     }
 
-    public void AddToCart(int productId, int quantity)
+    public ServiceResult AddToCart(int productId, int quantity)
     {
         var product = _context.Products.FirstOrDefault(p => p.Id == productId);
-        if (product == null) throw new Exception("Sản phẩm không tồn tại");
+        if (product == null) return ServiceResult.Fail("Sản phẩm không tồn tại");
 
-        if (product.Stock <= 0) throw new Exception($"{product.Name} hiện đã hết hàng.");
+        if (product.Stock <= 0) return ServiceResult.Fail($"{product.Name} hiện đã hết hàng.");
         if (quantity > product.Stock) quantity = product.Stock;
 
         if (IsAuthenticated && CurrentUserId != null)
@@ -80,7 +80,7 @@ public class CartService : ICartService
             {
                 if (line.Quantity + quantity > product.Stock)
                 {
-                    throw new Exception($"{product.Name} chỉ còn {product.Stock - line.Quantity} sản phẩm trong kho.");
+                    return ServiceResult.Fail($"{product.Name} chỉ còn {product.Stock - line.Quantity} sản phẩm trong kho.");
                 }
                 line.Quantity += quantity;
             }
@@ -106,7 +106,7 @@ public class CartService : ICartService
             {
                 if (item.Quantity + quantity > product.Stock)
                 {
-                    throw new Exception($"{product.Name} chỉ còn {product.Stock - item.Quantity} sản phẩm trong kho.");
+                    return ServiceResult.Fail($"{product.Name} chỉ còn {product.Stock - item.Quantity} sản phẩm trong kho.");
                 }
                 item.Quantity += quantity;
             }
@@ -123,9 +123,10 @@ public class CartService : ICartService
             }
             SaveCart(cart);
         }
+        return ServiceResult.Ok();
     }
 
-    public void DecreaseQuantity(int productId)
+    public ServiceResult DecreaseQuantity(int productId)
     {
         if (IsAuthenticated && CurrentUserId != null)
         {
@@ -150,12 +151,13 @@ public class CartService : ICartService
                 SaveCart(cart);
             }
         }
+        return ServiceResult.Ok();
     }
 
-    public void IncreaseQuantity(int productId)
+    public ServiceResult IncreaseQuantity(int productId)
     {
         var product = _context.Products.FirstOrDefault(p => p.Id == productId);
-        if (product == null) return;
+        if (product == null) return ServiceResult.Fail("Sản phẩm không tồn tại");
 
         if (IsAuthenticated && CurrentUserId != null)
         {
@@ -163,7 +165,7 @@ public class CartService : ICartService
             if (line != null)
             {
                 if (line.Quantity >= product.Stock)
-                    throw new Exception($"{product.Name} chỉ còn {product.Stock} sản phẩm trong kho.");
+                    return ServiceResult.Fail($"{product.Name} chỉ còn {product.Stock} sản phẩm trong kho.");
                 
                 line.Quantity++;
                 _context.SaveChanges();
@@ -176,17 +178,24 @@ public class CartService : ICartService
             if (item != null)
             {
                 if (item.Quantity >= product.Stock)
-                    throw new Exception($"{product.Name} chỉ còn {product.Stock} sản phẩm trong kho.");
+                    return ServiceResult.Fail($"{product.Name} chỉ còn {product.Stock} sản phẩm trong kho.");
 
                 item.Quantity++;
                 SaveCart(cart);
             }
         }
+        return ServiceResult.Ok();
     }
 
-    public void UpdateQuantity(int productId, int quantity)
+    public ServiceResult UpdateQuantity(int productId, int quantity)
     {
-        if (quantity <= 0) return;
+        if (quantity <= 0) return ServiceResult.Ok();
+
+        // Check stock limit logic could be added here too if strictness is required
+        // For now, just update as per original logic but we should probably check stock.
+        var product = _context.Products.FirstOrDefault(p => p.Id == productId);
+        if (product != null && quantity > product.Stock)
+             return ServiceResult.Fail($"{product.Name} chỉ còn {product.Stock} sản phẩm.");
 
         if (IsAuthenticated && CurrentUserId != null)
         {
@@ -207,6 +216,7 @@ public class CartService : ICartService
                 SaveCart(cart);
             }
         }
+        return ServiceResult.Ok();
     }
 
     public void RemoveFromCart(int productId)

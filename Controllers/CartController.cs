@@ -21,16 +21,15 @@ public class CartController : Controller
 
     public IActionResult Add(int id, int quantity = 1, bool buyNow = false)
     {
-        try
+        var result = _cartService.AddToCart(id, quantity);
+        
+        if (!result.Success)
         {
-            _cartService.AddToCart(id, quantity);
-            TempData["Success"] = "Đã thêm sản phẩm vào giỏ hàng.";
-        }
-        catch (Exception ex)
-        {
-            TempData["Error"] = ex.Message;
+            TempData["Error"] = result.Message;
             return RedirectToAction("Details", "Product", new { id });
         }
+
+        TempData["Success"] = "Đã thêm sản phẩm vào giỏ hàng.";
 
         if (buyNow)
         {
@@ -42,30 +41,47 @@ public class CartController : Controller
 
     public IActionResult Decrease(int id)
     {
-        _cartService.DecreaseQuantity(id);
-        TempData["Info"] = "Đã cập nhật giỏ hàng.";
+        var result = _cartService.DecreaseQuantity(id);
+        if (!result.Success)
+        {
+            TempData["Error"] = result.Message;
+        }
+        else
+        {
+            TempData["Info"] = "Đã cập nhật giỏ hàng.";
+        }
         return RedirectToAction("Index");
     }
 
     public IActionResult Increase(int id)
     {
-        try
+        var result = _cartService.IncreaseQuantity(id);
+        
+        if (!result.Success)
         {
-            _cartService.IncreaseQuantity(id);
+            TempData["Error"] = result.Message;
+        }
+        else
+        {
             TempData["Info"] = "Đã cập nhật giỏ hàng.";
         }
-        catch (Exception ex)
-        {
-            TempData["Error"] = ex.Message;
-        }
+        
         return RedirectToAction("Index");
     }
 
     [HttpPost]
     public IActionResult Update(int id, int quantity)
     {
-        _cartService.UpdateQuantity(id, quantity);
-        TempData["Info"] = "Đã cập nhật giỏ hàng.";
+        var result = _cartService.UpdateQuantity(id, quantity);
+        
+        if (!result.Success)
+        {
+            TempData["Error"] = result.Message;
+        }
+        else
+        {
+            TempData["Info"] = "Đã cập nhật giỏ hàng.";
+        }
         return RedirectToAction("Index");
     }
 

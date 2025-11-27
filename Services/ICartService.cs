@@ -5,10 +5,10 @@ namespace ShopOnlineCore.Services;
 public interface ICartService
 {
     List<CartItem> GetCart();
-    void AddToCart(int productId, int quantity);
-    void DecreaseQuantity(int productId);
-    void IncreaseQuantity(int productId);
-    void UpdateQuantity(int productId, int quantity);
+    ServiceResult AddToCart(int productId, int quantity);
+    ServiceResult DecreaseQuantity(int productId);
+    ServiceResult IncreaseQuantity(int productId);
+    ServiceResult UpdateQuantity(int productId, int quantity);
     void RemoveFromCart(int productId);
     void ClearCart();
 }

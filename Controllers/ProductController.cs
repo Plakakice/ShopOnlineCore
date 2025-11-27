@@ -98,6 +98,9 @@ namespace ShopOnlineCore.Controllers
             ViewData["PageSize"] = pageSize;
             ViewData["TotalCount"] = totalCount;
 
+            // Fetch categories for sidebar
+            ViewBag.Categories = await _context.Categories.ToListAsync();
+
             return View(productList);
         }
 

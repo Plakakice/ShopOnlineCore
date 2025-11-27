@@ -46,6 +46,7 @@ builder.Services.AddScoped<OrderRepository>();
 // 🛒 Register CartService
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<ICartService, CartService>();
+builder.Services.AddScoped<IOrderService, OrderService>();
 
 // Thêm dịch vụ Razor / MVC như bình thường
 // builder.Services.AddRazorPages(); // Đã có ở trên
@@ -106,7 +107,7 @@ async Task CreateAdminRole(WebApplication app)
 
     // Email admin cố định
     var adminEmail = "admin@shop.com";
-    var adminPassword = "Admin@123"; // bạn có thể đổi
+    var adminPassword = app.Configuration["AdminPassword"] ?? "Admin@123"; // Fallback chỉ cho môi trường dev nếu quên config
 
     // Tạo tài khoản admin nếu chưa có  
     var adminUser = await userManager.FindByEmailAsync(adminEmail);

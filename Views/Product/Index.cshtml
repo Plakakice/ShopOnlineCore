@@ -137,11 +137,13 @@
                     <h4>Danh mục</h4>
                     <ul class="tree-list-pad">
                         <li><a href="@Url.Action("Index")" style="font-weight: 600;"><i class="fa fa-th"></i> Tất cả</a></li>
-                        <li><a href="@Url.Action("Index", new { category = "Chuột" })"><i class="fa fa-angle-right"></i> Chuột</a></li>
-                        <li><a href="@Url.Action("Index", new { category = "Laptop" })"><i class="fa fa-angle-right"></i> Laptop</a></li>
-                        <li><a href="@Url.Action("Index", new { category = "Bàn phím" })"><i class="fa fa-angle-right"></i> Bàn phím</a></li>
-                        <li><a href="@Url.Action("Index", new { category = "Bags" })"><i class="fa fa-angle-right"></i> Bags</a></li>
-                        <li><a href="@Url.Action("Index", new { category = "Âm thanh" })"><i class="fa fa-angle-right"></i> Âm thanh</a></li>
+                        @if (ViewBag.Categories != null)
+                        {
+                            foreach (var cat in ViewBag.Categories as List<ShopOnlineCore.Models.Category>)
+                            {
+                                <li><a href="@Url.Action("Index", new { category = cat.Name })"><i class="fa fa-angle-right"></i> @cat.Name</a></li>
+                            }
+                        }
                     </ul>
                 </div>
                 </div><!-- /.product-sidebar-inner -->
