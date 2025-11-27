@@ -20,6 +20,7 @@ public class ProductsController : Controller
     public async Task<IActionResult> Index(string? search, string? category, int page = 1, int pageSize = 20)
     {
         var products = _context.Products.AsQueryable();
+        ViewBag.Categories = await _context.Categories.ToListAsync();
 
         // Tìm kiếm
         if (!string.IsNullOrWhiteSpace(search))
@@ -99,9 +100,32 @@ public class ProductsController : Controller
         foreach (var product in products)
         {
             if (action == "increase")
+            {
                 product.Price = product.Price * (1 + percentage / 100);
+                // Nếu giá mới >= giá cũ thì hết sale
+                if (product.OldPrice.HasValue && product.Price >= product.OldPrice.Value)
+                {
+                    product.OldPrice = null;
+                }
+            }
             else if (action == "decrease")
+            {
+                // Nếu chưa có giá cũ thì lưu giá hiện tại làm giá gốc
+                if (!product.OldPrice.HasValue)
+                {
+                    product.OldPrice = product.Price;
+                }
                 product.Price = product.Price * (1 - percentage / 100);
+            }
+            else if (action == "end_sale")
+            {
+                // Hết giảm giá: Quay về giá gốc
+                if (product.OldPrice.HasValue)
+                {
+                    product.Price = product.OldPrice.Value;
+                    product.OldPrice = null;
+                }
+            }
         }
 
         await _context.SaveChangesAsync();

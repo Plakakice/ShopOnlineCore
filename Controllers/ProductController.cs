@@ -269,6 +269,7 @@ namespace ShopOnlineCore.Controllers
             if (categoryObj != null) old.Category = categoryObj.Name; // Sync string
             
             old.Price = product.Price;
+            old.OldPrice = product.OldPrice;
             old.Description = product.Description;
             old.Stock = product.Stock;
 

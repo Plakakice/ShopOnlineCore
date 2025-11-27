@@ -275,7 +275,7 @@
                 <i class="fa fa-trash"></i> Xóa đã chọn
             </button>
             <button type="button" class="btn btn-warning" onclick="showBulkPriceModal()" style="background: #f39c12; border: none;">
-                <i class="fa fa-dollar"></i> Cập nhật giá
+                <i class="fa fa-tags"></i> Sale hàng loạt
             </button>
             <a href="@Url.Action("Index", "Categories", new { area = "Admin" })" class="btn btn-info" style="background: #3498db; border: none; color: white;">
                 <i class="fa fa-list"></i> Quản lý danh mục
@@ -287,11 +287,13 @@
                 <label class="form-label">Danh mục</label>
                 <select class="form-select" name="category" onchange="this.form.submit()">
                     <option value="">-- Tất cả danh mục --</option>
-                    <option value="Laptop" selected="@(category == "Laptop")">Laptop</option>
-                    <option value="Chuột" selected="@(category == "Chuột")">Chuột</option>
-                    <option value="Bàn phím" selected="@(category == "Bàn phím")">Bàn phím</option>
-                    <option value="Bags" selected="@(category == "Bags")">Bags</option>
-                    <option value="Âm thanh" selected="@(category == "Âm thanh")">Âm thanh</option>
+                    @if (ViewBag.Categories != null)
+                    {
+                        foreach (var cat in ViewBag.Categories as List<ShopOnlineCore.Models.Category>)
+                        {
+                            <option value="@cat.Name" selected="@(category == cat.Name)">@cat.Name</option>
+                        }
+                    }
                 </select>
             </div>
             <div class="col-md-6">
@@ -426,19 +428,20 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Cập nhật giá hàng loạt</h5>
+                <h5 class="modal-title">Sale hàng loạt</h5>
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
             </div>
             <div class="modal-body">
-                <div class="form-group">
+                <div class="form-group" id="percentageGroup">
                     <label>Phần trăm thay đổi (%)</label>
                     <input type="number" id="pricePercentage" class="form-control" value="10" min="0" max="100">
                 </div>
                 <div class="form-group">
                     <label>Hành động</label>
-                    <select id="priceAction" class="form-control">
-                        <option value="increase">Tăng giá</option>
+                    <select id="priceAction" class="form-control" onchange="togglePercentageInput()">
                         <option value="decrease">Giảm giá</option>
+                        <option value="increase">Tăng giá</option>
+                        <option value="end_sale">Hết giảm giá (Về giá gốc)</option>
                     </select>
                 </div>
             </div>
@@ -524,6 +527,17 @@
                 return;
             }
             $('#bulkPriceModal').modal('show');
+            togglePercentageInput(); // Reset UI state
+        }
+
+        function togglePercentageInput() {
+            const action = document.getElementById('priceAction').value;
+            const group = document.getElementById('percentageGroup');
+            if (action === 'end_sale') {
+                group.style.display = 'none';
+            } else {
+                group.style.display = 'block';
+            }
         }
 
         // Cập nhật giá hàng loạt

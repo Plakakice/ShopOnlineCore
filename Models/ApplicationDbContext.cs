@@ -67,6 +67,10 @@ namespace ShopOnlineCore.Models
                 .Property(p => p.Price)
                 .HasPrecision(18, 2);
 
+            modelBuilder.Entity<Product>()
+                .Property(p => p.OldPrice)
+                .HasPrecision(18, 2);
+
             modelBuilder.Entity<OrderItem>()
                 .Property(oi => oi.Price)
                 .HasPrecision(18, 2);
