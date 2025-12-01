@@ -203,6 +203,175 @@
     </a>
 </div>
 
+<!-- Flash Sale Section -->
+<style>
+    .flash-sale-container {
+        background: #fff;
+        padding: 20px 0;
+        margin-top: 30px;
+        position: relative;
+    }
+    
+    .flash-sale-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding-bottom: 15px;
+        border-bottom: 2px solid #2fdab8; /* Teal theme color */
+        margin-bottom: 20px;
+    }
+    
+    .flash-sale-title {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    
+    .flash-sale-title h3 {
+        color: #333;
+        font-weight: 700;
+        margin: 0;
+        text-transform: uppercase;
+        font-size: 1.5em;
+    }
+    
+    .flash-sale-title i {
+        font-size: 1.5em;
+        color: #2fdab8; /* Teal theme color */
+    }
+    
+    .flash-sale-slider-wrapper {
+        position: relative;
+        padding: 0 20px; /* Giảm padding để tận dụng không gian */
+    }
+    
+    .flash-sale-slider {
+        display: flex;
+        overflow-x: auto;
+        scroll-behavior: smooth;
+        gap: 20px;
+        padding: 5px 5px 15px 5px; /* Thêm padding ngang nhỏ để tránh bị cắt shadow */
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+    }
+    
+    .flash-sale-slider::-webkit-scrollbar { 
+        display: none;
+    }
+    
+    .flash-sale-item {
+        flex: 0 0 calc(25% - 15px); /* 4 items per row -> Thẻ to hơn */
+        min-width: 260px;
+        background: #fff;
+        transition: transform 0.3s;
+    }
+    
+    .flash-sale-item:hover {
+        transform: translateY(-5px);
+    }
+
+    /* Custom nav buttons matching theme */
+    .flash-sale-nav-btn {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 40px; /* To hơn chút cho dễ bấm */
+        height: 40px;
+        background: #fff;
+        border: 1px solid #ddd;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #333;
+        cursor: pointer;
+        z-index: 10;
+        transition: all 0.3s;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    }
+    
+    .flash-sale-nav-btn:hover {
+        background: #2fdab8;
+        color: #fff;
+        border-color: #2fdab8;
+    }
+    
+    .flash-sale-prev { left: -10px; } /* Đẩy ra ngoài một chút */
+    .flash-sale-next { right: -10px; }
+
+    @@media (max-width: 991px) {
+        .flash-sale-item { flex: 0 0 calc(33.33% - 14px); }
+        .flash-sale-prev { left: 0; }
+        .flash-sale-next { right: 0; }
+    }
+    
+    @@media (max-width: 768px) {
+        .flash-sale-item { flex: 0 0 calc(50% - 10px); }
+        .flash-sale-slider-wrapper { padding: 0 10px; }
+        .flash-sale-nav-btn { display: none; }
+    }
+</style>
+
+<div class="container">
+    @{
+        // Lấy sản phẩm có SalePrice khác null
+        var flashSaleProducts = Model.Where(p => p.SalePrice.HasValue).Take(15).ToList();
+        
+        // FALLBACK (DEMO): Nếu không có sản phẩm sale, lấy tạm sản phẩm thường để hiển thị giao diện cho User xem
+        if (!flashSaleProducts.Any())
+        {
+            flashSaleProducts = Model.Take(10).ToList();
+        }
+    }
+    
+    @if (flashSaleProducts.Any())
+    {
+        <div class="flash-sale-container wow fadeInDown" data-wow-delay="0.1s">
+            <div class="flash-sale-header">
+                <div class="flash-sale-title">
+                    <i class="fa fa-bolt" aria-hidden="true"></i>
+                    <h3>Sản phẩm đang Sale</h3>
+                </div>
+                <a href="#" style="color: #2fdab8; font-weight: 600; transition: 0.3s;" class="hvr-icon-wobble-horizontal">
+                    Xem tất cả <i class="fa fa-angle-right" aria-hidden="true"></i>
+                </a>
+            </div>
+            
+            <div class="flash-sale-slider-wrapper">
+                <button class="flash-sale-nav-btn flash-sale-prev" onclick="scrollFlashSale(-1)">
+                    <i class="fa fa-angle-left"></i>
+                </button>
+                
+                <div class="flash-sale-slider" id="flashSaleSlider">
+                    @foreach (var product in flashSaleProducts)
+                    {
+                        <div class="flash-sale-item">
+                            <partial name="_ProductCard" model="product" />
+                        </div>
+                    }
+                </div>
+                
+                <button class="flash-sale-nav-btn flash-sale-next" onclick="scrollFlashSale(1)">
+                    <i class="fa fa-angle-right"></i>
+                </button>
+            </div>
+        </div>
+    }
+</div>
+
+<script>
+    function scrollFlashSale(direction) {
+        const slider = document.getElementById('flashSaleSlider');
+        const itemWidth = slider.querySelector('.flash-sale-item').offsetWidth + 20; // Width + gap
+        const scrollAmount = itemWidth * 4; // Scroll 4 items at a time
+        
+        slider.scrollBy({
+            left: direction * scrollAmount,
+            behavior: 'smooth'
+        });
+    }
+</script>
+
 <!-- Tabs sản phẩm -->
 <div class="new_arrivals_agile_w3ls_info">
     <div class="container">

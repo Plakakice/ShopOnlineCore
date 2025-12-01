@@ -15,7 +15,7 @@ namespace ShopOnlineCore.Models
         public Category? CategoryObj { get; set; }
 
         public decimal Price { get; set; }
-        public decimal? OldPrice { get; set; } // Giá cũ (khi giảm giá)
+        public decimal? SalePrice { get; set; } // Giá cũ (khi giảm giá)
         public string Description { get; set; } = string.Empty;
 
         // Ảnh chính

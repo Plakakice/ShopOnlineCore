@@ -26,9 +26,9 @@ public class ProductsController : Controller
         if (!string.IsNullOrWhiteSpace(search))
         {
             products = products.Where(p => 
-                p.Name.Contains(search) || 
-                p.Category.Contains(search) ||
-                p.Description.Contains(search));
+                (p.Name != null && p.Name.Contains(search)) || 
+                (p.Category != null && p.Category.Contains(search)) ||
+                (p.Description != null && p.Description.Contains(search)));
             ViewData["Search"] = search;
         }
 
@@ -103,27 +103,27 @@ public class ProductsController : Controller
             {
                 product.Price = product.Price * (1 + percentage / 100);
                 // Nếu giá mới >= giá cũ thì hết sale
-                if (product.OldPrice.HasValue && product.Price >= product.OldPrice.Value)
+                if (product.SalePrice.HasValue && product.Price >= product.SalePrice.Value)
                 {
-                    product.OldPrice = null;
+                    product.SalePrice = null;
                 }
             }
             else if (action == "decrease")
             {
                 // Nếu chưa có giá cũ thì lưu giá hiện tại làm giá gốc
-                if (!product.OldPrice.HasValue)
+                if (!product.SalePrice.HasValue)
                 {
-                    product.OldPrice = product.Price;
+                    product.SalePrice = product.Price;
                 }
                 product.Price = product.Price * (1 - percentage / 100);
             }
             else if (action == "end_sale")
             {
                 // Hết giảm giá: Quay về giá gốc
-                if (product.OldPrice.HasValue)
+                if (product.SalePrice.HasValue)
                 {
-                    product.Price = product.OldPrice.Value;
-                    product.OldPrice = null;
+                    product.Price = product.SalePrice.Value;
+                    product.SalePrice = null;
                 }
             }
         }

@@ -32,7 +32,7 @@ namespace ShopOnlineCore.Controllers
             {
                 // Filter by Category Name (via join)
                 products = products.Include(p => p.CategoryObj)
-                                   .Where(p => p.CategoryObj.Name == categoryQueryValue);
+                                   .Where(p => p.CategoryObj != null && p.CategoryObj.Name == categoryQueryValue);
                 ViewData["CategoryFilter"] = categoryQueryValue;
             }
 
@@ -260,7 +260,7 @@ namespace ShopOnlineCore.Controllers
             else
             {
                 // Không còn ảnh nào
-                old.ImageUrl = null;
+                old.ImageUrl = string.Empty;
             }
 
             old.Name = product.Name;
@@ -269,7 +269,7 @@ namespace ShopOnlineCore.Controllers
             if (categoryObj != null) old.Category = categoryObj.Name; // Sync string
             
             old.Price = product.Price;
-            old.OldPrice = product.OldPrice;
+            old.SalePrice = product.SalePrice;
             old.Description = product.Description;
             old.Stock = product.Stock;
 

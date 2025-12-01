@@ -1910,15 +1910,27 @@ button.w3view-cart {
     z-index: 10;
 }
 
-.product-new-top {
-    background: #fc636b none repeat scroll 0 0;
-    color: #fff;
-    display: inline-block;
-    right: 0;
-    padding: 0 10px 1px;
+.product-new-top.badge-sale,
+.product-new-top.badge-new {
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: cover;
+    color: transparent;
+    width: 80px;
+    height: 80px;
+    padding: 0;
+}
+.product-new-top.badge-sale {
+    background-image: url(../images/sale.png);
     position: absolute;
-    top: 0;
-    z-index: 99;
+    top: 0px;
+    left: 0x;
+}   
+.product-new-top.badge-new {
+    background-image: url(../images/new.png);
+    position: absolute;
+    top: 0px;
+    left: -5px;
 }
 
 .inner-men-cart-pro {

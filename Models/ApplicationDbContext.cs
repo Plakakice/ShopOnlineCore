@@ -68,7 +68,7 @@ namespace ShopOnlineCore.Models
                 .HasPrecision(18, 2);
 
             modelBuilder.Entity<Product>()
-                .Property(p => p.OldPrice)
+                .Property(p => p.SalePrice)
                 .HasPrecision(18, 2);
 
             modelBuilder.Entity<OrderItem>()
