@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using ShopOnlineCore.Models;
 using System.Text.Json;
+using Microsoft.EntityFrameworkCore;
 
 namespace ShopOnlineCore.Controllers
 {
@@ -13,33 +14,69 @@ namespace ShopOnlineCore.Controllers
             _context = context;
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
-            // Lấy tất cả sản phẩm và random 1 lần duy nhất
-            var allProducts = _context.Products.OrderBy(x => Guid.NewGuid()).ToList();
+            // OPTIMIZED: Fetch only IDs, shuffle in memory
+            var allIds = await _context.Products.Select(p => p.Id).ToListAsync();
             
-            // Lưu toàn bộ sản phẩm random vào Session để dùng chung cho tất cả tab
-            var json = JsonSerializer.Serialize(allProducts.Select(p => p.Id).ToList());
+            // Shuffle IDs
+            var random = new Random();
+            var shuffledIds = allIds.OrderBy(x => random.Next()).ToList();
+            
+            // Save to Session
+            var json = JsonSerializer.Serialize(shuffledIds);
             HttpContext.Session.SetString("RandomOrder_All", json);
             
-            // Lưu thứ tự random cho từng category riêng (từ danh sách random chung)
+            // Save random order for specific categories
             var categories = new[] { "chuột", "laptop", "bàn phím", "âm thanh", "bags" };
             
+            // Pre-fetch category info to avoid N+1 queries if possible, or just filter IDs
+            // Since we only have IDs, we might need to fetch Category info map if we want to filter by category purely in memory
+            // OR we can just fetch IDs for each category separately if the dataset is huge.
+            // For simplicity and performance balance: Fetch ID + CategoryName
+            var productCategories = await _context.Products
+                .Select(p => new { p.Id, p.Category })
+                .ToListAsync();
+
             foreach (var category in categories)
             {
                 string sessionKey = $"RandomOrder_{category}";
                 
-                // Lấy IDs của category này từ danh sách random chung
-                var categoryProductIds = allProducts
+                var categoryProductIds = productCategories
                     .Where(p => !string.IsNullOrEmpty(p.Category) && 
                                p.Category.ToLower().Contains(category.ToLower()))
                     .Select(p => p.Id)
+                    .OrderBy(x => random.Next()) // Shuffle category specific list too
                     .ToList();
 
-                // Lưu vào Session
                 var categoryJson = JsonSerializer.Serialize(categoryProductIds);
                 HttpContext.Session.SetString(sessionKey, categoryJson);
             }
+
+            // Fetch full details for the first batch (e.g., 8 items) to display immediately if needed
+            // But the view expects 'allProducts' (List<Product>). 
+            // The original code passed 'allProducts' (List<Product>) to the view.
+            // If the View iterates over ALL products, that's a bad design for large DBs.
+            // Let's check the View. If it just renders a few, we should only pass a few.
+            // However, to be safe and minimize breaking changes, I will pass the full list BUT sorted by the shuffled IDs.
+            // WAIT: If I fetch ALL products here, I defeat the purpose of "Load More".
+            // The original code: var allProducts = _context.Products.OrderBy(x => Guid.NewGuid()).ToList();
+            // This loads EVERYTHING.
+            // I should probably just load the first batch or keep the behavior but optimize the SORT.
+            // To keep behavior identical but faster:
+            // 1. Get Shuffled IDs.
+            // 2. Fetch All Products (still heavy, but at least DB sort is avoided).
+            // 3. Sort in memory.
+            
+            // BETTER: The View likely uses 'Model' to render the "New Arrivals" or similar.
+            // Let's assume the view renders the whole list or a part of it.
+            // I will fetch all products but using the shuffled IDs to order them.
+            
+            var allProducts = await _context.Products
+                .Where(p => shuffledIds.Contains(p.Id))
+                .ToListAsync();
+                
+            allProducts = allProducts.OrderBy(p => shuffledIds.IndexOf(p.Id)).ToList();
 
             return View(allProducts);
         }
@@ -88,12 +125,15 @@ namespace ShopOnlineCore.Controllers
             else
             {
                 // Fallback - random lại (nếu session expire)
-                randomProductIds = _context.Products
+                // OPTIMIZED: Fetch IDs only, shuffle in memory
+                var ids = _context.Products
                     .Where(p => !string.IsNullOrEmpty(p.Category) && 
                                p.Category.ToLower().Contains(category.ToLower()))
-                    .OrderBy(x => Guid.NewGuid())
                     .Select(p => p.Id)
                     .ToList();
+                    
+                var random = new Random();
+                randomProductIds = ids.OrderBy(x => random.Next()).ToList();
 
                 var json = JsonSerializer.Serialize(randomProductIds);
                 HttpContext.Session.SetString(sessionKey, json);

@@ -12,4 +12,5 @@ public class OrderItem
 
     // Navigation property
     public Order Order { get; set; } = null!;
+    public Product Product { get; set; } = null!;
 }

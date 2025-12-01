@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Identity.UI.Services;
 using ShopOnlineCore.Services;
 using ShopOnlineCore.Models;
 using ShopOnlineCore.Models.Identity;
+using ShopOnlineCore.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -28,6 +29,11 @@ builder.Services.AddScoped<IRoleStore<IdentityRole>>(provider =>
 
 // ==================== MVC + SESSION + RAZOR ====================
 builder.Services.AddControllersWithViews();
+
+// Register Services
+builder.Services.AddScoped<IOrderRepository, OrderRepository>();
+builder.Services.AddScoped<IProductService, ProductService>();
+builder.Services.AddScoped<ICartService, CartService>();
 builder.Services.AddRazorPages();
 builder.Services.AddDistributedMemoryCache();
 builder.Services.AddSession(options =>
@@ -40,8 +46,7 @@ builder.Services.AddSession(options =>
 // 📨 Giả lập EmailSender để tránh lỗi khi đăng ký user
 builder.Services.AddTransient<IEmailSender, EmailSender>();
 
-// 🛒 Register OrderRepository for Dependency Injection
-builder.Services.AddScoped<OrderRepository>();
+// 🛒 Register CartService
 
 // 🛒 Register CartService
 builder.Services.AddHttpContextAccessor();

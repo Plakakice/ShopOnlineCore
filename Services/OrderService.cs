@@ -1,15 +1,16 @@
 using Microsoft.EntityFrameworkCore;
 using ShopOnlineCore.Models;
 using ShopOnlineCore.Models.Identity;
+using ShopOnlineCore.Repositories;
 
 namespace ShopOnlineCore.Services;
 
 public class OrderService : IOrderService
 {
     private readonly ApplicationDbContext _context;
-    private readonly OrderRepository _orderRepository;
+    private readonly IOrderRepository _orderRepository;
 
-    public OrderService(ApplicationDbContext context, OrderRepository orderRepository)
+    public OrderService(ApplicationDbContext context, IOrderRepository orderRepository)
     {
         _context = context;
         _orderRepository = orderRepository;

@@ -22,11 +22,11 @@ public class CartService : ICartService
     private bool IsAuthenticated => User?.Identity?.IsAuthenticated == true;
     private string? CurrentUserId => User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-    public List<CartItem> GetCart()
+    public async Task<List<CartItem>> GetCartItemsAsync()
     {
         if (IsAuthenticated && CurrentUserId != null)
         {
-            var lines = _context.CartLines.Where(x => x.UserId == CurrentUserId).ToList();
+            var lines = await _context.CartLines.Where(x => x.UserId == CurrentUserId).ToListAsync();
             return lines.Select(l => new CartItem
             {
                 Id = l.ProductId,
@@ -39,11 +39,14 @@ public class CartService : ICartService
 
         var json = HttpContext.Session.GetString(CARTKEY);
         if (json != null)
-            return JsonSerializer.Deserialize<List<CartItem>>(json)!;
+        {
+             var items = JsonSerializer.Deserialize<List<CartItem>>(json);
+             return items ?? new List<CartItem>();
+        }
         return new List<CartItem>();
     }
 
-    private void SaveCart(List<CartItem> cart)
+    private async Task SaveCartAsync(List<CartItem> cart)
     {
         if (IsAuthenticated && CurrentUserId != null)
         {
@@ -58,16 +61,17 @@ public class CartService : ICartService
                 Quantity = c.Quantity,
                 ImageUrl = c.ImageUrl
             }));
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
             return;
         }
         var json = JsonSerializer.Serialize(cart);
         HttpContext.Session.SetString(CARTKEY, json);
+        await Task.CompletedTask;
     }
 
-    public ServiceResult AddToCart(int productId, int quantity)
+    public async Task<ServiceResult> AddToCartAsync(int productId, int quantity)
     {
-        var product = _context.Products.FirstOrDefault(p => p.Id == productId);
+        var product = await _context.Products.FirstOrDefaultAsync(p => p.Id == productId);
         if (product == null) return ServiceResult.Fail("Sản phẩm không tồn tại");
 
         if (product.Stock <= 0) return ServiceResult.Fail($"{product.Name} hiện đã hết hàng.");
@@ -75,7 +79,7 @@ public class CartService : ICartService
 
         if (IsAuthenticated && CurrentUserId != null)
         {
-            var line = _context.CartLines.FirstOrDefault(x => x.UserId == CurrentUserId && x.ProductId == productId);
+            var line = await _context.CartLines.FirstOrDefaultAsync(x => x.UserId == CurrentUserId && x.ProductId == productId);
             if (line != null)
             {
                 if (line.Quantity + quantity > product.Stock)
@@ -96,11 +100,11 @@ public class CartService : ICartService
                     Quantity = quantity
                 });
             }
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
         }
         else
         {
-            var cart = GetCart();
+            var cart = await GetCartItemsAsync();
             var item = cart.FirstOrDefault(p => p.Id == productId);
             if (item != null)
             {
@@ -121,59 +125,59 @@ public class CartService : ICartService
                     Quantity = quantity
                 });
             }
-            SaveCart(cart);
+            await SaveCartAsync(cart);
         }
         return ServiceResult.Ok();
     }
 
-    public ServiceResult DecreaseQuantity(int productId)
+    public async Task<ServiceResult> DecreaseQuantityAsync(int productId)
     {
         if (IsAuthenticated && CurrentUserId != null)
         {
-            var line = _context.CartLines.FirstOrDefault(x => x.UserId == CurrentUserId && x.ProductId == productId);
+            var line = await _context.CartLines.FirstOrDefaultAsync(x => x.UserId == CurrentUserId && x.ProductId == productId);
             if (line != null)
             {
                 line.Quantity--;
                 if (line.Quantity <= 0)
                     _context.CartLines.Remove(line);
-                _context.SaveChanges();
+                await _context.SaveChangesAsync();
             }
         }
         else
         {
-            var cart = GetCart();
+            var cart = await GetCartItemsAsync();
             var item = cart.FirstOrDefault(p => p.Id == productId);
             if (item != null)
             {
                 item.Quantity--;
                 if (item.Quantity <= 0)
                     cart.Remove(item);
-                SaveCart(cart);
+                await SaveCartAsync(cart);
             }
         }
         return ServiceResult.Ok();
     }
 
-    public ServiceResult IncreaseQuantity(int productId)
+    public async Task<ServiceResult> IncreaseQuantityAsync(int productId)
     {
-        var product = _context.Products.FirstOrDefault(p => p.Id == productId);
+        var product = await _context.Products.FirstOrDefaultAsync(p => p.Id == productId);
         if (product == null) return ServiceResult.Fail("Sản phẩm không tồn tại");
 
         if (IsAuthenticated && CurrentUserId != null)
         {
-            var line = _context.CartLines.FirstOrDefault(x => x.UserId == CurrentUserId && x.ProductId == productId);
+            var line = await _context.CartLines.FirstOrDefaultAsync(x => x.UserId == CurrentUserId && x.ProductId == productId);
             if (line != null)
             {
                 if (line.Quantity >= product.Stock)
                     return ServiceResult.Fail($"{product.Name} chỉ còn {product.Stock} sản phẩm trong kho.");
                 
                 line.Quantity++;
-                _context.SaveChanges();
+                await _context.SaveChangesAsync();
             }
         }
         else
         {
-            var cart = GetCart();
+            var cart = await GetCartItemsAsync();
             var item = cart.FirstOrDefault(p => p.Id == productId);
             if (item != null)
             {
@@ -181,78 +185,77 @@ public class CartService : ICartService
                     return ServiceResult.Fail($"{product.Name} chỉ còn {product.Stock} sản phẩm trong kho.");
 
                 item.Quantity++;
-                SaveCart(cart);
+                await SaveCartAsync(cart);
             }
         }
         return ServiceResult.Ok();
     }
 
-    public ServiceResult UpdateQuantity(int productId, int quantity)
+    public async Task<ServiceResult> UpdateQuantityAsync(int productId, int quantity)
     {
         if (quantity <= 0) return ServiceResult.Ok();
 
-        // Check stock limit logic could be added here too if strictness is required
-        // For now, just update as per original logic but we should probably check stock.
-        var product = _context.Products.FirstOrDefault(p => p.Id == productId);
+        var product = await _context.Products.FirstOrDefaultAsync(p => p.Id == productId);
         if (product != null && quantity > product.Stock)
              return ServiceResult.Fail($"{product.Name} chỉ còn {product.Stock} sản phẩm.");
 
         if (IsAuthenticated && CurrentUserId != null)
         {
-            var line = _context.CartLines.FirstOrDefault(x => x.UserId == CurrentUserId && x.ProductId == productId);
+            var line = await _context.CartLines.FirstOrDefaultAsync(x => x.UserId == CurrentUserId && x.ProductId == productId);
             if (line != null)
             {
                 line.Quantity = quantity;
-                _context.SaveChanges();
+                await _context.SaveChangesAsync();
             }
         }
         else
         {
-            var cart = GetCart();
+            var cart = await GetCartItemsAsync();
             var item = cart.FirstOrDefault(p => p.Id == productId);
             if (item != null)
             {
                 item.Quantity = quantity;
-                SaveCart(cart);
+                await SaveCartAsync(cart);
             }
         }
         return ServiceResult.Ok();
     }
 
-    public void RemoveFromCart(int productId)
+    public async Task RemoveFromCartAsync(int productId)
     {
         if (IsAuthenticated && CurrentUserId != null)
         {
-            var line = _context.CartLines.FirstOrDefault(x => x.UserId == CurrentUserId && x.ProductId == productId);
+            var line = await _context.CartLines.FirstOrDefaultAsync(x => x.UserId == CurrentUserId && x.ProductId == productId);
             if (line != null)
             {
                 _context.CartLines.Remove(line);
-                _context.SaveChanges();
+                await _context.SaveChangesAsync();
             }
         }
         else
         {
-            var cart = GetCart();
+            var cart = await GetCartItemsAsync();
             var item = cart.FirstOrDefault(p => p.Id == productId);
             if (item != null)
             {
                 cart.Remove(item);
-                SaveCart(cart);
+                await SaveCartAsync(cart);
             }
         }
     }
 
-    public void ClearCart()
+    public async Task ClearCartAsync()
     {
         if (IsAuthenticated && CurrentUserId != null)
         {
             var lines = _context.CartLines.Where(x => x.UserId == CurrentUserId);
             _context.CartLines.RemoveRange(lines);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
         }
         else
         {
             HttpContext.Session.Remove(CARTKEY);
+            await Task.CompletedTask;
         }
     }
 }

@@ -13,15 +13,15 @@ public class CartController : Controller
         _cartService = cartService;
     }
 
-    public IActionResult Index()
+    public async Task<IActionResult> Index()
     {
-        var cart = _cartService.GetCart();
+        var cart = await _cartService.GetCartItemsAsync();
         return View(cart);
     }
 
-    public IActionResult Add(int id, int quantity = 1, bool buyNow = false)
+    public async Task<IActionResult> Add(int id, int quantity = 1, bool buyNow = false)
     {
-        var result = _cartService.AddToCart(id, quantity);
+        var result = await _cartService.AddToCartAsync(id, quantity);
         
         if (!result.Success)
         {
@@ -39,9 +39,9 @@ public class CartController : Controller
         return RedirectToAction("Details", "Product", new { id, showMessage = 1 });
     }
 
-    public IActionResult Decrease(int id)
+    public async Task<IActionResult> Decrease(int id)
     {
-        var result = _cartService.DecreaseQuantity(id);
+        var result = await _cartService.DecreaseQuantityAsync(id);
         if (!result.Success)
         {
             TempData["Error"] = result.Message;
@@ -53,9 +53,9 @@ public class CartController : Controller
         return RedirectToAction("Index");
     }
 
-    public IActionResult Increase(int id)
+    public async Task<IActionResult> Increase(int id)
     {
-        var result = _cartService.IncreaseQuantity(id);
+        var result = await _cartService.IncreaseQuantityAsync(id);
         
         if (!result.Success)
         {
@@ -70,9 +70,9 @@ public class CartController : Controller
     }
 
     [HttpPost]
-    public IActionResult Update(int id, int quantity)
+    public async Task<IActionResult> Update(int id, int quantity)
     {
-        var result = _cartService.UpdateQuantity(id, quantity);
+        var result = await _cartService.UpdateQuantityAsync(id, quantity);
         
         if (!result.Success)
         {
@@ -85,16 +85,16 @@ public class CartController : Controller
         return RedirectToAction("Index");
     }
 
-    public IActionResult Remove(int id)
+    public async Task<IActionResult> Remove(int id)
     {
-        _cartService.RemoveFromCart(id);
+        await _cartService.RemoveFromCartAsync(id);
         TempData["Success"] = "Đã xóa sản phẩm khỏi giỏ.";
         return RedirectToAction("Index");
     }
 
-    public IActionResult Clear()
+    public async Task<IActionResult> Clear()
     {
-        _cartService.ClearCart();
+        await _cartService.ClearCartAsync();
         TempData["Success"] = "Đã xóa toàn bộ giỏ hàng.";
         return RedirectToAction("Index");
     }

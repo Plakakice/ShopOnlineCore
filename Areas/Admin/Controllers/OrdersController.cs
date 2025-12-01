@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ShopOnlineCore.Models;
+using ShopOnlineCore.Repositories;
 
 namespace ShopOnlineCore.Areas.Admin.Controllers;
 
@@ -16,9 +17,9 @@ public class OrdersController : Controller
     };
 
     private readonly ApplicationDbContext _context;
-    private readonly OrderRepository _repository;
+    private readonly IOrderRepository _repository;
 
-    public OrdersController(ApplicationDbContext context, OrderRepository repository)
+    public OrdersController(ApplicationDbContext context, IOrderRepository repository)
     {
         _context = context;
         _repository = repository;
@@ -44,7 +45,7 @@ public class OrdersController : Controller
     [HttpGet]
     public async Task<IActionResult> Details(int id)
     {
-        var order = await _repository.GetByIdAsync(id);
+        var order = await _repository.GetOrderByIdAsync(id);
         if (order == null) return NotFound();
         ViewData["AllowedStatuses"] = AllowedStatuses;
         return View(order);

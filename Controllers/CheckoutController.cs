@@ -5,6 +5,7 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Identity;
 using ShopOnlineCore.Models.Identity;
 using ShopOnlineCore.Services;
+using ShopOnlineCore.Repositories;
 
 namespace ShopOnlineCore.Controllers;
 
@@ -13,10 +14,10 @@ public class CheckoutController : Controller
 {
     private readonly IOrderService _orderService;
     private readonly UserManager<ApplicationUser> _userManager;
-    private readonly OrderRepository _orderRepository;
+    private readonly IOrderRepository _orderRepository;
     private readonly ICartService _cartService;
 
-    public CheckoutController(IOrderService orderService, UserManager<ApplicationUser> userManager, OrderRepository orderRepository, ICartService cartService)
+    public CheckoutController(IOrderService orderService, UserManager<ApplicationUser> userManager, IOrderRepository orderRepository, ICartService cartService)
     {
         _orderService = orderService;
         _userManager = userManager;
@@ -24,20 +25,20 @@ public class CheckoutController : Controller
         _cartService = cartService;
     }
 
-    private List<CartItem> GetCart()
+    private async Task<List<CartItem>> GetCartAsync()
     {
-        return _cartService.GetCart();
+        return await _cartService.GetCartItemsAsync();
     }
 
-    private void ClearCart()
+    private async Task ClearCartAsync()
     {
-        _cartService.ClearCart();
+        await _cartService.ClearCartAsync();
     }
 
     [HttpGet]
     public async Task<IActionResult> Index()
     {
-        var cart = GetCart();
+        var cart = await GetCartAsync();
         if (!cart.Any())
             return RedirectToAction("Index", "Cart");
 
@@ -57,9 +58,8 @@ public class CheckoutController : Controller
         // Nếu chưa có thông tin trong Profile, thử lấy từ đơn hàng cuối cùng (fallback)
         if (string.IsNullOrWhiteSpace(order.Address) || string.IsNullOrWhiteSpace(order.PhoneNumber))
         {
-            var lastOrder = (await _orderRepository.GetByUserAsync(user.Id))
-                .OrderByDescending(o => o.CreatedDate)
-                .FirstOrDefault();
+            var lastOrders = await _orderRepository.GetOrdersByUserIdAsync(user.Id);
+            var lastOrder = lastOrders.FirstOrDefault();
 
             if (lastOrder != null)
             {
@@ -78,7 +78,7 @@ public class CheckoutController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> QuickCheckout()
     {
-        var cart = GetCart();
+        var cart = await GetCartAsync();
         if (!cart.Any())
             return RedirectToAction("Index", "Cart");
 
@@ -100,7 +100,7 @@ public class CheckoutController : Controller
         }
 
         // Xóa giỏ hàng
-        ClearCart();
+        await ClearCartAsync();
 
         TempData["Success"] = "Đặt hàng thành công! Cảm ơn bạn đã mua sắm.";
         return RedirectToAction("Success");
@@ -110,7 +110,7 @@ public class CheckoutController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Index(Order model)
     {
-        var cart = GetCart();
+        var cart = await GetCartAsync();
         if (!cart.Any())
             return RedirectToAction("Index", "Cart");
 
@@ -136,7 +136,7 @@ public class CheckoutController : Controller
         }
 
         // Xóa giỏ hàng
-        ClearCart();
+        await ClearCartAsync();
         
         TempData["Success"] = "Đặt hàng thành công! Cảm ơn bạn đã mua sắm.";
         return RedirectToAction("Success");
@@ -153,7 +153,7 @@ public class CheckoutController : Controller
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
         var orders = string.IsNullOrEmpty(userId)
             ? new List<Order>()
-            : await _orderRepository.GetByUserAsync(userId);
+            : await _orderRepository.GetOrdersByUserIdAsync(userId);
         return View(orders);
     }
 
@@ -166,7 +166,7 @@ public class CheckoutController : Controller
             return Challenge();
         }
 
-        var order = await _orderRepository.GetByIdAsync(id);
+        var order = await _orderRepository.GetOrderByIdAsync(id);
 
         if (order == null)
         {

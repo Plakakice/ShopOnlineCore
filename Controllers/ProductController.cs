@@ -2,17 +2,20 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using ShopOnlineCore.Models;
 using Microsoft.EntityFrameworkCore;
+using ShopOnlineCore.Services;
 
 namespace ShopOnlineCore.Controllers
 {
     public class ProductController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly IProductService _productService;
         private readonly string _uploadPath;
 
-        public ProductController(ApplicationDbContext context)
+        public ProductController(ApplicationDbContext context, IProductService productService)
         {
             _context = context;
+            _productService = productService;
             _uploadPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/images/products");
             if (!Directory.Exists(_uploadPath))
                 Directory.CreateDirectory(_uploadPath);
@@ -113,15 +116,8 @@ namespace ShopOnlineCore.Controllers
             if (product == null) return NotFound();
 
             // Lấy 4 sản phẩm ngẫu nhiên khác (có thể bạn sẽ thích)
-            // Tối ưu: Dùng Skip ngẫu nhiên thay vì OrderBy(Guid) để tránh scan toàn bộ bảng
-            var count = await _context.Products.CountAsync(p => p.Id != id);
-            var skip = count > 4 ? Random.Shared.Next(0, count - 4) : 0;
-
-            var relatedProducts = await _context.Products
-                .Where(p => p.Id != id)
-                .Skip(skip)
-                .Take(4)
-                .ToListAsync();
+            // Tối ưu: Dùng IProductService
+            var relatedProducts = await _productService.GetRandomProductsAsync(4, id);
 
             ViewBag.RelatedProducts = relatedProducts;
             
