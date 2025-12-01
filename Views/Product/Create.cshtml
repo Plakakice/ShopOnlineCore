@@ -143,6 +143,18 @@
                         </div>
                     </div>
 
+                    <div class="form-group mb-3">
+                        <label for="Description">Mô tả</label>
+                        <textarea asp-for="Description" class="form-control" rows="4"></textarea>
+                        <span asp-validation-for="Description" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label>Hình ảnh sản phẩm</label>
+                        <input type="file" id="files" name="files" multiple class="form-control" accept="image/*" />
+                        <small class="text-muted">Chọn nhiều ảnh. Ảnh đầu tiên sẽ được chọn làm ảnh đại diện mặc định.</small>
+                    </div>
+
                     <!-- Preview ảnh trước khi lưu -->
                     <div id="preview" class="d-flex flex-wrap gap-3 mb-4"></div>
 
