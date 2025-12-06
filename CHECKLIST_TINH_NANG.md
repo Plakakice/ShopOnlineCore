@@ -36,7 +36,7 @@ Hãy sử dụng file này để kiểm tra từng tính năng của dự án `S
 
 - [x] **Đăng ký**: Tạo tài khoản mới thành công.
 - [x] **Đăng nhập**: Đăng nhập bằng tài khoản vừa tạo.
-- [] **Đăng nhập Google**: Click Login Google -> Chuyển hướng và đăng nhập được (hoặc báo lỗi nếu chưa cấu hình).
+- [x] **Đăng nhập Google**: Click Login Google -> Chuyển hướng và đăng nhập được (hoặc báo lỗi nếu chưa cấu hình).
 - [x] **Đăng xuất**: Thoát tài khoản tài khoản.
 
 ## 3. 🛠️ QUẢN TRỊ (Admin Area)
