@@ -19,12 +19,12 @@ public class CartService : ICartService
 
     private HttpContext HttpContext => _httpContextAccessor.HttpContext!;
     private ClaimsPrincipal User => HttpContext.User;
-    private bool IsAuthenticated => User?.Identity?.IsAuthenticated == true;
+    // private bool IsAuthenticated => User?.Identity?.IsAuthenticated == true; // Redundant
     private string? CurrentUserId => User.FindFirstValue(ClaimTypes.NameIdentifier);
 
     public async Task<List<CartItem>> GetCartItemsAsync()
     {
-        if (IsAuthenticated && CurrentUserId != null)
+        if (CurrentUserId != null)
         {
             var lines = await _context.CartLines.Where(x => x.UserId == CurrentUserId).ToListAsync();
             return lines.Select(l => new CartItem
@@ -48,7 +48,7 @@ public class CartService : ICartService
 
     private async Task SaveCartAsync(List<CartItem> cart)
     {
-        if (IsAuthenticated && CurrentUserId != null)
+        if (CurrentUserId != null)
         {
             var existing = _context.CartLines.Where(x => x.UserId == CurrentUserId);
             _context.CartLines.RemoveRange(existing);
@@ -77,7 +77,7 @@ public class CartService : ICartService
         if (product.Stock <= 0) return ServiceResult.Fail($"{product.Name} hiện đã hết hàng.");
         if (quantity > product.Stock) quantity = product.Stock;
 
-        if (IsAuthenticated && CurrentUserId != null)
+        if (CurrentUserId != null)
         {
             var line = await _context.CartLines.FirstOrDefaultAsync(x => x.UserId == CurrentUserId && x.ProductId == productId);
             if (line != null)
@@ -132,7 +132,7 @@ public class CartService : ICartService
 
     public async Task<ServiceResult> DecreaseQuantityAsync(int productId)
     {
-        if (IsAuthenticated && CurrentUserId != null)
+        if (CurrentUserId != null)
         {
             var line = await _context.CartLines.FirstOrDefaultAsync(x => x.UserId == CurrentUserId && x.ProductId == productId);
             if (line != null)
@@ -163,7 +163,7 @@ public class CartService : ICartService
         var product = await _context.Products.FirstOrDefaultAsync(p => p.Id == productId);
         if (product == null) return ServiceResult.Fail("Sản phẩm không tồn tại");
 
-        if (IsAuthenticated && CurrentUserId != null)
+        if (CurrentUserId != null)
         {
             var line = await _context.CartLines.FirstOrDefaultAsync(x => x.UserId == CurrentUserId && x.ProductId == productId);
             if (line != null)
@@ -199,7 +199,7 @@ public class CartService : ICartService
         if (product != null && quantity > product.Stock)
              return ServiceResult.Fail($"{product.Name} chỉ còn {product.Stock} sản phẩm.");
 
-        if (IsAuthenticated && CurrentUserId != null)
+        if (CurrentUserId != null)
         {
             var line = await _context.CartLines.FirstOrDefaultAsync(x => x.UserId == CurrentUserId && x.ProductId == productId);
             if (line != null)
@@ -223,7 +223,7 @@ public class CartService : ICartService
 
     public async Task RemoveFromCartAsync(int productId)
     {
-        if (IsAuthenticated && CurrentUserId != null)
+        if (CurrentUserId != null)
         {
             var line = await _context.CartLines.FirstOrDefaultAsync(x => x.UserId == CurrentUserId && x.ProductId == productId);
             if (line != null)
@@ -246,7 +246,7 @@ public class CartService : ICartService
 
     public async Task ClearCartAsync()
     {
-        if (IsAuthenticated && CurrentUserId != null)
+        if (CurrentUserId != null)
         {
             var lines = _context.CartLines.Where(x => x.UserId == CurrentUserId);
             _context.CartLines.RemoveRange(lines);

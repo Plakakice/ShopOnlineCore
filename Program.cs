@@ -50,7 +50,7 @@ builder.Services.AddTransient<IEmailSender, EmailSender>();
 
 // 🛒 Register CartService
 builder.Services.AddHttpContextAccessor();
-builder.Services.AddScoped<ICartService, CartService>();
+// builder.Services.AddScoped<ICartService, CartService>(); // Đã đăng ký ở trên
 builder.Services.AddScoped<IOrderService, OrderService>();
 
 // Thêm dịch vụ Razor / MVC như bình thường

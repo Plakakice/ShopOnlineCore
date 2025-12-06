@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Identity;
 using ShopOnlineCore.Models.Identity;
 using ShopOnlineCore.Services;
 using ShopOnlineCore.Repositories;
+using Microsoft.AspNetCore.Routing;
 
 namespace ShopOnlineCore.Controllers;
 
@@ -103,7 +104,7 @@ public class CheckoutController : Controller
         await ClearCartAsync();
 
         TempData["Success"] = "Đặt hàng thành công! Cảm ơn bạn đã mua sắm.";
-        return RedirectToAction("Success");
+        return RedirectToAction("Success", new RouteValueDictionary { { "id", result.Data } });
     }
 
     [HttpPost]
@@ -139,11 +140,12 @@ public class CheckoutController : Controller
         await ClearCartAsync();
         
         TempData["Success"] = "Đặt hàng thành công! Cảm ơn bạn đã mua sắm.";
-        return RedirectToAction("Success");
+        return RedirectToAction("Success", new RouteValueDictionary { { "id", result.Data } });
     }
 
-    public IActionResult Success()
+    public IActionResult Success(int? id)
     {
+        ViewBag.OrderId = id;
         return View();
     }
 
