@@ -70,25 +70,45 @@ namespace ShopOnlineCore.Controllers
                 products = products.Where(p => p.Price <= maxPrice.Value);
             }
 
-            // Sắp xếp
-            switch (sort)
-            {
-                case "price_asc":
-                    products = products.OrderBy(p => p.Price);
-                    break;
-                case "price_desc":
-                    products = products.OrderByDescending(p => p.Price);
-                    break;
-                default:
-                    products = products.OrderBy(p => Guid.NewGuid()); // Mặc định ngẫu nhiên
-                    break;
-            }
-
+            // Calculate Total Count BEFORE paging/sorting logic for random
             var totalCount = await products.CountAsync();
-            var productList = await products
-                .Skip((page - 1) * pageSize)
-                .Take(pageSize)
-                .ToListAsync();
+            List<Product> productList;
+
+            // Sắp xếp
+            if (string.IsNullOrEmpty(sort)) // Default (Random)
+            {
+                // Tối ưu hóa: Thay vì OrderBy(Guid.NewGuid()) ở DB (rất chậm), lấy ID về và xáo trộn ở Memory
+                var allIds = await products.Select(p => p.Id).ToListAsync();
+                var rnd = new Random();
+                var shuffledIds = allIds.OrderBy(x => rnd.Next()).ToList();
+
+                // Chỉ lấy những sản phẩm thuộc trang hiện tại (dựa trên shuffled IDs)
+                var pagedIds = shuffledIds.Skip((page - 1) * pageSize).Take(pageSize).ToList();
+
+                var pagedProducts = await _context.Products
+                    .Where(p => pagedIds.Contains(p.Id))
+                    .ToListAsync();
+                
+                // Sắp xếp lại danh sách kết quả theo thứ tự trong pagedIds
+                productList = pagedProducts.OrderBy(p => pagedIds.IndexOf(p.Id)).ToList();
+            }
+            else
+            {
+                switch (sort)
+                {
+                    case "price_asc":
+                        products = products.OrderBy(p => p.Price);
+                        break;
+                    case "price_desc":
+                        products = products.OrderByDescending(p => p.Price);
+                        break;
+                }
+                
+                productList = await products
+                    .Skip((page - 1) * pageSize)
+                    .Take(pageSize)
+                    .ToListAsync();
+            }
 
             ViewData["SliderMin"] = sliderMin;
             ViewData["SliderMax"] = sliderMax;

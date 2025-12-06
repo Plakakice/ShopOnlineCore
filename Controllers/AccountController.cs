@@ -33,6 +33,7 @@ namespace ShopOnlineCore.Controllers
                 return RedirectToAction("Index", "Home");
             }
 
+            TempData["Error"] = "Đăng nhập Google thất bại. Vui lòng thử lại.";
             return RedirectToAction("Login");
         }
         

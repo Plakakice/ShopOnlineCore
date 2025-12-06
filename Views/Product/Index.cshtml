@@ -137,9 +137,12 @@
                     <h4>Danh mục</h4>
                     <ul class="tree-list-pad">
                         <li><a href="@Url.Action("Index")" style="font-weight: 600;"><i class="fa fa-th"></i> Tất cả</a></li>
-                        @if (ViewBag.Categories != null)
+                        @{
+                            var categories = ViewBag.Categories as IEnumerable<ShopOnlineCore.Models.Category>;
+                        }
+                        @if (categories != null)
                         {
-                            foreach (var cat in ViewBag.Categories as List<ShopOnlineCore.Models.Category>)
+                            foreach (var cat in categories)
                             {
                                 <li><a href="@Url.Action("Index", new { category = cat.Name })"><i class="fa fa-angle-right"></i> @cat.Name</a></li>
                             }
@@ -176,11 +179,21 @@
                             <a href="@Url.Action("Index")" class="btn btn-primary">Xem tất cả sản phẩm</a>
                         </div>
                     }
+                    @{ int counter = 0; }
                     @foreach (var product in Model)
                     {
+                        counter++;
                         <div class="col-md-3 col-sm-6 product-men wow zoomIn" data-wow-delay="0.2s" style="margin-bottom: 30px; display: flex;">
                             <partial name="_ProductCard" model="product" />
                         </div>
+                        if (counter % 4 == 0)
+                        {
+                            <div class="clearfix visible-md-block visible-lg-block"></div>
+                        }
+                        if (counter % 2 == 0)
+                        {
+                            <div class="clearfix visible-sm-block"></div>
+                        }
                     }
                 </div>
 
