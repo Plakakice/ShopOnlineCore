@@ -46,15 +46,9 @@ builder.Services.AddSession(options =>
 // 📨 Giả lập EmailSender để tránh lỗi khi đăng ký user
 builder.Services.AddTransient<IEmailSender, EmailSender>();
 
-// 🛒 Register CartService
-
-// 🛒 Register CartService
+// 🛒 Register Services
 builder.Services.AddHttpContextAccessor();
-// builder.Services.AddScoped<ICartService, CartService>(); // Đã đăng ký ở trên
 builder.Services.AddScoped<IOrderService, OrderService>();
-
-// Thêm dịch vụ Razor / MVC như bình thường
-// builder.Services.AddRazorPages(); // Đã có ở trên
 
 // 1) Thêm Authentication + Cookie
 builder.Services

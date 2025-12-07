@@ -162,12 +162,17 @@ namespace ShopOnlineCore.Controllers
     
         [Authorize(Roles = "Admin")]
         [HttpPost]
-        public IActionResult Create(Product product, List<IFormFile> files, int selectedMainImageIndex = 0)
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Create(Product product, List<IFormFile> files, int selectedMainImageIndex = 0)
         {
+            // File validation constants
+            var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".webp", ".gif" };
+            const long maxFileSize = 5 * 1024 * 1024; // 5MB
+
             if (ModelState.IsValid)
             {
                 // Set Category string for backward compatibility (optional)
-                var categoryObj = _context.Categories.Find(product.CategoryId);
+                var categoryObj = await _context.Categories.FindAsync(product.CategoryId);
                 if (categoryObj != null) product.Category = categoryObj.Name;
 
                 product.ImageGallery = new List<string>();
@@ -176,11 +181,28 @@ namespace ShopOnlineCore.Controllers
                 {
                     foreach (var file in files)
                     {
-                        var fileName = Guid.NewGuid() + Path.GetExtension(file.FileName);
+                        // Validate file extension
+                        var extension = Path.GetExtension(file.FileName).ToLowerInvariant();
+                        if (!allowedExtensions.Contains(extension))
+                        {
+                            ModelState.AddModelError("files", $"Chỉ cho phép upload ảnh ({string.Join(", ", allowedExtensions)})");
+                            ViewBag.Categories = new Microsoft.AspNetCore.Mvc.Rendering.SelectList(_context.Categories, "Id", "Name", product.CategoryId);
+                            return View(product);
+                        }
+
+                        // Validate file size
+                        if (file.Length > maxFileSize)
+                        {
+                            ModelState.AddModelError("files", "File quá lớn (tối đa 5MB)");
+                            ViewBag.Categories = new Microsoft.AspNetCore.Mvc.Rendering.SelectList(_context.Categories, "Id", "Name", product.CategoryId);
+                            return View(product);
+                        }
+
+                        var fileName = Guid.NewGuid() + extension;
                         var filePath = Path.Combine(_uploadPath, fileName);
                         using (var stream = new FileStream(filePath, FileMode.Create))
                         {
-                            file.CopyTo(stream);
+                            await file.CopyToAsync(stream);
                         }
                         var relativePath = "/images/products/" + fileName;
                         product.ImageGallery.Add(relativePath);
@@ -201,7 +223,7 @@ namespace ShopOnlineCore.Controllers
                 }
 
                 _context.Products.Add(product);
-                _context.SaveChanges();
+                await _context.SaveChangesAsync();
 
                 TempData["Message"] = "Thêm sản phẩm thành công!";
                 return RedirectToAction("Index");

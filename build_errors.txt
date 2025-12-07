@@ -1,0 +1,27 @@
+﻿  Determining projects to restore...
+  All projects are up-to-date for restore.
+F:\Code\Web\ShopOnlineCore\Services\IOrderService.cs(15,19): warning CS8618: Non-nullable property 'Message' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the property as nullable. [F:\Code\Web\ShopOnlineCore\ShopOnlineCore.csproj]
+F:\Code\Web\ShopOnlineCore\Controllers\HomeController.cs(123,65): warning CS8600: Converting null literal or possible null value to non-nullable type. [F:\Code\Web\ShopOnlineCore\ShopOnlineCore.csproj]
+F:\Code\Web\ShopOnlineCore\Controllers\HomeController.cs(149,67): warning CS8600: Converting null literal or possible null value to non-nullable type. [F:\Code\Web\ShopOnlineCore\ShopOnlineCore.csproj]
+F:\Code\Web\ShopOnlineCore\Areas\Admin\Views\Products\Index.cshtml(292,45): warning CS8602: Dereference of a possibly null reference. [F:\Code\Web\ShopOnlineCore\ShopOnlineCore.csproj]
+F:\Code\Web\ShopOnlineCore\Controllers\CheckoutController.cs(53,28): warning CS8601: Possible null reference assignment. [F:\Code\Web\ShopOnlineCore\ShopOnlineCore.csproj]
+F:\Code\Web\ShopOnlineCore\Controllers\CheckoutController.cs(54,21): warning CS8601: Possible null reference assignment. [F:\Code\Web\ShopOnlineCore\ShopOnlineCore.csproj]
+F:\Code\Web\ShopOnlineCore\Controllers\CheckoutController.cs(55,23): warning CS8601: Possible null reference assignment. [F:\Code\Web\ShopOnlineCore\ShopOnlineCore.csproj]
+F:\Code\Web\ShopOnlineCore\Areas\Identity\Pages\Account\Manage\Index.cshtml(121,83): warning CS8602: Dereference of a possibly null reference. [F:\Code\Web\ShopOnlineCore\ShopOnlineCore.csproj]
+F:\Code\Web\ShopOnlineCore\Views\Home\DebugCategories.cshtml(4,41): error CS1061: 'DbSet<Product>' does not contain a definition for 'Include' and no accessible extension method 'Include' accepting a first argument of type 'DbSet<Product>' could be found (are you missing a using directive or an assembly reference?) [F:\Code\Web\ShopOnlineCore\ShopOnlineCore.csproj]
+
+Build FAILED.
+
+F:\Code\Web\ShopOnlineCore\Services\IOrderService.cs(15,19): warning CS8618: Non-nullable property 'Message' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the property as nullable. [F:\Code\Web\ShopOnlineCore\ShopOnlineCore.csproj]
+F:\Code\Web\ShopOnlineCore\Controllers\HomeController.cs(123,65): warning CS8600: Converting null literal or possible null value to non-nullable type. [F:\Code\Web\ShopOnlineCore\ShopOnlineCore.csproj]
+F:\Code\Web\ShopOnlineCore\Controllers\HomeController.cs(149,67): warning CS8600: Converting null literal or possible null value to non-nullable type. [F:\Code\Web\ShopOnlineCore\ShopOnlineCore.csproj]
+F:\Code\Web\ShopOnlineCore\Areas\Admin\Views\Products\Index.cshtml(292,45): warning CS8602: Dereference of a possibly null reference. [F:\Code\Web\ShopOnlineCore\ShopOnlineCore.csproj]
+F:\Code\Web\ShopOnlineCore\Controllers\CheckoutController.cs(53,28): warning CS8601: Possible null reference assignment. [F:\Code\Web\ShopOnlineCore\ShopOnlineCore.csproj]
+F:\Code\Web\ShopOnlineCore\Controllers\CheckoutController.cs(54,21): warning CS8601: Possible null reference assignment. [F:\Code\Web\ShopOnlineCore\ShopOnlineCore.csproj]
+F:\Code\Web\ShopOnlineCore\Controllers\CheckoutController.cs(55,23): warning CS8601: Possible null reference assignment. [F:\Code\Web\ShopOnlineCore\ShopOnlineCore.csproj]
+F:\Code\Web\ShopOnlineCore\Areas\Identity\Pages\Account\Manage\Index.cshtml(121,83): warning CS8602: Dereference of a possibly null reference. [F:\Code\Web\ShopOnlineCore\ShopOnlineCore.csproj]
+F:\Code\Web\ShopOnlineCore\Views\Home\DebugCategories.cshtml(4,41): error CS1061: 'DbSet<Product>' does not contain a definition for 'Include' and no accessible extension method 'Include' accepting a first argument of type 'DbSet<Product>' could be found (are you missing a using directive or an assembly reference?) [F:\Code\Web\ShopOnlineCore\ShopOnlineCore.csproj]
+    8 Warning(s)
+    1 Error(s)
+
+Time Elapsed 00:00:02.60

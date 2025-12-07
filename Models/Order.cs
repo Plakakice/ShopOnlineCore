@@ -22,7 +22,7 @@ public class Order
 
     [Phone(ErrorMessage = "Số điện thoại không hợp lệ")]
     public string? PhoneNumber { get; set; }
-    public DateTime CreatedDate { get; set; } = DateTime.Now;
+    public DateTime CreatedDate { get; set; } = DateTime.UtcNow;
     public string Status { get; set; } = "Pending"; // Pending, Processing, Shipped, Delivered, Cancelled
     
     // Navigation property for EF Core
