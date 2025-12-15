@@ -10,7 +10,7 @@ using Microsoft.AspNetCore.Routing;
 
 namespace ShopOnlineCore.Controllers;
 
-[Authorize]
+// [Authorize] <-- Remove this
 public class CheckoutController : Controller
 {
     private readonly IOrderService _orderService;
@@ -44,39 +44,41 @@ public class CheckoutController : Controller
             return RedirectToAction("Index", "Cart");
 
         var user = await _userManager.GetUserAsync(User);
-        if (user == null)
-            return Challenge();
+        // if (user == null) return Challenge(); // <-- Remove this
 
-        // Tự động điền thông tin từ Profile người dùng
-        var order = new Order
+        // Tự động điền thông tin từ Profile người dùng (nếu có)
+        var order = new Order();
+        
+        if (user != null)
         {
-            CustomerName = user.FullName ?? user.UserName, // Ưu tiên FullName, nếu không có thì dùng UserName
-            Email = user.Email,
-            Address = user.Address,
-            PhoneNumber = user.PhoneNumber
-        };
-
-        // Nếu chưa có thông tin trong Profile, thử lấy từ đơn hàng cuối cùng (fallback)
-        if (string.IsNullOrWhiteSpace(order.Address) || string.IsNullOrWhiteSpace(order.PhoneNumber))
-        {
-            var lastOrders = await _orderRepository.GetOrdersByUserIdAsync(user.Id);
-            var lastOrder = lastOrders.FirstOrDefault();
-
-            if (lastOrder != null)
+            order.CustomerName = user.FullName ?? user.UserName;
+            order.Email = user.Email;
+            order.Address = user.Address;
+            order.PhoneNumber = user.PhoneNumber;
+            
+             // Nếu chưa có thông tin trong Profile, thử lấy từ đơn hàng cuối cùng (fallback)
+            if (string.IsNullOrWhiteSpace(order.Address) || string.IsNullOrWhiteSpace(order.PhoneNumber))
             {
-                if (string.IsNullOrWhiteSpace(order.Address)) order.Address = lastOrder.Address;
-                if (string.IsNullOrWhiteSpace(order.PhoneNumber)) order.PhoneNumber = lastOrder.PhoneNumber;
-                if (string.IsNullOrWhiteSpace(order.CustomerName)) order.CustomerName = lastOrder.CustomerName;
+                var lastOrders = await _orderRepository.GetOrdersByUserIdAsync(user.Id);
+                var lastOrder = lastOrders.FirstOrDefault();
+
+                if (lastOrder != null)
+                {
+                    if (string.IsNullOrWhiteSpace(order.Address)) order.Address = lastOrder.Address;
+                    if (string.IsNullOrWhiteSpace(order.PhoneNumber)) order.PhoneNumber = lastOrder.PhoneNumber;
+                    if (string.IsNullOrWhiteSpace(order.CustomerName)) order.CustomerName = lastOrder.CustomerName;
+                }
             }
         }
 
         ViewBag.Total = cart.Sum(x => x.Total);
-        ViewBag.HasCompleteInfo = !string.IsNullOrWhiteSpace(order.Address) && !string.IsNullOrWhiteSpace(order.PhoneNumber);
+        // Guest luôn coi là không đủ thông tin để ép hiện form
+        ViewBag.HasCompleteInfo = user != null && !string.IsNullOrWhiteSpace(order.Address) && !string.IsNullOrWhiteSpace(order.PhoneNumber);
+        
         return View(order);
     }
 
-    [HttpPost]
-    [ValidateAntiForgeryToken]
+[Authorize]
     public async Task<IActionResult> QuickCheckout()
     {
         var cart = await GetCartAsync();
@@ -116,10 +118,7 @@ public class CheckoutController : Controller
             return RedirectToAction("Index", "Cart");
 
         var user = await _userManager.GetUserAsync(User);
-        if (user == null)
-        {
-            return Challenge(); // yêu cầu đăng nhập
-        }
+        // if user is null, it's a guest checkout
 
         if (!ModelState.IsValid)
         {
@@ -150,6 +149,7 @@ public class CheckoutController : Controller
     }
 
     // Xem danh sách đơn hàng đã tạo
+    [Authorize]
     public async Task<IActionResult> Orders()
     {
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -160,6 +160,7 @@ public class CheckoutController : Controller
     }
 
     // Xem chi tiết đơn hàng
+    [Authorize]
     public async Task<IActionResult> Details(int id)
     {
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);

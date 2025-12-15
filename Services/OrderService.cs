@@ -67,7 +67,7 @@ public class OrderService : IOrderService
         return await PlaceOrderAsync(user, order, cartItems);
     }
 
-    public async Task<ServiceResult> PlaceOrderAsync(ApplicationUser user, Order orderDetails, List<CartItem> cartItems)
+    public async Task<ServiceResult> PlaceOrderAsync(ApplicationUser? user, Order orderDetails, List<CartItem> cartItems)
     {
         if (!cartItems.Any())
             return ServiceResult.Fail("Giỏ hàng trống");
@@ -121,7 +121,7 @@ public class OrderService : IOrderService
                 ImageUrl = item.ImageUrl
             }).ToList();
 
-            if (string.IsNullOrEmpty(orderDetails.UserId))
+            if (user != null && string.IsNullOrEmpty(orderDetails.UserId))
             {
                 orderDetails.UserId = user.Id;
             }
@@ -140,14 +140,17 @@ public class OrderService : IOrderService
             await _context.SaveChangesAsync();
 
             await transaction.CommitAsync();
-            _logger.LogInformation("Order placed successfully. OrderID: {OrderId}, User: {UserId}", orderDetails.Id, user.Id);
+            
+            var userIdLog = user?.Id ?? "Guest";
+            _logger.LogInformation("Order placed successfully. OrderID: {OrderId}, User: {UserId}", orderDetails.Id, userIdLog);
             
             return ServiceResult.Ok("Đặt hàng thành công", orderDetails.Id);
         }
         catch (Exception ex)
         {
             await transaction.RollbackAsync();
-            _logger.LogError(ex, "Error placing order for user {UserId}", user.Id);
+            var userIdLog = user?.Id ?? "Guest";
+            _logger.LogError(ex, "Error placing order for user {UserId}", userIdLog);
             return ServiceResult.Fail("Đã có lỗi xảy ra khi xử lý đơn hàng. Vui lòng thử lại sau.");
         }
     }
